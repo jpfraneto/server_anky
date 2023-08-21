@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Navigate to the repository directory
-cd /anky_backend
 
 # Pull the latest changes from the master branch of the repo
 git pull origin master
