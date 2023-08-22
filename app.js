@@ -3,6 +3,7 @@ const express = require('express');
 const webPush = require('web-push');
 const cron = require('node-cron');
 const cors = require('cors');
+const axios = require('axios');
 const bodyParser = require('body-parser');
 const {
   getNewRandomCharacter,
