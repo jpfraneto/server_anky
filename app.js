@@ -46,6 +46,7 @@ app.post('/subscribe', (req, res) => {
 });
 
 app.get('/check-image/:imageId', async (req, res) => {
+  console.log('checking the image with the following id: ', req.params.imageId);
   const imageId = req.params.imageId;
   const config = {
     headers: { Authorization: `Bearer ${process.env.IMAGINE_API_KEY}` },
@@ -56,13 +57,14 @@ app.get('/check-image/:imageId', async (req, res) => {
       `http://146.190.131.28:8055/items/images/${imageId}`,
       config
     );
-
-    if (response.data && response.data.data) {
+    console.log('the response.data is: ', response.data);
+    if (response.data && response.data?.data) {
       res.json(response.data.data);
     } else {
       res.status(404).send('Image not found');
     }
   } catch (error) {
+    console.log('And the error fetchin the image is: ', error);
     res.status(500).send('Error fetching image');
   }
 });
