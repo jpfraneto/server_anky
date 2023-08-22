@@ -73,19 +73,13 @@ app.get('/check-image/:imageId', async (req, res) => {
 app.post('/get-anky-image', async (req, res) => {
   console.log('in here, the writing is: ', req.body);
   const writing = req.body.text;
+  res.json({ status: 'processing' });
   try {
     // This character is a random character from the ankyverse, with the normal traits that all of them have.
     const character = getNewRandomCharacter();
     // With that information, we go to chatgtp and as for the three elements: Image description, bio and name.
     const characterNew = await generateCharacterStory(character, writing);
     console.log('In here, the character new is: ', characterNew);
-    // const {
-    //   promptForMidjourney,
-    //   characterName,
-    //   characterBackstory,
-    //   completionResponse,
-    //   imagineApiId,
-    // } = response.newCharacter;
 
     return res.json({ character: characterNew });
   } catch (error) {
