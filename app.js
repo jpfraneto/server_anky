@@ -5,21 +5,16 @@ const cron = require('node-cron');
 const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
+const { prisma } = require('./lib/prismaClient');
+const { uploadText } = require('./lib/addToPinata');
 const {
   getNewRandomCharacter,
 } = require('./lib/ankyGenerationMessagesForTraits');
 const { generateCharacterStory } = require('./lib/newGenesis');
 
 const app = express();
-app.use(bodyParser.json());
 app.use(cors());
-
-// TO RESTRICT FETCHING FROM SPECIFIC ADDRESS - ENABLE THIS FOR pwa.anky.lat
-// app.use(
-//   cors({
-//     origin: 'https://pwa.anky.lat',
-//   })
-// );
+app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 
@@ -37,6 +32,37 @@ webPush.setVapidDetails(
 
 app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
+});
+
+app.get('/writings', async (req, res) => {
+  const writings = await prisma.writing.findMany({});
+  console.log('the writings are:', writings);
+  res.json(writings);
+});
+
+app.post('/upload-writing', async (req, res) => {
+  try {
+    console.log('IN HERE', req.body);
+    const { text, date } = req.body;
+    if (!text || !date) {
+      return res.status(400).json({ error: 'Invalid data' });
+    }
+
+    const newWriting = await prisma.writing.create({
+      data: {
+        text: text,
+        sojourn: date.sojourn,
+        wink: date.wink,
+        kingdom: date.kingdom,
+        prompt: date.prompt,
+      },
+    });
+    console.log('the new writing is: ', newWriting);
+    res.status(201).json(newWriting);
+  } catch (error) {
+    console.error('An error occurred while handling your request:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/subscribe', (req, res) => {
