@@ -14,4 +14,20 @@ model Writing {
   wink     Int
   kingdom  String
   prompt   String
+  user     User?   @relation(fields: [userId], references: [id])
+  userId   Int
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  walletAddress String         @unique
+  writings      Writing[]      // Relationship field
+  subscriptions Subscription[] // Relationship field
+}
+
+model Subscription {
+  id      Int    @id @default(autoincrement())
+  subInfo Json   // Subscription details in JSON format
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
 }

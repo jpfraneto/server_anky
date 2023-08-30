@@ -5,8 +5,9 @@ const cron = require('node-cron');
 const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
+const { TypedEthereumSigner } = require('arbundles');
 const { prisma } = require('./lib/prismaClient');
-const { uploadText } = require('./lib/addToPinata');
+const { uploadToBundlr } = require('./lib/bundlrSetup');
 const {
   getNewRandomCharacter,
 } = require('./lib/ankyGenerationMessagesForTraits');
@@ -18,20 +19,51 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 
-const subscriptions = [];
-
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
   privateKey: process.env.VAPID_PRIVATE_KEY,
 };
 webPush.setVapidDetails(
-  'mailto:jpfraneto@gmail.com',
+  'mailto:jp@anky.lat',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
 
+// Store subscription object to use it later
+let subscription;
+
+// Store subscriptions in an array (in a real-world app, you'd use a database)
+let subscriptions = [];
+
 app.get('/', (req, res) => {
+  bundlrSetupDevnet();
   res.send('Welcome to Anky Backend!');
+});
+
+app.get('/publicKey', async (req, res) => {
+  async function serverInit() {
+    const key = process.env.PRIVATE_KEY; // your private key;
+    if (!key) throw new Error('Private key is undefined!');
+    const signer = new TypedEthereumSigner(key);
+    return signer.publicKey;
+  }
+
+  const response = await serverInit();
+  const pubKey = response.toString('hex');
+  return res.status(200).json({ pubKey: pubKey });
+});
+
+app.post('/signData', async (req, res) => {
+  async function signDataOnServer(signatureData) {
+    const key = process.env.PRIVATE_KEY; // your private key
+    if (!key) throw new Error('Private key is undefined!');
+    const signer = new TypedEthereumSigner(key);
+    return Buffer.from(await signer.sign(signatureData));
+  }
+  const body = JSON.parse(req.body);
+  const signatureData = Buffer.from(body.signatureData, 'hex');
+  const signature = await signDataOnServer(signatureData);
+  res.status(200).json({ signature: signature.toString('hex') });
 });
 
 app.get('/writings', async (req, res) => {
@@ -47,29 +79,58 @@ app.post('/upload-writing', async (req, res) => {
     if (!text || !date) {
       return res.status(400).json({ error: 'Invalid data' });
     }
-
-    const newWriting = await prisma.writing.create({
-      data: {
-        text: text,
-        sojourn: date.sojourn,
-        wink: date.wink,
-        kingdom: date.kingdom,
-        prompt: date.prompt,
-      },
-    });
-    console.log('the new writing is: ', newWriting);
-    res.status(201).json(newWriting);
+    const bundlrResponseId = await uploadToBundlr(text);
+    console.log('the bundlr response is: ', bundlrResponseId);
+    res.status(201).json({ bundlrResponseId });
   } catch (error) {
     console.error('An error occurred while handling your request:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
-app.post('/subscribe', (req, res) => {
-  const subscription = req.body;
-  console.log('Adding a subscriotion', subscription);
-  subscriptions.push(subscription);
-  res.status(201).json({ success: true });
+// Route to test push notification
+app.post('/test-push', async (req, res) => {
+  // Your existing code
+  res.json({ status: 'processing' });
+
+  // Simulate delay
+  setTimeout(async () => {
+    try {
+      // generateCharacterStory(character, writing);
+      // Logic to generate character story goes here
+      // ...
+
+      // Sending notification to all subscribers
+      subscriptions.forEach(sub => {
+        webpush.sendNotification(sub, 'Your character is ready to be minted.');
+      });
+    } catch (error) {
+      console.error(error);
+      // Handle error
+    }
+  }, 60000); // 4 minutes
+});
+
+app.post('/subscribe', async (req, res) => {
+  const walletAddress = req.body.walletAddress;
+  const subInfo = req.body.subscription;
+
+  // Find or Create a User
+  let user = await prisma.user.upsert({
+    where: { walletAddress },
+    update: {},
+    create: { walletAddress },
+  });
+
+  // Save subscription to database
+  await prisma.subscription.create({
+    data: {
+      subInfo,
+      userId: user.id,
+    },
+  });
+
+  res.status(201).json({});
 });
 
 app.get('/check-image/:imageId', async (req, res) => {
@@ -106,8 +167,6 @@ app.post('/get-anky-image', async (req, res) => {
     // With that information, we go to chatgtp and as for the three elements: Image description, bio and name.
     const characterNew = await generateCharacterStory(character, writing);
     console.log('In here, the character new is: ', characterNew);
-
-    return res.json({ character: characterNew });
   } catch (error) {
     console.log('There was a big error in this thing.', error);
 
