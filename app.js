@@ -6,7 +6,7 @@ const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const { TypedEthereumSigner } = require('arbundles');
-const { prisma } = require('./lib/prismaClient');
+const prisma = require('./lib/prismaClient');
 const { uploadToBundlr } = require('./lib/bundlrSetup');
 const {
   getNewRandomCharacter,
@@ -67,9 +67,9 @@ app.post('/signData', async (req, res) => {
 });
 
 app.get('/writings', async (req, res) => {
-  const writings = await prisma.writing.findMany({});
-  console.log('the writings are:', writings);
-  res.json(writings);
+  const day = await prisma.day.findMany({});
+  console.log('the writings are:', day);
+  res.json(day);
 });
 
 app.post('/upload-writing', async (req, res) => {
