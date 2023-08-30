@@ -102,13 +102,16 @@ app.post('/upload-writing', async (req, res) => {
       },
     });
 
+    console.log('the day is: ', day);
+
     // Create a writing record
-    await prisma.writing.create({
+    const prismaResponse = await prisma.writing.create({
       data: {
         bundlrURL: `https://arweave.net/${bundlrResponseId}`,
         dayId: day.id,
       },
     });
+    console.log('the writing was created', prismaResponse);
 
     res.status(201).json({ bundlrResponseId });
   } catch (error) {
