@@ -76,11 +76,40 @@ app.post('/upload-writing', async (req, res) => {
   try {
     console.log('IN HERE', req.body);
     const { text, date } = req.body;
+    const { sojourn, wink, kingdom, prompt } = date;
+
     if (!text || !date) {
       return res.status(400).json({ error: 'Invalid data' });
     }
+
     const bundlrResponseId = await uploadToBundlr(text);
     console.log('the bundlr response is: ', bundlrResponseId);
+
+    // Create a day record, you can adjust this logic
+    const day = await prisma.day.upsert({
+      where: {
+        sojourn_wink: {
+          sojourn,
+          wink,
+        },
+      },
+      update: {},
+      create: {
+        sojourn,
+        wink,
+        kingdom,
+        prompt,
+      },
+    });
+
+    // Create a writing record
+    await prisma.writing.create({
+      data: {
+        bundlrURL: `https://arweave.net/${bundlrResponseId}`,
+        dayId: day.id,
+      },
+    });
+
     res.status(201).json({ bundlrResponseId });
   } catch (error) {
     console.error('An error occurred while handling your request:', error);
