@@ -84,6 +84,7 @@ app.post('/upload-writing', async (req, res) => {
 
     const bundlrResponseId = await uploadToBundlr(text);
     console.log('the bundlr response is: ', bundlrResponseId);
+    console.log('prisma is: ', prisma);
 
     // Create a day record, you can adjust this logic
     const day = await prisma.day.upsert({
