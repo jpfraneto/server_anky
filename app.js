@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const webPush = require('web-push');
 const cron = require('node-cron');
+const { ethers } = require('ethers');
 const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const { TypedEthereumSigner } = require('arbundles');
+const abi = require('./public/contractABI.json');
 const prisma = require('./lib/prismaClient');
 const { uploadToBundlr } = require('./lib/bundlrSetup');
 const {
@@ -14,7 +16,28 @@ const {
 const { generateCharacterStory } = require('./lib/newGenesis');
 
 const app = express();
-app.use(cors());
+const allowedOrigins = [
+  'https://anky.lat',
+  'http://localhost:3001',
+  'http://localhost:3000',
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          'The CORS policy for this api does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+
+      return callback(null, true);
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
@@ -118,6 +141,42 @@ app.post('/upload-writing', async (req, res) => {
   } catch (error) {
     console.error('An error occurred while handling your request:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+
+// Smart contract interactions
+
+process.env.ALCHEMY_API_KEY;
+process.env.ALCHEMY_RPC_URL;
+
+const network = 'baseGoerli';
+
+const privateKey = process.env.PRIVATE_KEY;
+
+// // Initialize provider and wallet
+const provider = new ethers.providers.JsonRpcProvider(
+  process.env.ALCHEMY_RPC_URL
+);
+const wallet = new ethers.Wallet(privateKey, provider);
+
+// // Create contract instance
+const contract = new ethers.Contract(contractAddress, abi, wallet);
+
+// Route to airdrop the anky to the user that is making the request.
+app.post('/airdrop', async (req, res) => {
+  try {
+    const recipient = req.body.recipient;
+
+    // Check if the recipient already owns an Anky Normal.
+    // If you decide to check it in the backend, you can do it here.
+
+    const tx = await contract.airdropNft(recipient);
+    await tx.wait();
+
+    res.json({ success: true, txHash: tx.hash });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 
