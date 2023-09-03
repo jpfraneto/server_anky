@@ -2,18 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const webPush = require('web-push');
 const cron = require('node-cron');
-const { ethers } = require('ethers');
 const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const { TypedEthereumSigner } = require('arbundles');
-const abi = require('./public/contractABI.json');
 const prisma = require('./lib/prismaClient');
 const { uploadToBundlr } = require('./lib/bundlrSetup');
-const {
-  getNewRandomCharacter,
-} = require('./lib/ankyGenerationMessagesForTraits');
-const { generateCharacterStory } = require('./lib/newGenesis');
+
+const blockchainRoutes = require('./routes/blockchain');
+const aiRoutes = require('./routes/ai');
 
 const app = express();
 const allowedOrigins = [
@@ -22,23 +19,11 @@ const allowedOrigins = [
   'http://localhost:3000',
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          'The CORS policy for this api does not allow access from the specified Origin.';
-        return callback(new Error(msg), false);
-      }
-
-      return callback(null, true);
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(bodyParser.json());
+app.use('/blockchain', blockchainRoutes);
+app.use('/ai', aiRoutes);
 
 const PORT = process.env.PORT || 3000;
 
@@ -59,7 +44,6 @@ let subscription;
 let subscriptions = [];
 
 app.get('/', (req, res) => {
-  bundlrSetupDevnet();
   res.send('Welcome to Anky Backend!');
 });
 
@@ -90,16 +74,19 @@ app.post('/signData', async (req, res) => {
 });
 
 app.get('/writings', async (req, res) => {
+  console.log('inside here, prims0, ', prisma);
   const day = await prisma.day.findMany({});
   console.log('the writings are:', day);
   res.json(day);
 });
 
 app.post('/upload-writing', async (req, res) => {
+  console.log('inside the upload writing route');
   try {
     console.log('IN HERE', req.body);
     const { text, date } = req.body;
     const { sojourn, wink, kingdom, prompt } = date;
+    console.log('Time to save the writing of today');
 
     if (!text || !date) {
       return res.status(400).json({ error: 'Invalid data' });
@@ -141,42 +128,6 @@ app.post('/upload-writing', async (req, res) => {
   } catch (error) {
     console.error('An error occurred while handling your request:', error);
     res.status(500).send('Internal Server Error');
-  }
-});
-
-// Smart contract interactions
-
-process.env.ALCHEMY_API_KEY;
-process.env.ALCHEMY_RPC_URL;
-
-const network = 'baseGoerli';
-
-const privateKey = process.env.PRIVATE_KEY;
-
-// // Initialize provider and wallet
-const provider = new ethers.providers.JsonRpcProvider(
-  process.env.ALCHEMY_RPC_URL
-);
-const wallet = new ethers.Wallet(privateKey, provider);
-
-// // Create contract instance
-const contract = new ethers.Contract(contractAddress, abi, wallet);
-
-// Route to airdrop the anky to the user that is making the request.
-app.post('/airdrop', async (req, res) => {
-  try {
-    const recipient = req.body.recipient;
-
-    // Check if the recipient already owns an Anky Normal.
-    // If you decide to check it in the backend, you can do it here.
-
-    const tx = await contract.airdropNft(recipient);
-    await tx.wait();
-
-    res.json({ success: true, txHash: tx.hash });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 
@@ -225,104 +176,21 @@ app.post('/subscribe', async (req, res) => {
   res.status(201).json({});
 });
 
-app.get('/check-image/:imageId', async (req, res) => {
-  console.log('checking the image with the following id: ', req.params.imageId);
-  const imageId = req.params.imageId;
-  const config = {
-    headers: { Authorization: `Bearer ${process.env.IMAGINE_API_KEY}` },
-  };
+// const sendNotifications = () => {
+//   console.log('inside the send notifications function', subscriptions);
+//   subscriptions.forEach(sub => {
+//     const payload = JSON.stringify({
+//       title: 'Vamos ctm',
+//       body: 'Nueva notificacion de Anky',
+//     });
 
-  try {
-    const response = await axios.get(
-      `http://146.190.131.28:8055/items/images/${imageId}`,
-      config
-    );
-    console.log('the response.data is: ', response.data);
-    if (response.data && response.data?.data) {
-      res.json(response.data.data);
-    } else {
-      res.status(404).send('Image not found');
-    }
-  } catch (error) {
-    console.log('And the error fetchin the image is: ', error);
-    res.status(500).send('Error fetching image');
-  }
-});
+//     webPush.sendNotification(sub, payload).catch(error => {
+//       console.error(error.stack);
+//     });
+//   });
+// };
 
-app.post('/get-anky-image', async (req, res) => {
-  console.log('in here, the writing is: ', req.body);
-  const writing = req.body.text;
-  res.json({ status: 'processing' });
-  try {
-    // This character is a random character from the ankyverse, with the normal traits that all of them have.
-    const character = getNewRandomCharacter();
-    // With that information, we go to chatgtp and as for the three elements: Image description, bio and name.
-    const characterNew = await generateCharacterStory(character, writing);
-    console.log('In here, the character new is: ', characterNew);
-  } catch (error) {
-    console.log('There was a big error in this thing.', error);
-
-    if (error.response) {
-      console.log(error.response.status, error.response.data);
-      res.status(error.response.status).json(error.response.data);
-    } else {
-      console.log('THE ERROR IS: ', error);
-      console.error(`Error with OpenAI API request: ${error.message}`);
-      res.status(500).json({
-        error: {
-          message: 'An error occurred during your request.',
-        },
-      });
-    }
-  }
-});
-
-async function fetchImage(imageId) {
-  const config = {
-    headers: { Authorization: `Bearer ${process.env.IMAGINE_API_KEY}` },
-  };
-  try {
-    const response = await axios.get(
-      `http://146.190.131.28:8055/items/images/${imageId}`,
-      config
-    );
-    console.log('Fetched from imagineAPI', response.data.data);
-    return response.data.data;
-  } catch (error) {}
-}
-
-async function fetchImage(req, res) {
-  console.log('INSIDE HEREEE, fetching the image');
-  if (req.method !== 'POST') {
-    return res.status(401);
-  }
-  const imageId = req.body.imageId;
-  console.log('THE IMAGE ID IS: ', imageId);
-  try {
-    const imageResponse = await fetchImage(imageId);
-    console.log('the image Response is: ', imageResponse);
-    res.json(imageResponse);
-  } catch (error) {
-    console.log('the error is: ', error);
-    res.json(error);
-  }
-}
-
-const sendNotifications = () => {
-  console.log('inside the send notifications function', subscriptions);
-  subscriptions.forEach(sub => {
-    const payload = JSON.stringify({
-      title: 'Vamos ctm',
-      body: 'Nueva notificacion de Anky',
-    });
-
-    webPush.sendNotification(sub, payload).catch(error => {
-      console.error(error.stack);
-    });
-  });
-};
-
-cron.schedule('*/1 * * * *', sendNotifications);
+// cron.schedule('*/1 * * * *', sendNotifications);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
