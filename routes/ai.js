@@ -2,7 +2,7 @@ const express = require('express');
 const { openai } = require('openai');
 const { generateAnkyFromUserWriting } = require('../lib/ai/anky-factory');
 const { fetchImageProgress } = require('../lib/ai/midjourney');
-const { getNftAccount } = require('../lib/ai/chatgtp'); // Import the functions
+const { reflectUserWriting } = require('../lib/ai/chatgtp'); // Import the functions
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -11,6 +11,8 @@ router.get('/', (req, res) => {
 
 router.post('/get-feedback-from-writing', async (req, res) => {
   console.log('Inside the get feedback from writing route', req.body);
+  const response = await reflectUserWriting(req.body.text, {}, req.body.prompt);
+  console.log('the response is: ', response);
   res.json({ 123: 456 });
 });
 
