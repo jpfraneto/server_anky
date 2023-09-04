@@ -4,9 +4,9 @@ const webPush = require('web-push');
 const cron = require('node-cron');
 const cors = require('cors');
 const axios = require('axios');
+const { PrismaClient } = require('@prisma/client');
 const bodyParser = require('body-parser');
 const { TypedEthereumSigner } = require('arbundles');
-const { prisma } = require('./lib/prismaClient');
 const { uploadToBundlr } = require('./lib/bundlrSetup');
 
 const blockchainRoutes = require('./routes/blockchain');
@@ -27,6 +27,7 @@ app.use('/ai', aiRoutes);
 
 const PORT = process.env.PORT || 3000;
 
+const prisma = new PrismaClient();
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
   privateKey: process.env.VAPID_PRIVATE_KEY,
@@ -45,7 +46,7 @@ let subscriptions = [];
 
 app.get('/', (req, res) => {
   console.log('aloja');
-  console.log('prisma is:', prisma);
+  console.log('prisma', prisma);
   res.send('Welcome to Anky Backend!');
 });
 
@@ -96,35 +97,36 @@ app.post('/upload-writing', async (req, res) => {
 
     const bundlrResponseId = await uploadToBundlr(text);
     console.log('the bundlr response is: ', bundlrResponseId);
-    console.log('prisma is: ', prisma);
 
-    // Create a day record, you can adjust this logic
-    const day = await prisma.day.upsert({
-      where: {
-        sojourn_wink: {
-          sojourn,
-          wink,
-        },
-      },
-      update: {},
-      create: {
-        sojourn,
-        wink,
-        kingdom,
-        prompt,
-      },
-    });
+    // console.log('prisma is: ', prisma);
 
-    console.log('the day is: ', day);
+    // // Create a day record, you can adjust this logic
+    // const day = await prisma.day.upsert({
+    //   where: {
+    //     sojourn_wink: {
+    //       sojourn,
+    //       wink,
+    //     },
+    //   },
+    //   update: {},
+    //   create: {
+    //     sojourn,
+    //     wink,
+    //     kingdom,
+    //     prompt,
+    //   },
+    // });
 
-    // Create a writing record
-    const prismaResponse = await prisma.writing.create({
-      data: {
-        bundlrURL: `https://arweave.net/${bundlrResponseId}`,
-        dayId: day.id,
-      },
-    });
-    console.log('the writing was created', prismaResponse);
+    // console.log('the day is: ', day);
+
+    // // Create a writing record
+    // const prismaResponse = await prisma.writing.create({
+    //   data: {
+    //     bundlrURL: `https://arweave.net/${bundlrResponseId}`,
+    //     dayId: day.id,
+    //   },
+    // });
+    // console.log('the writing was created', prismaResponse);
 
     res.status(201).json({ bundlrResponseId });
   } catch (error) {

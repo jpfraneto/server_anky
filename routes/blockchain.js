@@ -1,9 +1,6 @@
 const express = require('express');
 const { ethers } = require('ethers');
-const {
-  getNftAccount,
-  createTBAforNFT,
-} = require('../lib/blockchain/anky_airdrop'); // Import the functions
+const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
 const router = express.Router();
 const ANKY_AIRDROP_ABI = require('../abis/AnkyAirdrop.json');
 
@@ -31,16 +28,16 @@ router.get('/', (req, res) => {
 });
 
 router.get('/getTBA/:wallet', async (req, res) => {
-  console.log('in here', req.query.wallet);
-  const response = await getNftAccount(req.query.wallet);
+  console.log('in here', req.params.wallet);
+  const response = await getNftAccount(req.params.wallet);
   return res.json({ response });
 });
 
-router.post('/createTBA', async (req, res) => {
-  const recipient = req.body.wallet;
+router.get('/createTBA/:wallet', async (req, res) => {
+  console.log('HERE', req.params);
+  const recipient = req.params.wallet;
   const hasTBACreated = await getNftAccount(recipient);
-  const response = await createTBAforNFT(recipient);
-  return res.json({ response });
+  return res.json({ hasTBACreated });
 });
 
 // Route to airdrop the anky to the user that is making the request.
