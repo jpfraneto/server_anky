@@ -6,7 +6,7 @@ const cors = require('cors');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const { TypedEthereumSigner } = require('arbundles');
-const prisma = require('./lib/prismaClient');
+const { prisma } = require('./lib/prismaClient');
 const { uploadToBundlr } = require('./lib/bundlrSetup');
 
 const blockchainRoutes = require('./routes/blockchain');
@@ -21,7 +21,7 @@ const allowedOrigins = [
 
 app.use(cors());
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use('/blockchain', blockchainRoutes);
 app.use('/ai', aiRoutes);
 
@@ -44,6 +44,8 @@ let subscription;
 let subscriptions = [];
 
 app.get('/', (req, res) => {
+  console.log('aloja');
+  console.log('prisma is:', prisma);
   res.send('Welcome to Anky Backend!');
 });
 

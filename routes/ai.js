@@ -11,9 +11,13 @@ router.get('/', (req, res) => {
 
 router.post('/get-feedback-from-writing', async (req, res) => {
   console.log('Inside the get feedback from writing route', req.body);
-  const response = await reflectUserWriting(req.body.text, {}, req.body.prompt);
-  console.log('the response is: ', response);
-  res.json({ 123: 456 });
+  const response = await reflectUserWriting(
+    req.body.text,
+    req.body.user,
+    req.body.prompt,
+    res
+  );
+  res.json({ ankyResponse: response });
 });
 
 router.post('/create-anky-from-writing', async (req, res) => {
