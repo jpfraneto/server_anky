@@ -59,7 +59,6 @@ let subscriptions = [];
 
 app.get('/', (req, res) => {
   console.log('aloja');
-  console.log('prisma', prisma);
   res.send('Welcome to Anky Backend!');
 });
 
