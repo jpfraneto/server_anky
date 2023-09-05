@@ -19,9 +19,22 @@ const allowedOrigins = [
   'http://localhost:3000',
 ];
 
-app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
 
 app.use(express.json());
+app.options('*', cors());
 app.use('/blockchain', blockchainRoutes);
 app.use('/ai', aiRoutes);
 
@@ -98,36 +111,6 @@ app.post('/upload-writing', async (req, res) => {
     const bundlrResponseId = await uploadToBundlr(text);
     console.log('the bundlr response is: ', bundlrResponseId);
 
-    // console.log('prisma is: ', prisma);
-
-    // // Create a day record, you can adjust this logic
-    // const day = await prisma.day.upsert({
-    //   where: {
-    //     sojourn_wink: {
-    //       sojourn,
-    //       wink,
-    //     },
-    //   },
-    //   update: {},
-    //   create: {
-    //     sojourn,
-    //     wink,
-    //     kingdom,
-    //     prompt,
-    //   },
-    // });
-
-    // console.log('the day is: ', day);
-
-    // // Create a writing record
-    // const prismaResponse = await prisma.writing.create({
-    //   data: {
-    //     bundlrURL: `https://arweave.net/${bundlrResponseId}`,
-    //     dayId: day.id,
-    //   },
-    // });
-    // console.log('the writing was created', prismaResponse);
-
     res.status(201).json({ bundlrResponseId });
   } catch (error) {
     console.error('An error occurred while handling your request:', error);
@@ -179,22 +162,6 @@ app.post('/subscribe', async (req, res) => {
 
   res.status(201).json({});
 });
-
-// const sendNotifications = () => {
-//   console.log('inside the send notifications function', subscriptions);
-//   subscriptions.forEach(sub => {
-//     const payload = JSON.stringify({
-//       title: 'Vamos ctm',
-//       body: 'Nueva notificacion de Anky',
-//     });
-
-//     webPush.sendNotification(sub, payload).catch(error => {
-//       console.error(error.stack);
-//     });
-//   });
-// };
-
-// cron.schedule('*/1 * * * *', sendNotifications);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

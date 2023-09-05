@@ -43,6 +43,7 @@ router.get('/createTBA/:wallet', async (req, res) => {
 // Route to airdrop the anky to the user that is making the request.
 router.post('/airdrop', async (req, res) => {
   try {
+    console.log('inside this route (airdrop)');
     const recipient = req.body.wallet;
     // Check if the recipient already owns an Anky Normal.
     const balanceNumber = await ankyAirdropContract.balanceOf(recipient);
