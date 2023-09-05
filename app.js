@@ -11,6 +11,7 @@ const { uploadToBundlr } = require('./lib/bundlrSetup');
 
 const blockchainRoutes = require('./routes/blockchain');
 const aiRoutes = require('./routes/ai');
+const notebooksRoutes = require('./routes/notebooks');
 
 const app = express();
 const allowedOrigins = [
@@ -37,6 +38,7 @@ app.use(express.json());
 app.options('*', cors());
 app.use('/blockchain', blockchainRoutes);
 app.use('/ai', aiRoutes);
+app.use('/notebooks', notebooksRoutes);
 
 const PORT = process.env.PORT || 3000;
 
