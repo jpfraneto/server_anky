@@ -1,6 +1,7 @@
 const express = require('express');
 const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
+const { createNotebookMetadata } = require('../lib/notebooks');
 const router = express.Router();
 const ANKY_AIRDROP_ABI = require('../abis/AnkyAirdrop.json');
 
@@ -27,13 +28,14 @@ router.post('/', async (req, res) => {
   const { title, description, numPages, price, supply } = req.body;
   console.log('inside the notebook post route', req.body);
   try {
-    const metadataURI = await createMetadata(
+    const metadataURI = await createNotebookMetadata(
       title,
       description,
       numPages,
       price,
       supply
     );
+    console.log('the metadata uri is: ', metadataURI);
     res.status(200).json({ metadataURI });
   } catch (error) {
     console.error('Error:', error);

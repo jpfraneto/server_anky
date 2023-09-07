@@ -30,7 +30,7 @@ router.get('/', (req, res) => {
 router.get('/getTBA/:wallet', async (req, res) => {
   console.log('in here', req.params.wallet);
   const response = await getNftAccount(req.params.wallet);
-  return res.json({ response });
+  return res.json({ ankyTba: response });
 });
 
 router.get('/createTBA/:wallet', async (req, res) => {
@@ -49,11 +49,22 @@ router.post('/airdrop', async (req, res) => {
     const balanceNumber = await ankyAirdropContract.balanceOf(recipient);
     const minterBalance = Number(balanceNumber);
     console.log('the minter balance is: ', minterBalance);
-    if (minterBalance !== 0)
+    if (minterBalance !== 0) {
+      const userAnky = await ankyAirdropContract.tokenOfOwnerByIndex(
+        recipient,
+        0
+      );
+      const userAnkyIndex = Number(userAnky);
+      console.log('the user anky is:', userAnkyIndex);
+      const tokenUri = await ankyAirdropContract.getTokenURI(userAnkyIndex);
+      console.log('the token uri is:', tokenUri);
       return res.json({
         success: false,
+        tokenUri,
+        userAnkyIndex,
         msg: 'The user already owns an Anky NotebookKeeper',
       });
+    }
     const tx = await ankyAirdropContract.airdropNft(recipient);
     console.log('IN HERE, the tx is:', tx);
     const response = await tx.wait();

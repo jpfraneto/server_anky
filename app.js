@@ -23,12 +23,15 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log('Origin: ', origin); // Log the origin
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
           'The CORS policy for this site does not allow access from the specified Origin.';
+        console.log('CORS Rejected:', origin);
         return callback(new Error(msg), false);
       }
+      console.log('CORS Accepted:', origin);
       return callback(null, true);
     },
   })
@@ -60,7 +63,6 @@ let subscription;
 let subscriptions = [];
 
 app.get('/', (req, res) => {
-  console.log('aloja');
   res.send('Welcome to Anky Backend!');
 });
 
