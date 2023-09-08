@@ -3,7 +3,7 @@ const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
 const { createNotebookMetadata } = require('../lib/notebooks');
 const router = express.Router();
-const ANKY_AIRDROP_ABI = require('../abis/AnkyAirdrop.json');
+const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
 
 // Smart contract interactions
 
@@ -18,24 +18,35 @@ const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
-const ankyAirdropContract = new ethers.Contract(
-  process.env.ANKY_AIRDROP_CONTRACT_ADDRESS,
-  ANKY_AIRDROP_ABI,
+const ankyNotebooksContract = new ethers.Contract(
+  process.env.ANKY_NOTEBOOKS_CONTRACT,
+  ANKY_NOTEBOOKS_ABI,
   wallet
 );
 
 router.post('/', async (req, res) => {
-  const { title, description, numPages, price, supply } = req.body;
+  const {
+    title,
+    description,
+    numPages,
+    price,
+    supply,
+    ownerAddress,
+    tbaAddress,
+  } = req.body;
   console.log('inside the notebook post route', req.body);
   try {
-    const metadataURI = await createNotebookMetadata(
-      title,
-      description,
-      numPages,
-      price,
-      supply
-    );
+    const metadataURI =
+      'https://arweave.net/oHVbi7RFhjUAHf79PCYNvU0uLpz-Jf-mUg8tFeMfNIY';
+    // const metadataURI = await createNotebookMetadata(
+    //   title,
+    //   description,
+    //   numPages,
+    //   price,
+    //   supply
+    // );
     console.log('the metadata uri is: ', metadataURI);
+
     res.status(200).json({ metadataURI });
   } catch (error) {
     console.error('Error:', error);
