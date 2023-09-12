@@ -16,6 +16,7 @@ const notebooksRoutes = require('./routes/notebooks');
 const app = express();
 const allowedOrigins = [
   'https://anky.lat',
+  'https://www.anky.lat',
   'http://localhost:3001',
   'http://localhost:3000',
 ];
