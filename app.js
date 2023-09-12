@@ -105,7 +105,6 @@ app.post('/upload-writing', async (req, res) => {
   try {
     console.log('IN HERE', req.body);
     const { text, date } = req.body;
-    const { sojourn, wink, kingdom, prompt } = date;
     console.log('Time to save the writing of today');
 
     if (!text || !date) {
@@ -113,8 +112,7 @@ app.post('/upload-writing', async (req, res) => {
     }
 
     const bundlrResponseId = await uploadToBundlr(text);
-    console.log('the bundlr response is: ', bundlrResponseId);
-
+    
     res.status(201).json({ bundlrResponseId });
   } catch (error) {
     console.error('An error occurred while handling your request:', error);

@@ -45,10 +45,12 @@ router.post('/airdrop', async (req, res) => {
   try {
     console.log('inside this route (airdrop)');
     const recipient = req.body.wallet;
+
     // Check if the recipient already owns an Anky Normal.
     const balanceNumber = await ankyAirdropContract.balanceOf(recipient);
     const minterBalance = Number(balanceNumber);
     console.log('the minter balance is: ', minterBalance);
+
     if (minterBalance !== 0) {
       const userAnky = await ankyAirdropContract.tokenOfOwnerByIndex(
         recipient,
@@ -69,6 +71,7 @@ router.post('/airdrop', async (req, res) => {
     console.log('IN HERE, the tx is:', tx);
     const response = await tx.wait();
     console.log('The response for the airdrop is: ', response);
+
     res.json({ success: true, txHash: tx.hash });
   } catch (error) {
     console.error(error);
