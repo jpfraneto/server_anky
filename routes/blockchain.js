@@ -40,11 +40,39 @@ router.get('/createTBA/:wallet', async (req, res) => {
   return res.json({ hasTBACreated });
 });
 
+async function getWalletBalance(walletAddress) {
+  try {
+    console.log('inside the getwalletbalance function', walletAddress);
+    const balanceWei = await provider.getBalance(walletAddress);
+    const balanceEth = ethers.formatEther(balanceWei);
+    return balanceEth;
+  } catch (error) {
+    console.error(
+      `Failed to fetch balance for address ${walletAddress}`,
+      error
+    );
+    return null;
+  }
+}
+
 // Route to airdrop the anky to the user that is making the request.
 router.post('/airdrop', async (req, res) => {
   try {
     console.log('inside this route (airdrop)');
     const recipient = req.body.wallet;
+
+    const balance = await getWalletBalance(recipient);
+    if (Number(balance) === 0) {
+      console.log('sending some funds to user');
+      const amountToSend = ethers.parseEther('0.005'); // 0.01 ETH in wei
+      const ethTx = await wallet.sendTransaction({
+        to: recipient,
+        value: amountToSend,
+      });
+
+      console.log('ETH transaction hash:', ethTx.hash);
+      await ethTx.wait(); // Wait for the transaction to be mined
+    }
 
     // Check if the recipient already owns an Anky Normal.
     const balanceNumber = await ankyAirdropContract.balanceOf(recipient);
