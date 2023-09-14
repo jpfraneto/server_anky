@@ -25,26 +25,14 @@ const ankyNotebooksContract = new ethers.Contract(
 );
 
 router.post('/', async (req, res) => {
-  const {
-    title,
-    description,
-    numPages,
-    price,
-    supply,
-    ownerAddress,
-    tbaAddress,
-  } = req.body;
+  const { title, description, prompts } = req.body;
   console.log('inside the notebook post route', req.body);
   try {
-    const metadataURI =
-      'https://arweave.net/oHVbi7RFhjUAHf79PCYNvU0uLpz-Jf-mUg8tFeMfNIY';
-    // const metadataURI = await createNotebookMetadata(
-    //   title,
-    //   description,
-    //   numPages,
-    //   price,
-    //   supply
-    // );
+    const metadataURI = await createNotebookMetadata(
+      title,
+      description,
+      prompts
+    );
     console.log('the metadata uri is: ', metadataURI);
 
     res.status(200).json({ metadataURI });
