@@ -25,17 +25,12 @@ const ankyNotebooksContract = new ethers.Contract(
 );
 
 router.post('/', async (req, res) => {
-  const { title, description, prompts } = req.body;
   console.log('inside the notebook post route', req.body);
   try {
-    const metadataURI = await createNotebookMetadata(
-      title,
-      description,
-      prompts
-    );
-    console.log('the metadata uri is: ', metadataURI);
+    const metadataCID = await createNotebookMetadata(req.body);
+    console.log('the metadata uri is: ', metadataCID);
 
-    res.status(200).json({ metadataURI });
+    res.status(200).json({ metadataCID });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Failed to save metadata' });
