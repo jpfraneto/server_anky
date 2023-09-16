@@ -4,12 +4,11 @@ const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import t
 const { createNotebookMetadata } = require('../lib/notebooks');
 const router = express.Router();
 const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
+const multer = require('multer');
+const storage = multer.memoryStorage(); // Store the file in memory
+const upload = multer({ storage: storage });
 
 // Smart contract interactions
-
-process.env.ALCHEMY_API_KEY;
-process.env.ALCHEMY_RPC_URL;
-
 const network = 'baseGoerli';
 
 const privateKey = process.env.PRIVATE_KEY;
@@ -36,5 +35,38 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to save metadata' });
   }
 });
+
+router.post(
+  '/eulogia',
+  upload.fields([
+    { name: 'coverImage', maxCount: 1 },
+    { name: 'backgroundImage', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    console.log('inside the eulogia post route', req.body);
+    console.log('Request body:', req.body);
+    console.log('Files:', req.files);
+    try {
+      const metadataCID = await createNotebookMetadata(
+        req.body,
+        req.files.coverImage[0],
+        req.files.backgroundImage[0]
+      );
+
+      console.log('the metadata uri is: ', metadataCID);
+
+      res.status(200).json({ metadataCID });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Failed to save metadata' });
+    }
+  }
+);
+
+// title: title,
+// description: description,
+// price: price,
+// coverImage: coverImage,
+// backgroundImage: backgroundImage,
 
 module.exports = router;

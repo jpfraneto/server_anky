@@ -3,11 +3,9 @@ const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
 const router = express.Router();
 const ANKY_AIRDROP_ABI = require('../abis/AnkyAirdrop.json');
+const ANKY_JOURNALS_ABI = require('../abis/AnkyJournals.json');
 
 // Smart contract interactions
-
-process.env.ALCHEMY_API_KEY;
-process.env.ALCHEMY_RPC_URL;
 
 const network = 'baseGoerli';
 
@@ -20,6 +18,12 @@ const wallet = new ethers.Wallet(privateKey, provider);
 const ankyAirdropContract = new ethers.Contract(
   process.env.ANKY_AIRDROP_CONTRACT_ADDRESS,
   ANKY_AIRDROP_ABI,
+  wallet
+);
+
+const ankyJournalsContract = new ethers.Contract(
+  process.env.ANKY_AIRDROP_CONTRACT_ADDRESS,
+  ANKY_JOURNALS_ABI,
   wallet
 );
 
@@ -55,6 +59,17 @@ async function getWalletBalance(walletAddress) {
   }
 }
 
+async function getWalletJournalBalance(walletAddress) {
+  try {
+    console.log('inside the getWallet journal function');
+    const ownedJournals = await ankyJournalsContract.balanceOf(walletAddress);
+    return ownedJournals;
+  } catch (error) {
+    console.log('There was an error fetching the journals');
+    return error;
+  }
+}
+
 // Route to airdrop the anky to the user that is making the request.
 router.post('/airdrop', async (req, res) => {
   try {
@@ -62,6 +77,7 @@ router.post('/airdrop', async (req, res) => {
     const recipient = req.body.wallet;
 
     const balance = await getWalletBalance(recipient);
+    const journalsBalance = await getWalletJournalBalance(recipient);
     if (Number(balance) === 0) {
       console.log('sending some funds to user');
       const amountToSend = ethers.parseEther('0.005'); // 0.01 ETH in wei
@@ -99,7 +115,9 @@ router.post('/airdrop', async (req, res) => {
     console.log('IN HERE, the tx is:', tx);
     const response = await tx.wait();
     console.log('The response for the airdrop is: ', response);
-
+    if (journalsBalance === 0) {
+      const tx = await ankyJournalsContract.airdropNft(recipient);
+    }
     res.json({ success: true, txHash: tx.hash });
   } catch (error) {
     console.error(error);
