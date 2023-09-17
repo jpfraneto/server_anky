@@ -46,11 +46,16 @@ router.post(
     console.log('inside the eulogia post route', req.body);
     console.log('Request body:', req.body);
     console.log('Files:', req.files);
+    const coverImage = req.files.coverImage ? req.files.coverImage[0] : null;
+    const backgroundImage = req.files.backgroundImage
+      ? req.files.backgroundImage[0]
+      : null;
+
     try {
       const metadataCID = await createNotebookMetadata(
         req.body,
-        req.files.coverImage[0],
-        req.files.backgroundImage[0]
+        coverImage,
+        backgroundImage
       );
 
       console.log('the metadata uri is: ', metadataCID);
