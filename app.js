@@ -1,19 +1,23 @@
+// Load environment variables
 require('dotenv').config();
+
+// Third-party libraries
 const express = require('express');
 const webPush = require('web-push');
-const cron = require('node-cron');
 const cors = require('cors');
-const axios = require('axios');
-const { PrismaClient } = require('@prisma/client');
 const bodyParser = require('body-parser');
+const { PrismaClient } = require('@prisma/client');
 const { TypedEthereumSigner } = require('arbundles');
+
+// Internal modules
 const { uploadToBundlr } = require('./lib/bundlrSetup');
 
+// Routes
 const blockchainRoutes = require('./routes/blockchain');
 const aiRoutes = require('./routes/ai');
 const notebooksRoutes = require('./routes/notebooks');
 
-const app = express();
+// Constants
 const allowedOrigins = [
   'https://anky.lat',
   'https://www.anky.lat',
@@ -21,10 +25,27 @@ const allowedOrigins = [
   'http://localhost:3000',
 ];
 
+// App initialization
+const app = express();
+const PORT = process.env.PORT || 3000;
+const prisma = new PrismaClient();
+
+// Configurations and setups
+const vapidKeys = {
+  publicKey: process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY,
+};
+webPush.setVapidDetails(
+  'mailto:jp@anky.lat',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
+let subscriptions = []; // Store subscriptions
+
+// Middleware
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log('Origin: ', origin); // Log the origin
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
@@ -37,31 +58,12 @@ app.use(
     },
   })
 );
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-app.use(express.json());
-app.options('*', cors());
 app.use('/blockchain', blockchainRoutes);
 app.use('/ai', aiRoutes);
 app.use('/notebooks', notebooksRoutes);
-
-const PORT = process.env.PORT || 3000;
-
-const prisma = new PrismaClient();
-const vapidKeys = {
-  publicKey: process.env.VAPID_PUBLIC_KEY,
-  privateKey: process.env.VAPID_PRIVATE_KEY,
-};
-webPush.setVapidDetails(
-  'mailto:jp@anky.lat',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
-
-// Store subscription object to use it later
-let subscription;
-
-// Store subscriptions in an array (in a real-world app, you'd use a database)
-let subscriptions = [];
 
 app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
@@ -98,26 +100,6 @@ app.get('/writings', async (req, res) => {
   const day = await prisma.day.findMany({});
   console.log('the writings are:', day);
   res.json(day);
-});
-
-app.post('/upload-writing', async (req, res) => {
-  console.log('inside the upload writing route');
-  try {
-    console.log('IN HERE', req.body);
-    const { text, date } = req.body;
-    console.log('Time to save the writing of today');
-
-    if (!text || !date) {
-      return res.status(400).json({ error: 'Invalid data' });
-    }
-
-    const bundlrResponseId = await uploadToBundlr(text);
-
-    res.status(201).json({ bundlrResponseId });
-  } catch (error) {
-    console.error('An error occurred while handling your request:', error);
-    res.status(500).send('Internal Server Error');
-  }
 });
 
 // Route to test push notification

@@ -244,12 +244,33 @@
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "arweaveCID", "type": "string" },
-          { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+          {
+            "internalType": "uint256",
+            "name": "templateId",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "arweaveCID",
+                "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct AnkyNotebooks.UserPageContent[]",
+            "name": "userPages",
+            "type": "tuple[]"
+          },
+          { "internalType": "bool", "name": "isVirgin", "type": "bool" }
         ],
-        "internalType": "struct AnkyNotebooks.UserPageContent[]",
-        "name": "pages",
-        "type": "tuple[]"
+        "internalType": "struct AnkyNotebooks.NotebookInstance",
+        "name": "notebook",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",

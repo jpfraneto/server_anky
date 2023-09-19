@@ -113,6 +113,18 @@ router.post('/eulogia/writing', async (req, res) => {
   }
 });
 
+router.post('/upload-writing', async (req, res) => {
+  try {
+    console.log('inside the upload-writing route', req.body);
+    const text = req.body.text;
+
+    const cid = await uploadToBundlr(text, 'text');
+    res.status(200).json({ cid: cid });
+  } catch (error) {
+    console.error('Failed to upload text:', error);
+    res.status(500).json({ error: 'Failed to upload text' });
+  }
+});
 // title: title,
 // description: description,
 // price: price,
