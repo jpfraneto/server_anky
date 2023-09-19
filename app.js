@@ -112,7 +112,7 @@ app.post('/upload-writing', async (req, res) => {
     }
 
     const bundlrResponseId = await uploadToBundlr(text);
-    
+
     res.status(201).json({ bundlrResponseId });
   } catch (error) {
     console.error('An error occurred while handling your request:', error);

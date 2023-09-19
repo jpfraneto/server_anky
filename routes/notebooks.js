@@ -7,6 +7,7 @@ const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
 const multer = require('multer');
 const storage = multer.memoryStorage(); // Store the file in memory
 const upload = multer({ storage: storage });
+const { uploadToBundlr } = require('../lib/bundlrSetup');
 
 // Smart contract interactions
 const network = 'baseGoerli';
@@ -67,6 +68,19 @@ router.post(
     }
   }
 );
+
+router.post('/eulogia/writing', async (req, res) => {
+  try {
+    console.log('inside the /eulogia/writing route', req.body);
+    const text = req.body.text;
+    console.log('the text is: ', text);
+    const cid = await uploadToBundlr(text, 'text');
+    res.status(200).json({ cid: cid });
+  } catch (error) {
+    console.error('Failed to upload text:', error);
+    res.status(500).json({ error: 'Failed to upload text' });
+  }
+});
 
 // title: title,
 // description: description,
