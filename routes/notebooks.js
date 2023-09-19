@@ -2,11 +2,11 @@ const express = require('express');
 const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
 const { createNotebookMetadata } = require('../lib/notebooks');
+const { uploadImageToPinata } = require('../lib/pinataSetup');
 const router = express.Router();
 const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
 const multer = require('multer');
-const storage = multer.memoryStorage(); // Store the file in memory
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 const { uploadToBundlr } = require('../lib/bundlrSetup');
 
 // Smart contract interactions
@@ -39,32 +39,63 @@ router.post('/', async (req, res) => {
 
 router.post(
   '/eulogia',
-  upload.fields([
-    { name: 'coverImage', maxCount: 1 },
-    { name: 'backgroundImage', maxCount: 1 },
-  ]),
+  upload.fields([{ name: 'coverImage' }, { name: 'backgroundImage' }]),
   async (req, res) => {
-    console.log('inside the eulogia post route', req.body);
-    console.log('Request body:', req.body);
-    console.log('Files:', req.files);
-    const coverImage = req.files.coverImage ? req.files.coverImage[0] : null;
-    const backgroundImage = req.files.backgroundImage
-      ? req.files.backgroundImage[0]
-      : null;
-
     try {
-      const metadataCID = await createNotebookMetadata(
-        req.body,
-        coverImage,
-        backgroundImage
+      console.log('inside the /eulogia/writing route', req.body);
+
+      if (!req.files.coverImage || !req.files.backgroundImage) {
+        return res
+          .status(400)
+          .json({ error: 'Both cover and background images are required.' });
+      }
+
+      const coverPinataCid = await uploadImageToPinata(
+        req.files.coverImage[0].buffer
+      );
+      if (!coverPinataCid) {
+        return res
+          .status(500)
+          .json({ error: 'Failed to upload cover image to Pinata.' });
+      }
+
+      const backgroundPinataCid = await uploadImageToPinata(
+        req.files.backgroundImage[0].buffer
+      );
+      if (!backgroundPinataCid) {
+        return res
+          .status(500)
+          .json({ error: 'Failed to upload background image to Pinata.' });
+      }
+
+      console.log(
+        'the cover and background cids : ',
+        coverPinataCid,
+        backgroundPinataCid
       );
 
-      console.log('the metadata uri is: ', metadataCID);
+      const metadataToUpload = {
+        backgroundImageCid: backgroundPinataCid,
+        coverImageCid: coverPinataCid,
+        title: req.body.title,
+        description: req.body.description,
+        maxPages: req.body.maxPages,
+      };
 
-      res.status(200).json({ metadataCID });
+      const cid = await uploadToBundlr(
+        JSON.stringify(metadataToUpload),
+        'text'
+      );
+      if (!cid) {
+        return res
+          .status(500)
+          .json({ error: 'Failed to upload text to Bundlr.' });
+      }
+
+      res.status(200).json({ cid: cid });
     } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Failed to save metadata' });
+      console.error('Failed to upload:', error);
+      res.status(500).json({ error: 'Failed to upload.' });
     }
   }
 );
@@ -73,7 +104,7 @@ router.post('/eulogia/writing', async (req, res) => {
   try {
     console.log('inside the /eulogia/writing route', req.body);
     const text = req.body.text;
-    console.log('the text is: ', text);
+
     const cid = await uploadToBundlr(text, 'text');
     res.status(200).json({ cid: cid });
   } catch (error) {
