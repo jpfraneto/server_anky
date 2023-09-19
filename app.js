@@ -46,6 +46,7 @@ let subscriptions = []; // Store subscriptions
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log('the origin is: ', origin);
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
