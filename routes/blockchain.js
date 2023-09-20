@@ -49,6 +49,7 @@ async function getWalletBalance(walletAddress) {
     console.log('inside the getwalletbalance function', walletAddress);
     const balanceWei = await provider.getBalance(walletAddress);
     const balanceEth = ethers.formatEther(balanceWei);
+    console.log('the balance of this wallet in eth is: ', balanceEth);
     return balanceEth;
   } catch (error) {
     console.error(
@@ -77,6 +78,7 @@ router.post('/airdrop', async (req, res) => {
     const recipient = req.body.wallet;
 
     const balance = await getWalletBalance(recipient);
+    console.log('the balance of this user is:: ', balance);
     const journalsBalance = await getWalletJournalBalance(recipient);
     if (Number(balance) === 0) {
       console.log('sending some funds to user');
