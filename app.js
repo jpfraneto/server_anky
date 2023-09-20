@@ -103,6 +103,26 @@ app.get('/writings', async (req, res) => {
   res.json(day);
 });
 
+app.post('/upload-writing', async (req, res) => {
+  console.log('inside the upload writing route');
+  try {
+    console.log('IN HERE', req.body);
+    const { text, date } = req.body;
+    console.log('Time to save the writing of today');
+
+    if (!text || !date) {
+      return res.status(400).json({ error: 'Invalid data' });
+    }
+
+    const bundlrResponseId = await uploadToBundlr(text);
+
+    res.status(201).json({ bundlrResponseId });
+  } catch (error) {
+    console.error('An error occurred while handling your request:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // Route to test push notification
 app.post('/test-push', async (req, res) => {
   // Your existing code
