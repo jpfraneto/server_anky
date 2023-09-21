@@ -17,23 +17,6 @@ const blockchainRoutes = require('./routes/blockchain');
 const aiRoutes = require('./routes/ai');
 const notebooksRoutes = require('./routes/notebooks');
 
-// App initialization
-const app = express();
-const PORT = process.env.PORT || 3000;
-const prisma = new PrismaClient();
-
-// Configurations and setups
-const vapidKeys = {
-  publicKey: process.env.VAPID_PUBLIC_KEY,
-  privateKey: process.env.VAPID_PRIVATE_KEY,
-};
-webPush.setVapidDetails(
-  'mailto:jp@anky.lat',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
-let subscriptions = []; // Store subscriptions
-
 // Middleware
 const whitelist = [
   'http://localhost:3001',
@@ -51,8 +34,24 @@ const corsOptions = {
   },
   credentials: true, // This is important.
 };
-
+// App initialization
+const app = express();
 app.use(cors(corsOptions));
+const PORT = process.env.PORT || 3000;
+const prisma = new PrismaClient();
+
+// Configurations and setups
+const vapidKeys = {
+  publicKey: process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY,
+};
+webPush.setVapidDetails(
+  'mailto:jp@anky.lat',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
+let subscriptions = []; // Store subscriptions
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
