@@ -4,7 +4,6 @@ require('dotenv').config();
 // Third-party libraries
 const express = require('express');
 const webPush = require('web-push');
-const cors = require('cors');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
 const { TypedEthereumSigner } = require('arbundles');
@@ -16,14 +15,6 @@ const { uploadToBundlr } = require('./lib/bundlrSetup');
 const blockchainRoutes = require('./routes/blockchain');
 const aiRoutes = require('./routes/ai');
 const notebooksRoutes = require('./routes/notebooks');
-
-// Constants
-const allowedOrigins = [
-  'https://anky.lat',
-  'https://www.anky.lat',
-  'http://localhost:3001',
-  'http://localhost:3000',
-];
 
 // App initialization
 const app = express();
@@ -42,23 +33,6 @@ webPush.setVapidDetails(
 );
 let subscriptions = []; // Store subscriptions
 
-// Middleware
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      console.log('the origin is: ', origin);
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          'The CORS policy for this site does not allow access from the specified Origin.';
-        console.log('CORS Rejected:', origin);
-        return callback(new Error(msg), false);
-      }
-      console.log('CORS Accepted:', origin);
-      return callback(null, true);
-    },
-  })
-);
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
@@ -68,6 +42,33 @@ app.use('/notebooks', notebooksRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
+});
+
+app.post('/get-initial-eth', async (req, res) => {
+  try {
+    const recipient = req.body.wallet;
+    const balance = await getWalletBalance(recipient);
+    if (Number(balance) === 0) {
+      console.log('The user doesnt have any eth, send it.');
+      const amountToSend = ethers.parseEther('0.005'); // 0.01 ETH in wei
+      const ethTx = await wallet.sendTransaction({
+        to: recipient,
+        value: amountToSend,
+      });
+      console.log('ETH transaction hash:', ethTx.hash);
+      await ethTx.wait(); // Wait for the transaction to be mined
+      res.status(200).json({
+        success: true,
+        message: '0.005 eth transferred to this wallet',
+      });
+    }
+  } catch (error) {
+    console.log('There was an error sending the eth');
+    res.status(500).json({
+      success: false,
+      message: 'There was an error with this transaction.',
+    });
+  }
 });
 
 app.get('/publicKey', async (req, res) => {

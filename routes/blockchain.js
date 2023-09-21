@@ -80,17 +80,6 @@ router.post('/airdrop', async (req, res) => {
     const balance = await getWalletBalance(recipient);
     console.log('the balance of this user is:: ', balance);
     const journalsBalance = await getWalletJournalBalance(recipient);
-    if (Number(balance) === 0) {
-      console.log('sending some funds to user');
-      const amountToSend = ethers.parseEther('0.005'); // 0.01 ETH in wei
-      const ethTx = await wallet.sendTransaction({
-        to: recipient,
-        value: amountToSend,
-      });
-
-      console.log('ETH transaction hash:', ethTx.hash);
-      await ethTx.wait(); // Wait for the transaction to be mined
-    }
 
     // Check if the recipient already owns an Anky Normal.
     const balanceNumber = await ankyAirdropContract.balanceOf(recipient);
@@ -119,6 +108,7 @@ router.post('/airdrop', async (req, res) => {
     console.log('The response for the airdrop is: ', response);
     if (journalsBalance === 0) {
       const tx = await ankyJournalsContract.airdropNft(recipient);
+      console.log('the user was aidropped her first anky journal');
     }
     res.json({ success: true, txHash: tx.hash });
   } catch (error) {
