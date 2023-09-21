@@ -35,8 +35,24 @@ webPush.setVapidDetails(
 let subscriptions = []; // Store subscriptions
 
 // Middleware
-app.use(cors({ origin: '*' }));
+const whitelist = [
+  'http://localhost:3001',
+  'https://anky.lat',
+  'https://www.anky.lat',
+];
+const corsOptions = {
+  origin: function (origin, callback) {
+    console.log('the origin is: ', origin);
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // This is important.
+};
 
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
