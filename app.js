@@ -55,6 +55,17 @@ let subscriptions = []; // Store subscriptions
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+app.use((req, res, next) => {
+  console.log('Request URL:', req.url);
+  console.log('Request Body:', req.body);
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log('CORS headers set:', res.get('Access-Control-Allow-Origin'));
+  next();
+});
+
 app.use('/blockchain', blockchainRoutes);
 app.use('/ai', aiRoutes);
 app.use('/notebooks', notebooksRoutes);
