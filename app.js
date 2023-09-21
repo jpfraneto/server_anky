@@ -17,14 +17,6 @@ const blockchainRoutes = require('./routes/blockchain');
 const aiRoutes = require('./routes/ai');
 const notebooksRoutes = require('./routes/notebooks');
 
-// Constants
-const allowedOrigins = [
-  'https://anky.lat',
-  'https://www.anky.lat',
-  'http://localhost:3001',
-  'http://localhost:3000',
-];
-
 // App initialization
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,22 +35,8 @@ webPush.setVapidDetails(
 let subscriptions = []; // Store subscriptions
 
 // Middleware
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      console.log('the origin is: ', origin);
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          'The CORS policy for this site does not allow access from the specified Origin.';
-        console.log('CORS Rejected:', origin);
-        return callback(new Error(msg), false);
-      }
-      console.log('CORS Accepted:', origin);
-      return callback(null, true);
-    },
-  })
-);
+app.use(cors({ origin: '*' }));
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
