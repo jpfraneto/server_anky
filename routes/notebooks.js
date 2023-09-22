@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
 
 router.post(
   '/eulogia',
-  upload.fields([{ name: 'coverImage' }, { name: 'backgroundImage' }]),
+  upload.fields([{ name: 'coverImage' }]),
   async (req, res) => {
     try {
       console.log('inside the /eulogia/writing route', req.body);
@@ -60,19 +60,21 @@ router.post(
         coverPinataCid = 'QmaVBZ1PgqXoSUBP1nM8FwmVu5zjb8c6BxVrN2LD2oJw78'; // Default CID for cover
       }
 
+      backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
+
       // If backgroundImage is provided by the user, upload it. Otherwise, use the default CID.
-      if (req.files.backgroundImage) {
-        backgroundPinataCid = await uploadImageToPinata(
-          req.files.backgroundImage[0].buffer
-        );
-        if (!backgroundPinataCid) {
-          return res
-            .status(500)
-            .json({ error: 'Failed to upload background image to Pinata.' });
-        }
-      } else {
-        backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
-      }
+      // if (req.files.backgroundImage) {
+      //   backgroundPinataCid = await uploadImageToPinata(
+      //     req.files.backgroundImage[0].buffer
+      //   );
+      //   if (!backgroundPinataCid) {
+      //     return res
+      //       .status(500)
+      //       .json({ error: 'Failed to upload background image to Pinata.' });
+      //   }
+      // } else {
+      //   backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
+      // }
 
       console.log(
         'the cover and background cids : ',
