@@ -164,7 +164,9 @@
     "type": "event"
   },
   {
-    "inputs": [],
+    "inputs": [
+      { "internalType": "address", "name": "userAddress", "type": "address" }
+    ],
     "name": "airdropFirstJournal",
     "outputs": [],
     "stateMutability": "nonpayable",
