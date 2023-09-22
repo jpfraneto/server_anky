@@ -44,28 +44,34 @@ router.post(
     try {
       console.log('inside the /eulogia/writing route', req.body);
 
-      if (!req.files.coverImage || !req.files.backgroundImage) {
-        return res
-          .status(400)
-          .json({ error: 'Both cover and background images are required.' });
+      let coverPinataCid, backgroundPinataCid;
+
+      // If coverImage is provided by the user, upload it. Otherwise, use the default CID.
+      if (req.files.coverImage) {
+        coverPinataCid = await uploadImageToPinata(
+          req.files.coverImage[0].buffer
+        );
+        if (!coverPinataCid) {
+          return res
+            .status(500)
+            .json({ error: 'Failed to upload cover image to Pinata.' });
+        }
+      } else {
+        coverPinataCid = 'QmaVBZ1PgqXoSUBP1nM8FwmVu5zjb8c6BxVrN2LD2oJw78'; // Default CID for cover
       }
 
-      const coverPinataCid = await uploadImageToPinata(
-        req.files.coverImage[0].buffer
-      );
-      if (!coverPinataCid) {
-        return res
-          .status(500)
-          .json({ error: 'Failed to upload cover image to Pinata.' });
-      }
-
-      const backgroundPinataCid = await uploadImageToPinata(
-        req.files.backgroundImage[0].buffer
-      );
-      if (!backgroundPinataCid) {
-        return res
-          .status(500)
-          .json({ error: 'Failed to upload background image to Pinata.' });
+      // If backgroundImage is provided by the user, upload it. Otherwise, use the default CID.
+      if (req.files.backgroundImage) {
+        backgroundPinataCid = await uploadImageToPinata(
+          req.files.backgroundImage[0].buffer
+        );
+        if (!backgroundPinataCid) {
+          return res
+            .status(500)
+            .json({ error: 'Failed to upload background image to Pinata.' });
+        }
+      } else {
+        backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
       }
 
       console.log(
