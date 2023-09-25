@@ -143,6 +143,44 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PagesDepleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "cid",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "PublicJournalWritten",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "address",
         "name": "from",
         "type": "address"
@@ -223,6 +261,7 @@
             "type": "uint8"
           },
           { "internalType": "uint8", "name": "pagesLeft", "type": "uint8" },
+          { "internalType": "uint256", "name": "journalId", "type": "uint256" },
           { "internalType": "string", "name": "metadataCID", "type": "string" },
           {
             "components": [
@@ -231,7 +270,8 @@
                 "internalType": "uint256",
                 "name": "timestamp",
                 "type": "uint256"
-              }
+              },
+              { "internalType": "bool", "name": "isPublic", "type": "bool" }
             ],
             "internalType": "struct AnkyJournals.JournalEntry[]",
             "name": "entries",
@@ -275,6 +315,7 @@
         "type": "uint8"
       },
       { "internalType": "uint8", "name": "pagesLeft", "type": "uint8" },
+      { "internalType": "uint256", "name": "journalId", "type": "uint256" },
       { "internalType": "string", "name": "metadataCID", "type": "string" }
     ],
     "stateMutability": "view",
@@ -479,7 +520,8 @@
   {
     "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-      { "internalType": "string", "name": "cid", "type": "string" }
+      { "internalType": "string", "name": "cid", "type": "string" },
+      { "internalType": "bool", "name": "makePublic", "type": "bool" }
     ],
     "name": "writeJournal",
     "outputs": [],

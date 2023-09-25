@@ -196,6 +196,16 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "ankyTbaToOwnedVirginNotebooks",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "ankyTemplates",
     "outputs": [
@@ -247,6 +257,11 @@
           {
             "internalType": "uint256",
             "name": "templateId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "notebookId",
             "type": "uint256"
           },
           {
@@ -309,7 +324,7 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" }
+      { "internalType": "address", "name": "ankyTbaAddress", "type": "address" }
     ],
     "name": "getUserVirginNotebooks",
     "outputs": [
@@ -360,6 +375,7 @@
     "name": "notebookInstances",
     "outputs": [
       { "internalType": "uint256", "name": "templateId", "type": "uint256" },
+      { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
       { "internalType": "bool", "name": "isVirgin", "type": "bool" }
     ],
     "stateMutability": "view",
