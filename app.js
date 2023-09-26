@@ -93,7 +93,7 @@ app.post('/get-initial-eth', async (req, res) => {
       });
     }
   } catch (error) {
-    console.log('There was an error sending the eth');
+    console.log('There was an error sending the eth', error);
     res.status(500).json({
       success: false,
       message: 'There was an error with this transaction.',
