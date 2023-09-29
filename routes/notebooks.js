@@ -1,10 +1,15 @@
 const express = require('express');
 const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
-const { createNotebookMetadata } = require('../lib/notebooks');
+const {
+  createNotebookMetadata,
+  processFetchedEulogia,
+} = require('../lib/notebooks');
 const { uploadImageToPinata } = require('../lib/pinataSetup');
 const router = express.Router();
 const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
+const ANKY_EULOGIAS_ABI = require('../abis/AnkyEulogias.json');
+
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const { uploadToBundlr } = require('../lib/bundlrSetup');
@@ -18,11 +23,25 @@ const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
-const ankyNotebooksContract = new ethers.Contract(
-  process.env.ANKY_NOTEBOOKS_CONTRACT,
-  ANKY_NOTEBOOKS_ABI,
+const ankyEulogiasContract = new ethers.Contract(
+  process.env.ANKY_EULOGIAS_CONTRACT,
+  ANKY_EULOGIAS_ABI,
   wallet
 );
+
+router.get('/eulogia/:id', async (req, res) => {
+  const eulogiaId = req.params.id;
+
+  try {
+    const thisEulogia = await ankyEulogiasContract.getEulogia(eulogiaId);
+    const processedEulogia = await processFetchedEulogia(thisEulogia);
+    res.status(200).json({ success: true, eulogia: processedEulogia });
+  } catch (error) {
+    console.log('There was an error in the eulogia by id route');
+    console.log(error);
+    return res.status(401).json({ success: false });
+  }
+});
 
 router.post('/', async (req, res) => {
   console.log('inside the notebook post route', req.body);
