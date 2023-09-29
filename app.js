@@ -74,6 +74,21 @@ app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
 });
 
+async function getWalletBalance(walletAddress) {
+  try {
+    console.log('inside the getwalletbalance function', walletAddress);
+    const balanceWei = await provider.getBalance(walletAddress);
+    const balanceEth = ethers.formatEther(balanceWei);
+    return balanceEth;
+  } catch (error) {
+    console.error(
+      `Failed to fetch balance for address ${walletAddress}`,
+      error
+    );
+    return null;
+  }
+}
+
 app.post('/get-initial-eth', async (req, res) => {
   try {
     const recipient = req.body.wallet;
