@@ -107,6 +107,7 @@ app.post('/get-initial-eth', async (req, res) => {
         message: '0.005 eth transferred to this wallet',
       });
     }
+    return res.status(200);
   } catch (error) {
     console.log('There was an error sending the eth', error);
     res.status(500).json({
