@@ -97,23 +97,43 @@ async function getWalletBalance(walletAddress) {
   }
 }
 
+async function getPendingTransactionCount(wallet) {
+  return await provider.getTransactionCount(wallet, 'pending');
+}
+
 app.post('/get-initial-eth', async (req, res) => {
   try {
     const recipient = req.body.wallet;
     const balance = await getWalletBalance(recipient);
     if (Number(balance) === 0) {
       console.log('The user doesnt have any eth, send it.');
-      const amountToSend = ethers.parseEther('0.005'); // 0.01 ETH in wei
-      const ethTx = await wallet.sendTransaction({
-        to: recipient,
-        value: amountToSend,
-      });
-      console.log('ETH transaction hash:', ethTx.hash);
-      await ethTx.wait(); // Wait for the transaction to be mined
-      res.status(200).json({
-        success: true,
-        message: '0.005 eth transferred to this wallet',
-      });
+
+      // Get the current nonce and pending nonce
+      const currentNonce = await provider.getTransactionCount(wallet.address);
+      const pendingNonce = await getPendingTransactionCount(wallet.address);
+
+      // If they're the same, there's no pending transaction
+      if (currentNonce === pendingNonce) {
+        const amountToSend = ethers.parseEther('0.005');
+        const ethTx = await wallet.sendTransaction({
+          to: recipient,
+          value: amountToSend,
+          nonce: currentNonce, // Set the nonce explicitly
+        });
+        console.log('ETH transaction hash:', ethTx.hash);
+        await ethTx.wait(); // Wait for the transaction to be mined
+        return res.status(200).json({
+          success: true,
+          message: '0.005 eth transferred to this wallet',
+        });
+      } else {
+        // You may decide to handle this differently.
+        console.log('There are pending transactions.');
+        return res.status(400).json({
+          success: false,
+          message: 'There are pending transactions. Please try again later.',
+        });
+      }
     }
     return res.status(200);
   } catch (error) {
