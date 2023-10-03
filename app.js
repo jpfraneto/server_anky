@@ -74,6 +74,8 @@ app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
 });
 
+const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
+
 async function getWalletBalance(walletAddress) {
   try {
     console.log('inside the getwalletbalance function', walletAddress);

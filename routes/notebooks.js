@@ -81,20 +81,6 @@ router.post(
 
       backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
 
-      // If backgroundImage is provided by the user, upload it. Otherwise, use the default CID.
-      // if (req.files.backgroundImage) {
-      //   backgroundPinataCid = await uploadImageToPinata(
-      //     req.files.backgroundImage[0].buffer
-      //   );
-      //   if (!backgroundPinataCid) {
-      //     return res
-      //       .status(500)
-      //       .json({ error: 'Failed to upload background image to Pinata.' });
-      //   }
-      // } else {
-      //   backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
-      // }
-
       console.log(
         'the cover and background cids : ',
         coverPinataCid,
