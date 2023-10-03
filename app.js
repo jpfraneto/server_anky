@@ -4,6 +4,7 @@ require('dotenv').config();
 // Third-party libraries
 const express = require('express');
 const webPush = require('web-push');
+const { ethers } = require('ethers');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
