@@ -75,6 +75,10 @@ app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
 });
 
+const network = 'baseGoerli';
+
+const privateKey = process.env.PRIVATE_KEY;
+
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
