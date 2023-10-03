@@ -119,8 +119,6 @@ app.post('/get-initial-eth', async (req, res) => {
       if (currentNonce === pendingNonce) {
         const amountToSend = ethers.parseEther('0.005');
         console.log('the amount to send is: ', amountToSend);
-        const pendingTransactions = await provider.getPendingTransactions();
-        console.log('Pending transactions:', pendingTransactions);
 
         const ethTx = await wallet.sendTransaction({
           to: recipient,
