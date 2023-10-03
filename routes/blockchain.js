@@ -77,8 +77,6 @@ router.post('/airdrop', async (req, res) => {
     console.log('inside this route (airdrop)');
     const recipient = req.body.wallet;
 
-    const balance = await getWalletBalance(recipient);
-    console.log('the balance of this user is:: ', balance);
     const journalsBalance = await getWalletJournalBalance(recipient);
 
     // Check if the recipient already owns an Anky Normal.
