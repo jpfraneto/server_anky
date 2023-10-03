@@ -119,6 +119,9 @@ app.post('/get-initial-eth', async (req, res) => {
       if (currentNonce === pendingNonce) {
         const amountToSend = ethers.parseEther('0.005');
         console.log('the amount to send is: ', amountToSend);
+        const pendingTransactions = await provider.getPendingTransactions();
+        console.log('Pending transactions:', pendingTransactions);
+
         const ethTx = await wallet.sendTransaction({
           to: recipient,
           value: amountToSend,
@@ -142,7 +145,7 @@ app.post('/get-initial-eth', async (req, res) => {
     return res.status(200);
   } catch (error) {
     console.log('There was an error sending the eth', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'There was an error with this transaction.',
     });
