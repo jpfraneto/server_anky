@@ -76,6 +76,7 @@ app.get('/', (req, res) => {
 });
 
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
+const wallet = new ethers.Wallet(privateKey, provider);
 
 async function getWalletBalance(walletAddress) {
   try {
