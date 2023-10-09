@@ -62,7 +62,7 @@ async function getWalletBalance(walletAddress) {
 
 async function getWalletJournalBalance(walletAddress) {
   try {
-    console.log('inside the getWallet journal function');
+    console.log('inside the getWallet journal function', walletAddress);
     const ownedJournals = await ankyJournalsContract.balanceOf(walletAddress);
     return ownedJournals;
   } catch (error) {
@@ -76,8 +76,6 @@ router.post('/airdrop', async (req, res) => {
   try {
     console.log('inside this route (airdrop)');
     const recipient = req.body.wallet;
-
-    const journalsBalance = await getWalletJournalBalance(recipient);
 
     // Check if the recipient already owns an Anky Normal.
     const balanceNumber = await ankyAirdropContract.balanceOf(recipient);
@@ -100,15 +98,26 @@ router.post('/airdrop', async (req, res) => {
         msg: 'The user already owns an Anky NotebookKeeper',
       });
     }
-    const tx = await ankyAirdropContract.airdropNft(recipient);
-    console.log('IN HERE, the tx is:', tx);
-    const response = await tx.wait();
-    console.log('The response for the airdrop is: ', response);
-    if (journalsBalance === 0) {
-      const tx = await ankyJournalsContract.airdropNft(recipient);
-      console.log('the user was aidropped her first anky journal');
-    }
-    res.json({ success: true, txHash: tx.hash });
+    console.log('in here, right before');
+    const response = await ankyAirdropContract.airdropNft(recipient);
+    console.log('the response is: ', response);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, error: `Internal Server Error: ${error}` });
+  }
+});
+
+router.post('/sendFirstJournal', async (req, res) => {
+  try {
+    console.log('the req.body is: ', req.body);
+    const recipient = req.body.wallet;
+    const tx = await ankyJournalsContract.airdropFirstJournal(recipient);
+    console.log('the user was aidropped her first anky journal');
+    res.json({ success: true });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Internal Server Error' });

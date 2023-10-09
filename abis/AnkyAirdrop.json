@@ -203,7 +203,10 @@
   {
     "inputs": [{ "internalType": "address", "name": "to", "type": "address" }],
     "name": "airdropNft",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" },
+      { "internalType": "string", "name": "", "type": "string" }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

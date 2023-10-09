@@ -127,6 +127,7 @@ app.post('/get-initial-eth', async (req, res) => {
         });
         console.log('ETH transaction hash:', ethTx.hash);
         await ethTx.wait(); // Wait for the transaction to be mined
+        console.log('transaction successful');
         return res.status(200).json({
           success: true,
           message: '0.005 eth transferred to this wallet',
@@ -140,7 +141,10 @@ app.post('/get-initial-eth', async (req, res) => {
         });
       }
     }
-    return res.status(200);
+    return res.status(200).json({
+      success: true,
+      message: 'the account already owns some test eth.',
+    });
   } catch (error) {
     console.log('There was an error sending the eth', error);
     return res.status(500).json({

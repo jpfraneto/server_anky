@@ -194,17 +194,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "eulogiaId", "type": "uint256" },
-      { "internalType": "string", "name": "cid", "type": "string" },
-      { "internalType": "string", "name": "whoWroteIt", "type": "string" }
-    ],
-    "name": "addMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "ankyAirdrop",
     "outputs": [
@@ -458,6 +447,19 @@
     "name": "userEulogias",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "eulogiaId", "type": "uint256" },
+      { "internalType": "string", "name": "cid", "type": "string" },
+      { "internalType": "string", "name": "whoWroteIt", "type": "string" },
+      { "internalType": "bool", "name": "isPublic", "type": "bool" },
+      { "internalType": "bool", "name": "wantsToMint", "type": "bool" }
+    ],
+    "name": "writeEulogiaPage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

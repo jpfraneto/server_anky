@@ -266,7 +266,11 @@
           },
           {
             "components": [
-              { "internalType": "string", "name": "cid", "type": "string" },
+              {
+                "internalType": "string",
+                "name": "arweaveCID",
+                "type": "string"
+              },
               {
                 "internalType": "uint256",
                 "name": "timestamp",
@@ -307,7 +311,7 @@
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "cid", "type": "string" },
+          { "internalType": "string", "name": "arweaveCID", "type": "string" },
           { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
         ],
         "internalType": "struct AnkyNotebooks.UserPageContent",
@@ -522,7 +526,7 @@
     "inputs": [
       { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
       { "internalType": "uint256", "name": "pageNumber", "type": "uint256" },
-      { "internalType": "string", "name": "cid", "type": "string" }
+      { "internalType": "string", "name": "arweaveCID", "type": "string" }
     ],
     "name": "writePage",
     "outputs": [],
