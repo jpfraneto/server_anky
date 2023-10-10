@@ -115,6 +115,10 @@ router.post('/sendFirstJournal', async (req, res) => {
   try {
     console.log('the req.body is: ', req.body);
     const recipient = req.body.wallet;
+    console.log(
+      'right before sending the first journal to the user',
+      recipient
+    );
     const tx = await ankyJournalsContract.airdropFirstJournal(recipient);
     console.log('the user was aidropped her first anky journal');
     res.json({ success: true });

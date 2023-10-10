@@ -526,7 +526,8 @@
     "inputs": [
       { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
       { "internalType": "uint256", "name": "pageNumber", "type": "uint256" },
-      { "internalType": "string", "name": "arweaveCID", "type": "string" }
+      { "internalType": "string", "name": "arweaveCID", "type": "string" },
+      { "internalType": "bool", "name": "userWantsPublic", "type": "bool" }
     ],
     "name": "writePage",
     "outputs": [],
