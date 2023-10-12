@@ -22,7 +22,7 @@ const ankyAirdropContract = new ethers.Contract(
 );
 
 const ankyJournalsContract = new ethers.Contract(
-  process.env.ANKY_AIRDROP_CONTRACT_ADDRESS,
+  process.env.ANKY_JOURNALS_CONTRACT,
   ANKY_JOURNALS_ABI,
   wallet
 );
