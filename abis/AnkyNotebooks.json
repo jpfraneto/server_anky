@@ -196,16 +196,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "ankyTbaToOwnedVirginNotebooks",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "ankyTemplates",
     "outputs": [
@@ -318,17 +308,6 @@
         "name": "",
         "type": "tuple"
       }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "ankyTbaAddress", "type": "address" }
-    ],
-    "name": "getUserVirginNotebooks",
-    "outputs": [
-      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -529,7 +508,7 @@
       { "internalType": "string", "name": "arweaveCID", "type": "string" },
       { "internalType": "bool", "name": "userWantsPublic", "type": "bool" }
     ],
-    "name": "writePage",
+    "name": "writeNotebookPage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
