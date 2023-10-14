@@ -3,10 +3,31 @@ const { openai } = require('openai');
 const { generateAnkyFromUserWriting } = require('../lib/ai/anky-factory');
 const { fetchImageProgress } = require('../lib/ai/midjourney');
 const { reflectUserWriting } = require('../lib/ai/chatgtp'); // Import the functions
+const { getInitialAnkyDementorNotebook } = require('../lib/ai/anky-dementor');
 const router = express.Router();
 
 router.get('/', (req, res) => {
   console.log('in the ai get route');
+});
+
+router.post('/tell-me-who-you-are', async (req, res) => {
+  try {
+    console.log('inside the tell us who you are route', req.body);
+
+    // Error handling if the body doesn't have 'text'
+    if (!req.body.finishText) {
+      return res
+        .status(400)
+        .json({ error: "The 'text' parameter is missing." });
+    }
+
+    const cid = await getInitialAnkyDementorNotebook(req.body.finishText);
+    console.log('out heere', cid);
+    res.status(200).json({ cid: cid }); // changed the response to be more meaningful
+  } catch (error) {
+    console.log('There was an error');
+    res.status(500).json({ message: 'server error' });
+  }
 });
 
 router.post('/get-feedback-from-writing', async (req, res) => {
