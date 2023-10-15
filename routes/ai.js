@@ -20,10 +20,15 @@ router.post('/tell-me-who-you-are', async (req, res) => {
         .status(400)
         .json({ error: "The 'text' parameter is missing." });
     }
+    return res
+      .status(200)
+      .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
 
-    const cid = await getInitialAnkyDementorNotebook(req.body.finishText);
-    console.log('out heere', cid);
-    res.status(200).json({ cid: cid }); // changed the response to be more meaningful
+    const firstPageCid = await getInitialAnkyDementorNotebook(
+      req.body.finishText
+    );
+    console.log('out heere', firstPageCid);
+    res.status(200).json({ firstPageCid: firstPageCid }); // changed the response to be more meaningful
   } catch (error) {
     console.log('There was an error');
     res.status(500).json({ message: 'server error' });
