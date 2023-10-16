@@ -3,7 +3,11 @@ const { openai } = require('openai');
 const { generateAnkyFromUserWriting } = require('../lib/ai/anky-factory');
 const { fetchImageProgress } = require('../lib/ai/midjourney');
 const { reflectUserWriting } = require('../lib/ai/chatgtp'); // Import the functions
-const { getInitialAnkyDementorNotebook } = require('../lib/ai/anky-dementor');
+const {
+  getInitialAnkyDementorNotebook,
+  getSubsequentAnkyDementorNotebookPage,
+} = require('../lib/ai/anky-dementor');
+const { uploadToBundlr } = require('../lib/bundlrSetup');
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -31,6 +35,35 @@ router.post('/tell-me-who-you-are', async (req, res) => {
     res.status(200).json({ firstPageCid: firstPageCid }); // changed the response to be more meaningful
   } catch (error) {
     console.log('There was an error');
+    res.status(500).json({ message: 'server error' });
+  }
+});
+
+router.post('/get-subsequent-page', async (req, res) => {
+  try {
+    console.log('inside the get subsequent page route', req.body);
+
+    // Error handling if the body doesn't have 'text'
+    if (!req.body.finishText || !req.body.prompts) {
+      return res
+        .status(400)
+        .json({ error: "The 'text' or 'prompts' parameter is missing." });
+    }
+
+    return res.status(200).json({
+      thisWritingCid: 'mqb55JMU9OR43Hk6AZL5l6TEVjImcwMsY03Z5rKd3as',
+      newPageCid: '5rCS8IHvoEUwt6zfzqfdkR5cRcEuaSJPZeRTQCsHZSQ',
+    });
+    const thisWritingCid = await uploadToBundlr(req.body.finishText);
+    console.log('this writing cid is: ', thisWritingCid);
+    const newPageCid = await getSubsequentAnkyDementorNotebookPage(
+      req.body.finishText,
+      req.body.prompts
+    );
+    console.log('out heeeREEEEE', newPageCid);
+    res.status(200).json({ newPageCid: newPageCid }); // changed the response to be more meaningful
+  } catch (error) {
+    console.log('There was an error', error);
     res.status(500).json({ message: 'server error' });
   }
 });
