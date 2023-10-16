@@ -6,6 +6,7 @@ const { reflectUserWriting } = require('../lib/ai/chatgtp'); // Import the funct
 const {
   getInitialAnkyDementorNotebook,
   getSubsequentAnkyDementorNotebookPage,
+  getThisPageStory,
 } = require('../lib/ai/anky-dementor');
 const { uploadToBundlr } = require('../lib/bundlrSetup');
 const router = express.Router();
@@ -24,9 +25,9 @@ router.post('/tell-me-who-you-are', async (req, res) => {
         .status(400)
         .json({ error: "The 'text' parameter is missing." });
     }
-    return res
-      .status(200)
-      .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
+    // return res
+    //   .status(200)
+    //   .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
 
     const firstPageCid = await getInitialAnkyDementorNotebook(
       req.body.finishText
@@ -50,18 +51,27 @@ router.post('/get-subsequent-page', async (req, res) => {
         .json({ error: "The 'text' or 'prompts' parameter is missing." });
     }
 
-    return res.status(200).json({
-      thisWritingCid: 'mqb55JMU9OR43Hk6AZL5l6TEVjImcwMsY03Z5rKd3as',
-      newPageCid: '5rCS8IHvoEUwt6zfzqfdkR5cRcEuaSJPZeRTQCsHZSQ',
-    });
+    // return res.status(200).json({
+    //   thisWritingCid: 'mqb55JMU9OR43Hk6AZL5l6TEVjImcwMsY03Z5rKd3as',
+    //   newPageCid: '5rCS8IHvoEUwt6zfzqfdkR5cRcEuaSJPZeRTQCsHZSQ',
+    // });
     const thisWritingCid = await uploadToBundlr(req.body.finishText);
     console.log('this writing cid is: ', thisWritingCid);
     const newPageCid = await getSubsequentAnkyDementorNotebookPage(
       req.body.finishText,
       req.body.prompts
     );
-    console.log('out heeeREEEEE', newPageCid);
-    res.status(200).json({ newPageCid: newPageCid }); // changed the response to be more meaningful
+    if (req.body.prevPageStoryCid) {
+      const thisPageStoryCid = await getThisPageStory(
+        req.body.finishText,
+        req.body.prompts,
+        req.body.prevPageStoryCid
+      );
+      console.log('out heeeREEEEE', newPageCid);
+    }
+    res
+      .status(200)
+      .json({ thisWritingCid: thisWritingCid, newPageCid: newPageCid }); // changed the response to be more meaningful
   } catch (error) {
     console.log('There was an error', error);
     res.status(500).json({ message: 'server error' });
