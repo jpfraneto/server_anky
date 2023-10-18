@@ -2,6 +2,7 @@ const express = require('express');
 const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
 const router = express.Router();
+const checkIfLoggedInMiddleware = require('../middleware/checkIfLoggedIn');
 const ANKY_AIRDROP_ABI = require('../abis/AnkyAirdrop.json');
 const ANKY_JOURNALS_ABI = require('../abis/AnkyJournals.json');
 
@@ -72,7 +73,7 @@ async function getWalletJournalBalance(walletAddress) {
 }
 
 // Route to airdrop the anky to the user that is making the request.
-router.post('/airdrop', async (req, res) => {
+router.post('/airdrop', checkIfLoggedInMiddleware, async (req, res) => {
   try {
     console.log('inside this route (airdrop)');
     const recipient = req.body.wallet;
@@ -111,21 +112,25 @@ router.post('/airdrop', async (req, res) => {
   }
 });
 
-router.post('/sendFirstJournal', async (req, res) => {
-  try {
-    console.log('the req.body is: ', req.body);
-    const recipient = req.body.wallet;
-    console.log(
-      'right before sending the first journal to the user',
-      recipient
-    );
-    const tx = await ankyJournalsContract.airdropFirstJournal(recipient);
-    console.log('the user was aidropped her first anky journal');
-    res.json({ success: true });
-  } catch (error) {
-    console.error(error);
-    res.status(200).json({ success: true, error: 'Internal Server Error' });
+router.post(
+  '/sendFirstJournal',
+  checkIfLoggedInMiddleware,
+  async (req, res) => {
+    try {
+      console.log('the req.body is: ', req.body);
+      const recipient = req.body.wallet;
+      console.log(
+        'right before sending the first journal to the user',
+        recipient
+      );
+      const tx = await ankyJournalsContract.airdropFirstJournal(recipient);
+      console.log('the user was aidropped her first anky journal');
+      res.json({ success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(200).json({ success: true, error: 'Internal Server Error' });
+    }
   }
-});
+);
 
 module.exports = router;

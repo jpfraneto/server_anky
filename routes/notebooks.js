@@ -1,6 +1,7 @@
 const express = require('express');
 const { ethers } = require('ethers');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
+const checkIfLoggedInMiddleware = require('../middleware/checkIfLoggedIn');
 const {
   createNotebookMetadata,
   processFetchedEulogia,
@@ -50,7 +51,7 @@ router.get('/template/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
   console.log('inside the notebook post route', req.body);
   try {
     const metadataCID = await createNotebookMetadata(req.body);
@@ -77,7 +78,7 @@ router.get('/eulogia/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
   console.log('inside the notebook post route', req.body);
   try {
     const metadataCID = await createNotebookMetadata(req.body);
@@ -92,6 +93,7 @@ router.post('/', async (req, res) => {
 
 router.post(
   '/eulogia',
+  checkIfLoggedInMiddleware,
   upload.fields([{ name: 'coverImage' }]),
   async (req, res) => {
     try {
@@ -147,7 +149,7 @@ router.post(
   }
 );
 
-router.post('/eulogia/writing', async (req, res) => {
+router.post('/eulogia/writing', checkIfLoggedInMiddleware, async (req, res) => {
   try {
     console.log('inside the /eulogia/writing route', req.body);
     const text = req.body.text;
@@ -160,7 +162,7 @@ router.post('/eulogia/writing', async (req, res) => {
   }
 });
 
-router.post('/upload-writing', async (req, res) => {
+router.post('/upload-writing', checkIfLoggedInMiddleware, async (req, res) => {
   try {
     console.log('inside the upload-writing route', req.body);
     const text = req.body.text;
