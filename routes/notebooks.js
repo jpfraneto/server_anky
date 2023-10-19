@@ -141,7 +141,13 @@ router.post(
           .json({ error: 'Failed to upload text to Bundlr.' });
       }
 
-      res.status(200).json({ cid: cid });
+      res
+        .status(200)
+        .json({
+          cid: cid,
+          backgroundImageCid: backgroundPinataCid,
+          coverImageCid: coverPinataCid,
+        });
     } catch (error) {
       console.error('Failed to upload:', error);
       res.status(500).json({ error: 'Failed to upload.' });

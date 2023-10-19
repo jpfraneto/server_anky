@@ -28,9 +28,9 @@ router.post(
           .json({ error: "The 'text' parameter is missing." });
       }
 
-      return res
-        .status(200)
-        .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
+      // return res
+      //   .status(200)
+      //   .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
 
       const firstPageCid = await getInitialAnkyDementorNotebook(
         req.body.finishText
@@ -56,10 +56,10 @@ router.post(
           .json({ error: "The 'text' or 'prompts' parameter is missing." });
       }
 
-      return res.status(200).json({
-        thisWritingCid: 'mqb55JMU9OR43Hk6AZL5l6TEVjImcwMsY03Z5rKd3as',
-        newPageCid: '5rCS8IHvoEUwt6zfzqfdkR5cRcEuaSJPZeRTQCsHZSQ',
-      });
+      // return res.status(200).json({
+      //   thisWritingCid: 'mqb55JMU9OR43Hk6AZL5l6TEVjImcwMsY03Z5rKd3as',
+      //   newPageCid: '5rCS8IHvoEUwt6zfzqfdkR5cRcEuaSJPZeRTQCsHZSQ',
+      // });
 
       const thisWritingCid = await uploadToBundlr(req.body.finishText);
       console.log('this writing cid is: ', thisWritingCid);
