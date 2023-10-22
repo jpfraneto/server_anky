@@ -61,9 +61,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "journalId",
+        "type": "uint32"
       },
       {
         "indexed": true,
@@ -80,9 +80,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "journalId",
+        "type": "uint32"
       },
       {
         "indexed": true,
@@ -118,9 +118,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "journalId",
+        "type": "uint32"
       }
     ],
     "name": "PagesDepleted",
@@ -199,7 +199,7 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      { "internalType": "uint32", "name": "journalId", "type": "uint32" }
     ],
     "name": "getJournal",
     "outputs": [
@@ -211,7 +211,7 @@
             "type": "uint8"
           },
           { "internalType": "uint8", "name": "pagesLeft", "type": "uint8" },
-          { "internalType": "uint256", "name": "journalId", "type": "uint256" },
+          { "internalType": "uint32", "name": "journalId", "type": "uint32" },
           { "internalType": "string", "name": "metadataCID", "type": "string" },
           {
             "components": [
@@ -239,9 +239,7 @@
   {
     "inputs": [],
     "name": "getUserJournals",
-    "outputs": [
-      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
-    ],
+    "outputs": [{ "internalType": "uint32[]", "name": "", "type": "uint32[]" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -256,7 +254,7 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "name": "journals",
     "outputs": [
       {
@@ -265,7 +263,7 @@
         "type": "uint8"
       },
       { "internalType": "uint8", "name": "pagesLeft", "type": "uint8" },
-      { "internalType": "uint256", "name": "journalId", "type": "uint256" },
+      { "internalType": "uint32", "name": "journalId", "type": "uint32" },
       { "internalType": "string", "name": "metadataCID", "type": "string" }
     ],
     "stateMutability": "view",
@@ -291,7 +289,8 @@
         "internalType": "enum AnkyJournals.JournalType",
         "name": "journalType",
         "type": "uint8"
-      }
+      },
+      { "internalType": "uint256", "name": "randomUID", "type": "uint256" }
     ],
     "name": "mintJournal",
     "outputs": [],
@@ -456,7 +455,7 @@
       { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
     "name": "userJournalIds",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -469,7 +468,7 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "journalId", "type": "uint256" },
+      { "internalType": "uint32", "name": "journalId", "type": "uint32" },
       { "internalType": "string", "name": "cid", "type": "string" },
       { "internalType": "bool", "name": "isPublic", "type": "bool" }
     ],

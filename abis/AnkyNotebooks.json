@@ -81,9 +81,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "instanceId",
-        "type": "uint256"
+        "type": "uint32"
       },
       {
         "indexed": true,
@@ -93,9 +93,9 @@
       },
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "templateId",
-        "type": "uint256"
+        "type": "uint32"
       }
     ],
     "name": "NotebookMinted",
@@ -125,9 +125,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
+        "internalType": "uint32",
         "name": "notebookId",
-        "type": "uint256"
+        "type": "uint32"
       },
       {
         "indexed": true,
@@ -191,7 +191,7 @@
       { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
     "name": "ankyTbaToOwnedNotebooks",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -238,22 +238,14 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "notebookId", "type": "uint256" }
+      { "internalType": "uint32", "name": "notebookId", "type": "uint32" }
     ],
     "name": "getFullNotebook",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "uint256",
-            "name": "templateId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "notebookId",
-            "type": "uint256"
-          },
+          { "internalType": "uint32", "name": "templateId", "type": "uint32" },
+          { "internalType": "uint32", "name": "notebookId", "type": "uint32" },
           {
             "components": [
               {
@@ -286,15 +278,13 @@
       { "internalType": "address", "name": "user", "type": "address" }
     ],
     "name": "getOwnedNotebooks",
-    "outputs": [
-      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
-    ],
+    "outputs": [{ "internalType": "uint32[]", "name": "", "type": "uint32[]" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
+      { "internalType": "uint32", "name": "notebookId", "type": "uint32" },
       { "internalType": "uint256", "name": "pageNumber", "type": "uint256" }
     ],
     "name": "getPageContent",
@@ -324,7 +314,7 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "notebookId", "type": "uint256" }
+      { "internalType": "uint32", "name": "notebookId", "type": "uint32" }
     ],
     "name": "isVirgin",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
@@ -334,8 +324,9 @@
   {
     "inputs": [
       { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "templateId", "type": "uint256" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      { "internalType": "uint32", "name": "templateId", "type": "uint32" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
+      { "internalType": "uint256", "name": "randomUID", "type": "uint256" }
     ],
     "name": "mintNotebook",
     "outputs": [],
@@ -350,18 +341,18 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "name": "notebookInstances",
     "outputs": [
-      { "internalType": "uint256", "name": "templateId", "type": "uint256" },
-      { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
+      { "internalType": "uint32", "name": "templateId", "type": "uint32" },
+      { "internalType": "uint32", "name": "notebookId", "type": "uint32" },
       { "internalType": "bool", "name": "isVirgin", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "name": "notebookLastPageWritten",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
@@ -503,7 +494,7 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
+      { "internalType": "uint32", "name": "notebookId", "type": "uint32" },
       { "internalType": "uint256", "name": "pageNumber", "type": "uint256" },
       { "internalType": "string", "name": "arweaveCID", "type": "string" },
       { "internalType": "bool", "name": "userWantsPublic", "type": "bool" }
