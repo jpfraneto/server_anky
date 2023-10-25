@@ -125,10 +125,12 @@ router.post(
       );
       const tx = await ankyJournalsContract.airdropFirstJournal(recipient);
       console.log('the user was aidropped her first anky journal');
-      res.json({ success: true });
+      res.json({ success: true, txHash: tx.hash });
     } catch (error) {
       console.error(error);
-      res.status(200).json({ success: true, error: 'Internal Server Error' });
+      res
+        .status(200)
+        .json({ success: true, error: 'The user already owns a journal' });
     }
   }
 );
