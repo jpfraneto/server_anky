@@ -76,7 +76,7 @@ app.get('/', (req, res) => {
 });
 
 const network = 'baseGoerli';
-
+console.log('before here');
 const privateKey = process.env.PRIVATE_KEY;
 
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);

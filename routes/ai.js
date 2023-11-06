@@ -28,9 +28,9 @@ router.post(
           .json({ error: "The 'text' parameter is missing." });
       }
 
-      // return res
-      //   .status(200)
-      //   .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
+      return res
+        .status(200)
+        .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
 
       const firstPageCid = await getInitialAnkyDementorNotebook(
         req.body.finishText
@@ -57,27 +57,16 @@ router.post(
       }
 
       // return res.status(200).json({
-      //   thisWritingCid: 'mqb55JMU9OR43Hk6AZL5l6TEVjImcwMsY03Z5rKd3as',
-      //   newPageCid: '5rCS8IHvoEUwt6zfzqfdkR5cRcEuaSJPZeRTQCsHZSQ',
+      //   ankyDementorNewPagePrompts: prompts,
       // });
 
-      const thisWritingCid = await uploadToBundlr(req.body.finishText);
-      console.log('this writing cid is: ', thisWritingCid);
-      const newPageCid = await getSubsequentAnkyDementorNotebookPage(
-        req.body.finishText,
-        req.body.prompts
-      );
-      if (req.body.prevPageStoryCid) {
-        const thisPageStoryCid = await getThisPageStory(
+      const ankyDementorNewPagePrompts =
+        await getSubsequentAnkyDementorNotebookPage(
           req.body.finishText,
-          req.body.prompts,
-          req.body.prevPageStoryCid
+          req.body.prompts
         );
-        console.log('out heeeREEEEE', newPageCid);
-      }
-      res
-        .status(200)
-        .json({ thisWritingCid: thisWritingCid, newPageCid: newPageCid }); // changed the response to be more meaningful
+
+      res.status(200).json({ newPrompts: ankyDementorNewPagePrompts }); // changed the response to be more meaningful
     } catch (error) {
       console.log('There was an error', error);
       res.status(500).json({ message: 'server error' });

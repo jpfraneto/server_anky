@@ -17,7 +17,7 @@ const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
 const ankyAirdropContract = new ethers.Contract(
-  process.env.ANKY_AIRDROP_CONTRACT_ADDRESS,
+  process.env.ANKY_AIRDROP_SMART_CONTRACT,
   ANKY_AIRDROP_ABI,
   wallet
 );

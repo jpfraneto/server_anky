@@ -62,7 +62,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "dementorId",
         "type": "uint256"
       },
       {
@@ -72,7 +72,7 @@
         "type": "address"
       }
     ],
-    "name": "DementorNotebookCreated",
+    "name": "DementorCreated",
     "type": "event"
   },
   {
@@ -148,28 +148,20 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "string", "name": "introCID", "type": "string" }
-    ],
-    "name": "createAnkyDementorNotebook",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "dementorNotebooks",
-    "outputs": [
-      { "internalType": "string", "name": "introCID", "type": "string" },
-      { "internalType": "uint256", "name": "currentPage", "type": "uint256" }
-    ],
+    "inputs": [],
+    "name": "dementorPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "doesUserOwnAnkyDementor",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "dementors",
+    "outputs": [
+      { "internalType": "uint256", "name": "dementorId", "type": "uint256" },
+      { "internalType": "string", "name": "metadataCID", "type": "string" },
+      { "internalType": "string", "name": "passwordsCID", "type": "string" }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -184,28 +176,42 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dementorNotebookId",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "dementorId", "type": "uint256" }
     ],
-    "name": "getCurrentPage",
+    "name": "getDementor",
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "promptCID", "type": "string" },
           {
-            "internalType": "string",
-            "name": "userWritingCID",
-            "type": "string"
+            "internalType": "uint256",
+            "name": "dementorId",
+            "type": "uint256"
           },
-          { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+          { "internalType": "string", "name": "metadataCID", "type": "string" },
+          { "internalType": "string", "name": "passwordsCID", "type": "string" }
         ],
-        "internalType": "struct AnkyDementor.DementorPage",
+        "internalType": "struct NewAnkyDementor.Dementor",
         "name": "",
         "type": "tuple"
       }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "dementorId", "type": "uint256" }
+    ],
+    "name": "getPasswordCID",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getUserDementors",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -218,6 +224,17 @@
     "name": "isApprovedForAll",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "randomUID", "type": "uint256" },
+      { "internalType": "string", "name": "metadataCID", "type": "string" },
+      { "internalType": "string", "name": "passwordsCID", "type": "string" }
+    ],
+    "name": "mintDementor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -285,6 +302,15 @@
   },
   {
     "inputs": [
+      { "internalType": "uint256", "name": "_price", "type": "uint256" }
+    ],
+    "name": "setDementorPrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
     ],
     "name": "supportsInterface",
@@ -301,36 +327,10 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "index", "type": "uint256" }
-    ],
-    "name": "tokenByIndex",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" },
-      { "internalType": "uint256", "name": "index", "type": "uint256" }
-    ],
-    "name": "tokenOfOwnerByIndex",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
     "name": "tokenURI",
     "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -355,23 +355,18 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "userDementorIds",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "dementorNotebookId",
-        "type": "uint256"
-      },
-      { "internalType": "string", "name": "userWritingCID", "type": "string" },
-      { "internalType": "string", "name": "nextPromptCID", "type": "string" }
-    ],
-    "name": "writeDementorPage",
+    "inputs": [],
+    "name": "withdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

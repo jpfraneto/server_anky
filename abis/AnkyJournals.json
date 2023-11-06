@@ -61,28 +61,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint32",
+        "internalType": "uint256",
         "name": "journalId",
-        "type": "uint32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "JournalAirdropped",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint32",
-        "name": "journalId",
-        "type": "uint32"
+        "type": "uint256"
       },
       {
         "indexed": true,
@@ -91,7 +72,7 @@
         "type": "address"
       }
     ],
-    "name": "JournalMinted",
+    "name": "JournalCreated",
     "type": "event"
   },
   {
@@ -118,19 +99,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint32",
-        "name": "journalId",
-        "type": "uint32"
-      }
-    ],
-    "name": "PagesDepleted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "from",
         "type": "address"
@@ -150,15 +118,6 @@
     ],
     "name": "Transfer",
     "type": "event"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "userAddress", "type": "address" }
-    ],
-    "name": "airdropFirstJournal",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -199,36 +158,17 @@
   },
   {
     "inputs": [
-      { "internalType": "uint32", "name": "journalId", "type": "uint32" }
+      { "internalType": "uint256", "name": "journalId", "type": "uint256" }
     ],
     "name": "getJournal",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "enum AnkyJournals.JournalType",
-            "name": "journalType",
-            "type": "uint8"
-          },
-          { "internalType": "uint8", "name": "pagesLeft", "type": "uint8" },
-          { "internalType": "uint32", "name": "journalId", "type": "uint32" },
+          { "internalType": "uint256", "name": "journalId", "type": "uint256" },
           { "internalType": "string", "name": "metadataCID", "type": "string" },
-          {
-            "components": [
-              { "internalType": "string", "name": "cid", "type": "string" },
-              {
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
-              },
-              { "internalType": "bool", "name": "isPublic", "type": "bool" }
-            ],
-            "internalType": "struct AnkyJournals.JournalEntry[]",
-            "name": "entries",
-            "type": "tuple[]"
-          }
+          { "internalType": "string", "name": "passwordsCID", "type": "string" }
         ],
-        "internalType": "struct AnkyJournals.Journal",
+        "internalType": "struct NewAnkyJournals.Journal",
         "name": "",
         "type": "tuple"
       }
@@ -237,9 +177,20 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "journalId", "type": "uint256" }
+    ],
+    "name": "getPasswordCID",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getUserJournals",
-    "outputs": [{ "internalType": "uint32[]", "name": "", "type": "uint32[]" }],
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -254,47 +205,32 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "inputs": [],
+    "name": "journalPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "name": "journals",
     "outputs": [
-      {
-        "internalType": "enum AnkyJournals.JournalType",
-        "name": "journalType",
-        "type": "uint8"
-      },
-      { "internalType": "uint8", "name": "pagesLeft", "type": "uint8" },
-      { "internalType": "uint32", "name": "journalId", "type": "uint32" },
-      { "internalType": "string", "name": "metadataCID", "type": "string" }
+      { "internalType": "uint256", "name": "journalId", "type": "uint256" },
+      { "internalType": "string", "name": "metadataCID", "type": "string" },
+      { "internalType": "string", "name": "passwordsCID", "type": "string" }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "largeJournalPrice",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "mediumJournalPrice",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "enum AnkyJournals.JournalType",
-        "name": "journalType",
-        "type": "uint8"
-      },
-      { "internalType": "uint256", "name": "randomUID", "type": "uint256" }
+      { "internalType": "uint256", "name": "randomUID", "type": "uint256" },
+      { "internalType": "string", "name": "metadataCID", "type": "string" },
+      { "internalType": "string", "name": "passwordsCID", "type": "string" }
     ],
     "name": "mintJournal",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -362,20 +298,15 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_smallPrice", "type": "uint256" },
-      { "internalType": "uint256", "name": "_mediumPrice", "type": "uint256" },
-      { "internalType": "uint256", "name": "_largePrice", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_newJournalPrice",
+        "type": "uint256"
+      }
     ],
-    "name": "setJournalPrices",
+    "name": "setJournalPrice",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "smallJournalPrice",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -396,36 +327,10 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "index", "type": "uint256" }
-    ],
-    "name": "tokenByIndex",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" },
-      { "internalType": "uint256", "name": "index", "type": "uint256" }
-    ],
-    "name": "tokenOfOwnerByIndex",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
     "name": "tokenURI",
     "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -455,24 +360,13 @@
       { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
     "name": "userJournalIds",
-    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint32", "name": "journalId", "type": "uint32" },
-      { "internalType": "string", "name": "cid", "type": "string" },
-      { "internalType": "bool", "name": "isPublic", "type": "bool" }
-    ],
-    "name": "writeJournalPage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

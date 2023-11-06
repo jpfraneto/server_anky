@@ -9,7 +9,6 @@ const {
 } = require('../lib/notebooks');
 const { uploadImageToPinata } = require('../lib/pinataSetup');
 const router = express.Router();
-const ANKY_TEMPLATES_ABI = require('../abis/AnkyTemplates.json');
 const ANKY_EULOGIAS_ABI = require('../abis/AnkyEulogias.json');
 
 const multer = require('multer');
@@ -30,26 +29,6 @@ const ankyEulogiasContract = new ethers.Contract(
   ANKY_EULOGIAS_ABI,
   wallet
 );
-
-const ankyTemplatesContract = new ethers.Contract(
-  process.env.ANKY_TEMPLATES_CONTRACT,
-  ANKY_TEMPLATES_ABI,
-  wallet
-);
-
-router.get('/template/:id', async (req, res) => {
-  const templateId = req.params.id;
-
-  try {
-    const thisTemplate = await ankyTemplatesContract.getTemplate(templateId);
-    const processedTemplate = await processFetchedTemplate(thisTemplate);
-    res.status(200).json({ success: true, template: processedTemplate });
-  } catch (error) {
-    console.log('There was an error in the template by id route');
-    console.log(error);
-    return res.status(401).json({ success: false });
-  }
-});
 
 router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
   console.log('inside the notebook post route', req.body);
@@ -141,13 +120,11 @@ router.post(
           .json({ error: 'Failed to upload text to Bundlr.' });
       }
 
-      res
-        .status(200)
-        .json({
-          cid: cid,
-          backgroundImageCid: backgroundPinataCid,
-          coverImageCid: coverPinataCid,
-        });
+      res.status(200).json({
+        cid: cid,
+        backgroundImageCid: backgroundPinataCid,
+        coverImageCid: coverPinataCid,
+      });
     } catch (error) {
       console.error('Failed to upload:', error);
       res.status(500).json({ error: 'Failed to upload.' });
