@@ -1,5 +1,6 @@
 const express = require('express');
 const { ethers } = require('ethers');
+const axios = require('axios');
 const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
 const checkIfLoggedInMiddleware = require('../middleware/checkIfLoggedIn');
 const {
@@ -10,6 +11,7 @@ const {
 const { uploadImageToPinata } = require('../lib/pinataSetup');
 const router = express.Router();
 const ANKY_EULOGIAS_ABI = require('../abis/AnkyEulogias.json');
+const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
 
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -30,6 +32,12 @@ const ankyEulogiasContract = new ethers.Contract(
   wallet
 );
 
+const ankyNotebooksContract = new ethers.Contract(
+  process.env.ANKY_NOTEBOOKS_CONTRACT,
+  ANKY_NOTEBOOKS_ABI,
+  wallet
+);
+
 router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
   console.log('inside the notebook post route', req.body);
   try {
@@ -40,6 +48,36 @@ router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Failed to save metadata' });
+  }
+});
+
+router.get('/notebook/:id', async (req, res) => {
+  console.log('inside heree');
+  const notebookId = req.params.id;
+  console.log('the notebook id is: ', notebookId);
+  try {
+    const thisNotebook = await ankyNotebooksContract.getNotebook(notebookId);
+    console.log('this notebook is: ', thisNotebook);
+    const response = await axios.get(
+      `https://node2.irys.xyz/${thisNotebook[1]}`
+    );
+    console.log('the response is: ', response);
+    if (!response.status == 200) {
+      throw new Error(`Failed to fetch page data for CID: ${thisNotebook[1]}`);
+    }
+    const jsonData = response.data;
+    console.log('the json data is: ', jsonData);
+    const formattedThisNotebook = {
+      notebookId: ethers.formatUnits(thisNotebook[0], 0),
+      metadata: jsonData,
+      supply: ethers.formatUnits(thisNotebook[2], 0),
+      price: ethers.formatEther(thisNotebook[3]),
+    };
+    res.status(200).json({ success: true, notebook: formattedThisNotebook });
+  } catch (error) {
+    console.log('There was an error in the eulogia by id route');
+    console.log(error);
+    return res.status(401).json({ success: false });
   }
 });
 

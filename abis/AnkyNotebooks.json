@@ -226,7 +226,6 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "randomUID", "type": "uint256" },
       { "internalType": "string", "name": "metadataCID", "type": "string" },
       { "internalType": "uint256", "name": "supply", "type": "uint256" },
       { "internalType": "uint256", "name": "price", "type": "uint256" }
@@ -234,6 +233,13 @@
     "name": "createNotebook",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "exists",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -253,7 +259,7 @@
           { "internalType": "uint256", "name": "supply", "type": "uint256" },
           { "internalType": "uint256", "name": "price", "type": "uint256" }
         ],
-        "internalType": "struct NewAnkyNotebooks.Notebook",
+        "internalType": "struct AnkyNotebooks.Notebook",
         "name": "",
         "type": "tuple"
       }
@@ -262,19 +268,30 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "notebookId", "type": "uint256" }
-    ],
-    "name": "getPasswordCID",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "getUserNotebooks",
     "outputs": [
       { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "notebookId", "type": "uint256" }
+    ],
+    "name": "getUsersBalanceOfNotebook",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "notebookId", "type": "uint256" }
+    ],
+    "name": "getUsersThatOwnNotebook",
+    "outputs": [
+      { "internalType": "address[]", "name": "", "type": "address[]" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -291,9 +308,9 @@
   },
   {
     "inputs": [
+      { "internalType": "address", "name": "mintTo", "type": "address" },
       { "internalType": "uint256", "name": "notebookId", "type": "uint256" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "string", "name": "passwordsCID", "type": "string" }
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "mintNotebook",
     "outputs": [],
@@ -382,6 +399,13 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "id", "type": "uint256" }],
+    "name": "totalSupply",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
@@ -404,16 +428,6 @@
     ],
     "name": "userCreatedNotebooksByIds",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "userNotebookPasswords",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
