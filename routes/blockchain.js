@@ -8,7 +8,7 @@ const ANKY_JOURNALS_ABI = require('../abis/AnkyJournals.json');
 
 // Smart contract interactions
 
-const network = 'baseGoerli';
+const network = 'base';
 
 const privateKey = process.env.PRIVATE_KEY;
 

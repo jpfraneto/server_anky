@@ -19,7 +19,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const { uploadToBundlr } = require('../lib/bundlrSetup');
 
 // Smart contract interactions
-const network = 'baseGoerli';
+const network = 'base';
 
 const privateKey = process.env.PRIVATE_KEY;
 

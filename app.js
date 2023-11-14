@@ -75,7 +75,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to Anky Backend!');
 });
 
-const network = 'baseGoerli';
+const network = 'base';
 console.log('before here');
 const privateKey = process.env.PRIVATE_KEY;
 
