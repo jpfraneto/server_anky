@@ -11,6 +11,7 @@ const {
 const { uploadImageToPinata } = require('../lib/pinataSetup');
 const router = express.Router();
 const ANKY_EULOGIAS_ABI = require('../abis/AnkyEulogias.json');
+
 const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
 
 const multer = require('multer');
@@ -52,12 +53,9 @@ router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
 });
 
 router.get('/notebook/:id', async (req, res) => {
-  console.log('inside heree');
   const notebookId = req.params.id;
-  console.log('the notebook id is: ', notebookId);
   try {
     const thisNotebook = await ankyNotebooksContract.getNotebook(notebookId);
-    console.log('this notebook is: ', thisNotebook);
     const response = await axios.get(
       `https://node2.irys.xyz/${thisNotebook[1]}`
     );
@@ -75,7 +73,7 @@ router.get('/notebook/:id', async (req, res) => {
     };
     res.status(200).json({ success: true, notebook: formattedThisNotebook });
   } catch (error) {
-    console.log('There was an error in the eulogia by id route');
+    console.log('There was an error in the notebook by id route');
     console.log(error);
     return res.status(401).json({ success: false });
   }
@@ -85,8 +83,11 @@ router.get('/eulogia/:id', async (req, res) => {
   const eulogiaId = req.params.id;
 
   try {
+    console.log('the euloga id i: ', eulogiaId);
+    console.log('the eulogias contract is: ', ankyEulogiasContract);
     const thisEulogia = await ankyEulogiasContract.getEulogia(eulogiaId);
-    const processedEulogia = await processFetchedEulogia(thisEulogia);
+    console.log('this eulogia is: ', thisEulogia);
+    const processedEulogia = await processFetchedEulogia(thisEulogia, wallet);
     res.status(200).json({ success: true, eulogia: processedEulogia });
   } catch (error) {
     console.log('There was an error in the eulogia by id route');
@@ -145,7 +146,6 @@ router.post(
         coverImageCid: coverPinataCid,
         title: req.body.title,
         description: req.body.description,
-        maxPages: req.body.maxPages,
       };
 
       const cid = await uploadToBundlr(

@@ -148,24 +148,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "dementorPrice",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "name": "dementors",
-    "outputs": [
-      { "internalType": "uint256", "name": "dementorId", "type": "uint256" },
-      { "internalType": "string", "name": "metadataCID", "type": "string" },
-      { "internalType": "string", "name": "passwordsCID", "type": "string" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
@@ -187,23 +169,13 @@
             "name": "dementorId",
             "type": "uint256"
           },
-          { "internalType": "string", "name": "metadataCID", "type": "string" },
-          { "internalType": "string", "name": "passwordsCID", "type": "string" }
+          { "internalType": "string", "name": "firstPageCid", "type": "string" }
         ],
-        "internalType": "struct NewAnkyDementor.Dementor",
+        "internalType": "struct AnkyDementor.Dementor",
         "name": "",
         "type": "tuple"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "dementorId", "type": "uint256" }
-    ],
-    "name": "getPasswordCID",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -228,13 +200,12 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "randomUID", "type": "uint256" },
-      { "internalType": "string", "name": "metadataCID", "type": "string" },
-      { "internalType": "string", "name": "passwordsCID", "type": "string" }
+      { "internalType": "address", "name": "mintTo", "type": "address" },
+      { "internalType": "string", "name": "firstPageCid", "type": "string" }
     ],
     "name": "mintDementor",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -302,15 +273,6 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_price", "type": "uint256" }
-    ],
-    "name": "setDementorPrice",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
     ],
     "name": "supportsInterface",
@@ -352,16 +314,6 @@
     "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "userDementorIds",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
     "type": "function"
   },
   {
