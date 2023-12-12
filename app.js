@@ -1,36 +1,36 @@
 // Load environment variables
-require('dotenv').config();
+require("dotenv").config();
 
 // Third-party libraries
-const express = require('express');
-const webPush = require('web-push');
-const { ethers } = require('ethers');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { PrismaClient } = require('@prisma/client');
-const { TypedEthereumSigner } = require('arbundles');
+const express = require("express");
+const { ethers } = require("ethers");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const { PrismaClient } = require("@prisma/client");
+const { TypedEthereumSigner } = require("arbundles");
 
-// Internal modules
-const { uploadToBundlr } = require('./lib/bundlrSetup');
+// Internal Modules
+const { uploadToIrys } = require("./lib/irys");
 
 // Routes
-const blockchainRoutes = require('./routes/blockchain');
-const aiRoutes = require('./routes/ai');
-const notebooksRoutes = require('./routes/notebooks');
+const blockchainRoutes = require("./routes/blockchain");
+const aiRoutes = require("./routes/ai");
+const notebooksRoutes = require("./routes/notebooks");
+const farcasterRoutes = require("./routes/farcaster");
 
 // Middleware
 const whitelist = [
-  'http://localhost:3001',
-  'https://anky.lat',
-  'https://www.anky.lat',
+  "http://localhost:3001",
+  "https://anky.lat",
+  "https://www.anky.lat",
 ];
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log('the origin is: ', origin);
+    console.log("the origin is: ", origin);
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true, // This is important.
@@ -41,42 +41,33 @@ app.use(cors(corsOptions));
 const PORT = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
-// Configurations and setups
-const vapidKeys = {
-  publicKey: process.env.VAPID_PUBLIC_KEY,
-  privateKey: process.env.VAPID_PRIVATE_KEY,
-};
-webPush.setVapidDetails(
-  'mailto:jp@anky.lat',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
 let subscriptions = []; // Store subscriptions
 
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use((req, res, next) => {
-  console.log('Request URL:', req.url);
-  console.log('Request Body:', req.body);
+  console.log("Request URL:", req.url);
+  console.log("Request Body:", req.body);
   next();
 });
 
 app.use((req, res, next) => {
-  console.log('CORS headers set:', res.get('Access-Control-Allow-Origin'));
+  console.log("CORS headers set:", res.get("Access-Control-Allow-Origin"));
   next();
 });
 
-app.use('/blockchain', blockchainRoutes);
-app.use('/ai', aiRoutes);
-app.use('/notebooks', notebooksRoutes);
+app.use("/blockchain", blockchainRoutes);
+app.use("/ai", aiRoutes);
+app.use("/notebooks", notebooksRoutes);
+app.use("/farcaster", farcasterRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to Anky Backend!');
+app.get("/", (req, res) => {
+  res.send("Welcome to Anky Backend!");
 });
 
-const network = 'base';
-console.log('before here');
+const network = "base";
+console.log("before here");
 const privateKey = process.env.PRIVATE_KEY;
 
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
@@ -84,7 +75,7 @@ const wallet = new ethers.Wallet(privateKey, provider);
 
 async function getWalletBalance(walletAddress) {
   try {
-    console.log('inside the getwalletbalance function', walletAddress);
+    console.log("inside the getwalletbalance function", walletAddress);
     const balanceWei = await provider.getBalance(walletAddress);
     const balanceEth = ethers.formatEther(balanceWei);
     return balanceEth;
@@ -98,119 +89,122 @@ async function getWalletBalance(walletAddress) {
 }
 
 async function getPendingTransactionCount(wallet) {
-  return await provider.getTransactionCount(wallet, 'pending');
+  return await provider.getTransactionCount(wallet, "pending");
 }
 
-app.post('/get-initial-eth', async (req, res) => {
+app.post("/get-initial-eth", async (req, res) => {
   try {
     const recipient = req.body.wallet;
     const balance = await getWalletBalance(recipient);
     if (Number(balance) === 0) {
-      console.log('The user doesnt have any eth, send it.');
+      console.log("The user doesnt have any eth, send it.");
 
       // Get the current nonce and pending nonce
       const currentNonce = await provider.getTransactionCount(wallet.address);
-      console.log('the current nonce is: ', currentNonce);
+      console.log("the current nonce is: ", currentNonce);
 
       const pendingNonce = await getPendingTransactionCount(wallet.address);
-      console.log('the pending nonce is: ', pendingNonce);
+      console.log("the pending nonce is: ", pendingNonce);
 
       // If they're the same, there's no pending transaction
       if (currentNonce === pendingNonce) {
-        const amountToSend = ethers.parseEther('0.005');
-        console.log('the amount to send is: ', amountToSend);
+        const amountToSend = ethers.parseEther("0.005");
+        console.log("the amount to send is: ", amountToSend);
 
         const ethTx = await wallet.sendTransaction({
           to: recipient,
           value: amountToSend,
           nonce: currentNonce, // Set the nonce explicitly
         });
-        console.log('ETH transaction hash:', ethTx.hash);
+        console.log("ETH transaction hash:", ethTx.hash);
         await ethTx.wait(); // Wait for the transaction to be mined
-        console.log('transaction successful');
+        console.log("transaction successful");
         return res.status(200).json({
           success: true,
-          message: '0.005 eth transferred to this wallet',
+          message: "0.005 eth transferred to this wallet",
         });
       } else {
         // You may decide to handle this differently.
-        console.log('There are pending transactions.');
+        console.log("There are pending transactions.");
         return res.status(400).json({
           success: false,
-          message: 'There are pending transactions. Please try again later.',
+          message: "There are pending transactions. Please try again later.",
         });
       }
     }
     return res.status(200).json({
       success: true,
-      message: 'the account already owns some test eth.',
+      message: "the account already owns some test eth.",
     });
   } catch (error) {
-    console.log('There was an error sending the eth', error);
+    console.log("There was an error sending the eth", error);
     return res.status(500).json({
       success: false,
-      message: 'There was an error with this transaction.',
+      message: "There was an error with this transaction.",
     });
   }
 });
 
-app.get('/publicKey', async (req, res) => {
+app.get("/publicKey", async (req, res) => {
   async function serverInit() {
     const key = process.env.PRIVATE_KEY; // your private key;
-    if (!key) throw new Error('Private key is undefined!');
+    if (!key) throw new Error("Private key is undefined!");
     const signer = new TypedEthereumSigner(key);
     return signer.publicKey;
   }
 
   const response = await serverInit();
-  const pubKey = response.toString('hex');
+  const pubKey = response.toString("hex");
   return res.status(200).json({ pubKey: pubKey });
 });
 
-app.post('/signData', async (req, res) => {
+app.post("/signData", async (req, res) => {
   async function signDataOnServer(signatureData) {
     const key = process.env.PRIVATE_KEY; // your private key
-    if (!key) throw new Error('Private key is undefined!');
+    if (!key) throw new Error("Private key is undefined!");
     const signer = new TypedEthereumSigner(key);
     return Buffer.from(await signer.sign(signatureData));
   }
   const body = JSON.parse(req.body);
-  const signatureData = Buffer.from(body.signatureData, 'hex');
+  const signatureData = Buffer.from(body.signatureData, "hex");
   const signature = await signDataOnServer(signatureData);
-  res.status(200).json({ signature: signature.toString('hex') });
+  res.status(200).json({ signature: signature.toString("hex") });
 });
 
-app.get('/writings', async (req, res) => {
-  console.log('inside here, prims0, ', prisma);
+app.get("/writings", async (req, res) => {
+  console.log("inside here, prims0, ", prisma);
   const day = await prisma.day.findMany({});
-  console.log('the writings are:', day);
+  console.log("the writings are:", day);
   res.json(day);
 });
 
-app.post('/upload-writing', async (req, res) => {
-  console.log('inside the upload writing route');
+app.post("/upload-writing", async (req, res) => {
+  console.log("inside the upload writing route");
   try {
-    console.log('IN HERE', req.body);
-    const { text, date } = req.body;
-    console.log('Time to save the writing of today');
+    console.log("IN HERE", req.body);
+    const { text } = req.body;
+    console.log("Time to save the writing of today", text);
 
-    if (!text || !date) {
-      return res.status(400).json({ error: 'Invalid data' });
+    if (!text) {
+      return res.status(400).json({ error: "Invalid text" });
     }
 
-    const bundlrResponseId = await uploadToBundlr(text);
+    console.log("right before here");
 
-    res.status(201).json({ bundlrResponseId });
+    const cid = await uploadToIrys(text);
+    console.log("IN HEREEEE, the cid is: ", cid);
+
+    res.status(201).json({ cid });
   } catch (error) {
-    console.error('An error occurred while handling your request:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("An error occurred while handling your request:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
 // Route to test push notification
-app.post('/test-push', async (req, res) => {
+app.post("/test-push", async (req, res) => {
   // Your existing code
-  res.json({ status: 'processing' });
+  res.json({ status: "processing" });
 
   // Simulate delay
   setTimeout(async () => {
@@ -220,8 +214,8 @@ app.post('/test-push', async (req, res) => {
       // ...
 
       // Sending notification to all subscribers
-      subscriptions.forEach(sub => {
-        webpush.sendNotification(sub, 'Your character is ready to be minted.');
+      subscriptions.forEach((sub) => {
+        webpush.sendNotification(sub, "Your character is ready to be minted.");
       });
     } catch (error) {
       console.error(error);
@@ -230,7 +224,7 @@ app.post('/test-push', async (req, res) => {
   }, 60000); // 4 minutes
 });
 
-app.post('/subscribe', async (req, res) => {
+app.post("/subscribe", async (req, res) => {
   const walletAddress = req.body.walletAddress;
   const subInfo = req.body.subscription;
 
