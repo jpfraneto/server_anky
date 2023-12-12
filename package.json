@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "build": "echo 'Build steps not required as Render handles npm install'",
+    "postinstall": "echo 'Dependencies installed'"
   },
   "engines": {
     "node": ">=18.18.0 <20.10.2"
