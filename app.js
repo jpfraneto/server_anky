@@ -73,77 +73,9 @@ const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
-async function getWalletBalance(walletAddress) {
-  try {
-    console.log("inside the getwalletbalance function", walletAddress);
-    const balanceWei = await provider.getBalance(walletAddress);
-    const balanceEth = ethers.formatEther(balanceWei);
-    return balanceEth;
-  } catch (error) {
-    console.error(
-      `Failed to fetch balance for address ${walletAddress}`,
-      error
-    );
-    return null;
-  }
-}
-
 async function getPendingTransactionCount(wallet) {
   return await provider.getTransactionCount(wallet, "pending");
 }
-
-app.post("/get-initial-eth", async (req, res) => {
-  try {
-    const recipient = req.body.wallet;
-    const balance = await getWalletBalance(recipient);
-    if (Number(balance) === 0) {
-      console.log("The user doesnt have any eth, send it.");
-
-      // Get the current nonce and pending nonce
-      const currentNonce = await provider.getTransactionCount(wallet.address);
-      console.log("the current nonce is: ", currentNonce);
-
-      const pendingNonce = await getPendingTransactionCount(wallet.address);
-      console.log("the pending nonce is: ", pendingNonce);
-
-      // If they're the same, there's no pending transaction
-      if (currentNonce === pendingNonce) {
-        const amountToSend = ethers.parseEther("0.005");
-        console.log("the amount to send is: ", amountToSend);
-
-        const ethTx = await wallet.sendTransaction({
-          to: recipient,
-          value: amountToSend,
-          nonce: currentNonce, // Set the nonce explicitly
-        });
-        console.log("ETH transaction hash:", ethTx.hash);
-        await ethTx.wait(); // Wait for the transaction to be mined
-        console.log("transaction successful");
-        return res.status(200).json({
-          success: true,
-          message: "0.005 eth transferred to this wallet",
-        });
-      } else {
-        // You may decide to handle this differently.
-        console.log("There are pending transactions.");
-        return res.status(400).json({
-          success: false,
-          message: "There are pending transactions. Please try again later.",
-        });
-      }
-    }
-    return res.status(200).json({
-      success: true,
-      message: "the account already owns some test eth.",
-    });
-  } catch (error) {
-    console.log("There was an error sending the eth", error);
-    return res.status(500).json({
-      success: false,
-      message: "There was an error with this transaction.",
-    });
-  }
-});
 
 app.get("/publicKey", async (req, res) => {
   async function serverInit() {
@@ -199,51 +131,6 @@ app.post("/upload-writing", async (req, res) => {
     console.error("An error occurred while handling your request:", error);
     res.status(500).send("Internal Server Error");
   }
-});
-
-// Route to test push notification
-app.post("/test-push", async (req, res) => {
-  // Your existing code
-  res.json({ status: "processing" });
-
-  // Simulate delay
-  setTimeout(async () => {
-    try {
-      // generateCharacterStory(character, writing);
-      // Logic to generate character story goes here
-      // ...
-
-      // Sending notification to all subscribers
-      subscriptions.forEach((sub) => {
-        webpush.sendNotification(sub, "Your character is ready to be minted.");
-      });
-    } catch (error) {
-      console.error(error);
-      // Handle error
-    }
-  }, 60000); // 4 minutes
-});
-
-app.post("/subscribe", async (req, res) => {
-  const walletAddress = req.body.walletAddress;
-  const subInfo = req.body.subscription;
-
-  // Find or Create a User
-  let user = await prisma.user.upsert({
-    where: { walletAddress },
-    update: {},
-    create: { walletAddress },
-  });
-
-  // Save subscription to database
-  await prisma.subscription.create({
-    data: {
-      subInfo,
-      userId: user.id,
-    },
-  });
-
-  res.status(201).json({});
 });
 
 app.listen(PORT, () => {
