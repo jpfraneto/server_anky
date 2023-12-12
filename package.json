@@ -3,14 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "private": false,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "build": "echo 'Build steps not required as Render handles npm install'",
-    "postinstall": "echo 'Dependencies installed'"
+    "start": "node app.js"
   },
   "engines": {
-    "node": ">=18.18.0 <20.10.2"
+    "node": ">=14"
   },
   "keywords": [],
   "author": "",
