@@ -5,7 +5,8 @@
   "main": "app.js",
   "private": false,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "build": "echo 'No build step required'"
   },
   "engines": {
     "node": ">=14"
