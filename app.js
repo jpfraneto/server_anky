@@ -1,5 +1,5 @@
 // Load environment variables
-require("dotenv").config();
+// require("dotenv").config();
 
 // Third-party libraries
 const express = require("express");
