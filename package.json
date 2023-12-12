@@ -7,6 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm install && node app.js"
   },
+  "engines": {
+    "node": ">=18.18.0 <20.10.2"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
