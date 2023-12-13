@@ -75,7 +75,7 @@ router.post("/api/signer", async (req, res) => {
       createSignerResponse.data.public_key
     );
 
-    console.log("after the generate signature");
+    console.log("after the generate signature", deadline, signature);
 
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
@@ -91,6 +91,8 @@ router.post("/api/signer", async (req, res) => {
         },
       }
     );
+
+    console.log("after the generate signer signas", signedKeyResponse);
 
     res.json(signedKeyResponse.data);
   } catch (error) {
