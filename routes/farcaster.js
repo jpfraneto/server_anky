@@ -58,9 +58,9 @@ const generate_signature = async function (public_key) {
 
 router.post("/api/signer", async (req, res) => {
   try {
+    console.log("inside the api signer");
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
-      {},
       {
         headers: {
           api_key: process.env.NEYNAR_API_KEY,
@@ -108,6 +108,7 @@ router.get("/api/signer", async (req, res) => {
     );
     res.json(response.data);
   } catch (error) {
+    console.log("there was an error inside here!");
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
