@@ -69,14 +69,7 @@ router.post("/api/signer", async (req, res) => {
     );
 
     const { deadline, signature } = await generate_signature(
-      process.env.PUBLIC_KEY
-    );
-    console.log(
-      "before the call to the signed key",
-      FARCASTER_DEVELOPER_FID,
-      createSignerResponse.data,
-      deadline,
-      signature
+      createSignerResponse.data.public_key
     );
 
     const signedKeyResponse = await axios.post(
@@ -94,8 +87,6 @@ router.post("/api/signer", async (req, res) => {
       }
     );
 
-    console.log("after the generate signer signas", signedKeyResponse);
-    console.log("WENA CTMS");
     res.json(signedKeyResponse.data);
   } catch (error) {
     console.error(error);
