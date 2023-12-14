@@ -71,6 +71,13 @@ router.post("/api/signer", async (req, res) => {
     const { deadline, signature } = await generate_signature(
       createSignerResponse.data.public_key
     );
+    console.log(
+      "before the call to the signed key",
+      FARCASTER_DEVELOPER_FID,
+      createSignerResponse.data,
+      deadline,
+      signature
+    );
 
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
@@ -107,6 +114,10 @@ router.get("/api/signer", async (req, res) => {
           api_key: process.env.NEYNAR_API_KEY,
         },
       }
+    );
+    console.log(
+      "inside the api signer route, the response is: ",
+      response.data
     );
     res.json(response.data);
   } catch (error) {
