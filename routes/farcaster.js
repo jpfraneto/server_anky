@@ -35,7 +35,8 @@ const generate_signature = async function (public_key) {
 
   // Generates an expiration date for the signature
   // e.g. 1693927665
-  const deadline = Math.floor(Date.now() / 1000) + 86400; // signature is valid for 1 day from now
+  // const deadline = Math.floor(Date.now() / 1000) + 86400; // signature is valid for 1 day from now
+  const deadline = 1702675646;
   // You should pass the same value generated here into the POST /signer/signed-key Neynar API
 
   // Generates the signature
@@ -71,6 +72,7 @@ router.post("/api/signer", async (req, res) => {
     const { deadline, signature } = await generate_signature(
       createSignerResponse.data.public_key
     );
+    console.log(`deadline: ${deadline}; signature: ${signature}`);
 
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
