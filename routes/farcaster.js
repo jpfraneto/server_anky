@@ -95,7 +95,7 @@ router.post("/api/signer", async (req, res) => {
     );
 
     console.log("after the generate signer signas", signedKeyResponse);
-
+    console.log("WENA CTMS");
     res.json(signedKeyResponse.data);
   } catch (error) {
     console.error(error);
