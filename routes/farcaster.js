@@ -56,6 +56,15 @@ const generate_signature = async function (public_key) {
   return { deadline, signature };
 };
 
+router.get("/aloja", async (req, res) => {
+  try {
+    const { deadline, signature } = await generate_signature(
+      "0x6d492bcad15f240a50de1eba84e1293fa4c25571ce5d6b6a1b673dfd22d13905"
+    );
+    console.log("the signature is: ", signature);
+  } catch (error) {}
+});
+
 router.post("/api/signer", async (req, res) => {
   try {
     const createSignerResponse = await axios.post(
@@ -85,7 +94,7 @@ router.post("/api/signer", async (req, res) => {
         signer_uuid: createSignerResponse.data.signer_uuid,
         app_fid: FARCASTER_DEVELOPER_FID,
         deadline,
-        signature,
+        signature: process.env.APP_SIGNATURE,
       },
       {
         headers: {
