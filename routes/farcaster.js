@@ -30,6 +30,11 @@ const generate_signature = async function (public_key) {
     { name: "key", type: "bytes" },
     { name: "deadline", type: "uint256" },
   ];
+  console.log("the farcaster developer mnemonic", FARCASTER_DEVELOPER_MNEMONIC);
+  console.log(
+    "the farcaster developer mnemonic",
+    typeof FARCASTER_DEVELOPER_MNEMONIC
+  );
 
   const account = mnemonicToAccount(FARCASTER_DEVELOPER_MNEMONIC);
 
@@ -59,6 +64,9 @@ const generate_signature = async function (public_key) {
 
 router.post("/api/signer", async (req, res) => {
   try {
+    console.log("the farcaster developer fid", FARCASTER_DEVELOPER_FID);
+    console.log("the farcaster developer fid", typeof FARCASTER_DEVELOPER_FID);
+
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
       {},
