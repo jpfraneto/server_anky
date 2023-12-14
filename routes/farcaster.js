@@ -58,7 +58,6 @@ const generate_signature = async function (public_key) {
 
 router.post("/api/signer", async (req, res) => {
   try {
-    console.log("inside the api signer", process.env.NEYNAR_API_KEY);
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
       {},
@@ -69,13 +68,9 @@ router.post("/api/signer", async (req, res) => {
       }
     );
 
-    console.log("after the craetesignerresponse", createSignerResponse);
-
     const { deadline, signature } = await generate_signature(
       createSignerResponse.data.public_key
     );
-
-    console.log("after the generate signature", deadline, signature);
 
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
@@ -146,11 +141,12 @@ router.get("/api/cast/:hash", async (req, res) => {
   } catch (error) {
     console.log("there was an error)");
     console.log(error);
+    res.json({ cast: null });
   }
 });
 
 router.post("/api/cast", async (req, res) => {
-  const { embeds, text, signer_uuid } = req.body;
+  const { embeds, text, signer_uuid, parent } = req.body;
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -158,6 +154,7 @@ router.post("/api/cast", async (req, res) => {
         text: text,
         embeds: embeds,
         signer_uuid: signer_uuid,
+        parent: parent,
       },
       {
         headers: {
