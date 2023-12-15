@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const { getCastsByFid } = require("../lib/blockchain/farcaster");
 const { mnemonicToAccount } = require("viem/accounts");
+const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 const { NeynarAPIClient, CastParamType } = require("@neynar/nodejs-sdk");
 
 if (typeof process.env.FARCASTER_DEVELOPER_MNEMONIC === "undefined") {
@@ -64,9 +65,6 @@ const generate_signature = async function (public_key) {
 
 router.post("/api/signer", async (req, res) => {
   try {
-    console.log("the farcaster developer fid", FARCASTER_DEVELOPER_FID);
-    console.log("the farcaster developer fid", typeof FARCASTER_DEVELOPER_FID);
-
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
       {},
@@ -80,7 +78,6 @@ router.post("/api/signer", async (req, res) => {
     const { deadline, signature } = await generate_signature(
       createSignerResponse.data.public_key
     );
-    console.log(`deadline: ${deadline}; signature: ${signature}`);
 
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
@@ -106,7 +103,6 @@ router.post("/api/signer", async (req, res) => {
 
 router.get("/api/signer", async (req, res) => {
   try {
-    console.log("inside the api signer route", req.query);
     const response = await axios.get(
       "https://api.neynar.com/v2/farcaster/signer",
       {
@@ -116,13 +112,46 @@ router.get("/api/signer", async (req, res) => {
         },
       }
     );
-    console.log(
-      "inside the api signer route, the response is: ",
-      response.data
-    );
     res.json(response.data);
   } catch (error) {
     console.log("there was an error inside here!");
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.post("/api/cast/anon", async (req, res) => {
+  const { text, parent, embeds } = req.body;
+  try {
+    console.log("sending the cast from the backend");
+    const signerUuid = process.env.MFGA_SIGNER_UUID;
+    const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
+    const publishedCast = await client.clients.v2.publishCast(
+      signerUuid,
+      text,
+      parent,
+      embeds
+    );
+    console.log("IN HERE, THE PUBLISHED CAST IS: ", publishedCast);
+    res.json({ cast: publishedCast });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+router.post("/api/cast/anon-reply", async (req, res) => {
+  const { text, parent } = req.body;
+  try {
+    const signerUuid = process.env.MFGA_SIGNER_UUID;
+    const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
+    const publishedCast = await client.clients.v2.publishCast(
+      signerUuid,
+      text,
+      { replyTo: parent }
+    );
+    console.log("IN HERE, THE PUBLISHED CAST IS: ", publishedCast);
+    res.json({ cast: publishedCast });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -178,6 +207,20 @@ router.post("/api/cast", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/test", async (req, res) => {
+  try {
+    const signerUuid = process.env.MFGA_SIGNER_UUID;
+    const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
+    const publishedCast = await client.clients.v2.publishCast(
+      signerUuid,
+      "This is a test cast."
+    );
+    console.log(`New cast hash: ${publishedCast.hash}`);
+  } catch (error) {
+    console.log("there was an error", error);
   }
 });
 
