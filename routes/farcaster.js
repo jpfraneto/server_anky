@@ -216,6 +216,33 @@ router.post("/api/cast/anon-reply", async (req, res) => {
   }
 });
 
+router.post("/api/cast/replies/:hash", async (req, res) => {
+  console.log("IN HERE", req);
+  const { viewerFid, threadHash } = req.body;
+  console.log("THE REQ BODY IS: ", req.body);
+  try {
+    console.log("router.params.hash", req.params.hash);
+    // const cast = await client.lookUpCastByHashOrWarpcastUrl(
+    //   router.params.hash,
+    //   CastParamType.Hash
+    // );
+    const response = await axios.get(
+      `https://api.neynar.com/v1/farcaster/all-casts-in-thread?threadHash=${threadHash}&viewerFid=${viewerFid}`,
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    console.log("the repsonse asdasdasdsis: ", response);
+    res.json({ casts: response.data.result.casts });
+  } catch (error) {
+    console.log("there was an error)");
+    console.log(error);
+    res.json({ cast: null });
+  }
+});
+
 router.get("/api/cast/:hash", async (req, res) => {
   console.log("IN HERE", req);
   try {
