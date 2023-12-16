@@ -124,32 +124,64 @@ router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds } = req.body;
   try {
     console.log("sending the cast from the backend");
-    const signerUuid = process.env.MFGA_SIGNER_UUID;
-    const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
-    const publishedCast = await client.clients.v2.publishCast(
-      signerUuid,
-      text,
-      parent,
-      embeds
+    const response = await axios.post(
+      "https://api.neynar.com/v2/farcaster/cast",
+      {
+        text: text,
+        embeds: embeds,
+        signer_uuid: process.env.MFGA_SIGNER_UUID,
+        parent: "https://warpcast.com/~/channel/anky",
+      },
+      {
+        headers: {
+          api_key: process.env.MFGA_API_KEY,
+        },
+      }
     );
-    console.log("IN HERE, THE PUBLISHED CAST IS: ", publishedCast);
-    res.json({ cast: publishedCast });
+    let secondCastText = `welcome to a limitless era of farcaster`;
+    console.log("IN HERE, THE PUBLISHED CAST IS: ", response);
+    if (!response.status)
+      return res.status(500).json({ message: "there was a problem here" });
+    const secondResponse = await axios.post(
+      "https://api.neynar.com/v2/farcaster/cast",
+      {
+        text: secondCastText,
+        embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
+        signer_uuid: process.env.MFGA_SIGNER_UUID,
+        parent: response.data.cast.hash,
+      },
+      {
+        headers: {
+          api_key: process.env.MFGA_API_KEY,
+        },
+      }
+    );
+    console.log("in here, the second response is: ", secondResponse);
+    res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 router.post("/api/cast/anon-reply", async (req, res) => {
   const { text, parent } = req.body;
   try {
-    const signerUuid = process.env.MFGA_SIGNER_UUID;
-    const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
-    const publishedCast = await client.clients.v2.publishCast(
-      signerUuid,
-      text,
-      { replyTo: parent }
+    const response = await axios.post(
+      "https://api.neynar.com/v2/farcaster/cast",
+      {
+        text: text,
+        embeds: embeds,
+        signer_uuid: process.env.MFGA_SIGNER_UUID,
+        parent: parent,
+      },
+      {
+        headers: {
+          api_key: process.env.MFGA_API_KEY,
+        },
+      }
     );
-    console.log("IN HERE, THE PUBLISHED CAST IS: ", publishedCast);
+    console.log("IN HERE, THE PUBLISHED CAST IS: ", response);
     res.json({ cast: publishedCast });
   } catch (error) {
     console.error(error);
@@ -212,13 +244,29 @@ router.post("/api/cast", async (req, res) => {
 
 router.get("/test", async (req, res) => {
   try {
-    const signerUuid = process.env.MFGA_SIGNER_UUID;
-    const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
-    const publishedCast = await client.clients.v2.publishCast(
-      signerUuid,
-      "This is a test cast."
+    console.log("in the test route");
+    // const signerUuid = process.env.MFGA_SIGNER_UUID;
+    // const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
+    // const publishedCast = await client.clients.v2.publishCast(
+    //   signerUuid,
+    //   "This is a test cast."
+    // );
+    // console.log(`New cast hash: ${publishedCast.hash}`);
+    const response = await axios.post(
+      "https://api.neynar.com/v2/farcaster/cast",
+      {
+        text: "aloja",
+        embeds: [],
+        signer_uuid: process.env.MFGA_SIGNER_UUID,
+        parent: "https://warpcast.com/~/channel/anky",
+      },
+      {
+        headers: {
+          api_key: process.env.MFGA_API_KEY,
+        },
+      }
     );
-    console.log(`New cast hash: ${publishedCast.hash}`);
+    console.log("in the test route, the post is: ", response);
   } catch (error) {
     console.log("there was an error", error);
   }
@@ -226,9 +274,21 @@ router.get("/test", async (req, res) => {
 
 router.get("/neynar", async (req, res) => {
   try {
-    console.log("inside the neynar route");
-    const response = await getCastsByFid(1234);
-    res.json(response);
+    // console.log("testing route");
+    // const response = await axios.post(
+    //   "https://api.neynar.com/v2/farcaster/cast",
+    //   {
+    //     text: "aloja"",
+    //     embeds: [],
+    //     signer_uuid: signer_uuid,
+    //     parent: parent,
+    //   },
+    //   {
+    //     headers: {
+    //       api_key: process.env.NEYNAR_API_KEY,
+    //     },
+    //   }
+    // );
   } catch (error) {}
 });
 
