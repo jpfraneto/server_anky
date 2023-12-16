@@ -101,6 +101,33 @@ router.post("/api/signer", async (req, res) => {
   }
 });
 
+router.post("/api/reaction", async (req, res) => {
+  try {
+    const { reactionType, hash, signer_uuid } = req.body;
+    console.log("the req.bdoy is: ", req.body, signer_uuid);
+
+    const response = await axios.post(
+      "https://api.neynar.com/v2/farcaster/reaction",
+      {
+        signer_uuid: signer_uuid,
+        reaction_type: reactionType,
+        target: hash,
+      },
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+
+    console.log("the response data is: ", response.data);
+    res.json(response.data);
+  } catch (error) {
+    console.log("there was an error", error);
+    res.status(500).json({ message: "there was an error adding the reaction" });
+  }
+});
+
 router.get("/api/signer", async (req, res) => {
   try {
     const response = await axios.get(
