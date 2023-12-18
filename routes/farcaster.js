@@ -4,7 +4,14 @@ const axios = require("axios");
 const { getCastsByFid } = require("../lib/blockchain/farcaster");
 const { mnemonicToAccount } = require("viem/accounts");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
-const { NeynarAPIClient, CastParamType } = require("@neynar/nodejs-sdk");
+const {
+  NeynarAPIClient,
+  CastParamType,
+  FeedType,
+  FilterType,
+} = require("@neynar/nodejs-sdk");
+
+const client = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
 
 if (typeof process.env.FARCASTER_DEVELOPER_MNEMONIC === "undefined") {
   throw new Error("FARCASTER_DEVELOPER_MNEMONIC is not defined");
@@ -62,6 +69,21 @@ const generate_signature = async function (public_key) {
   // Logging the deadline and signature to be used in the POST /signer/signed-key Neynar API
   return { deadline, signature };
 };
+
+router.get("/feed", async (req, res) => {
+  try {
+    const memesChannelUrl = "https://warpcast.com/~/channel/anky";
+    const feed = await client.fetchFeed(FeedType.Filter, {
+      filterType: FilterType.ParentUrl,
+      parentUrl: memesChannelUrl,
+    });
+
+    console.log("THE FEED IS: ", feed);
+    res.status(200).json({ feed });
+  } catch (error) {
+    console.log("there was an error on the feed here:", error);
+  }
+});
 
 router.post("/api/signer", async (req, res) => {
   try {

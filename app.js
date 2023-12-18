@@ -17,6 +17,7 @@ const blockchainRoutes = require("./routes/blockchain");
 const aiRoutes = require("./routes/ai");
 const notebooksRoutes = require("./routes/notebooks");
 const farcasterRoutes = require("./routes/farcaster");
+const manaRoutes = require("./routes/mana");
 
 // Middleware
 const whitelist = [
@@ -61,6 +62,7 @@ app.use("/blockchain", blockchainRoutes);
 app.use("/ai", aiRoutes);
 app.use("/notebooks", notebooksRoutes);
 app.use("/farcaster", farcasterRoutes);
+app.use("/mana", manaRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");
