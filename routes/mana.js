@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const { addManaToUser } = require("../lib/mana/index");
+const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 
 const activeRuns = [];
 
@@ -14,7 +15,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/session-start", async (req, res) => {
+router.post("/session-start", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { user, timestamp } = req.body;
     console.log("inside the server session start", user, timestamp);
@@ -22,7 +23,7 @@ router.post("/session-start", async (req, res) => {
   } catch (error) {}
 });
 
-router.post("/session-end", async (req, res) => {
+router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { user, timestamp, frontendWrittenTime } = req.body;
     console.log("the active runs are", activeRuns);

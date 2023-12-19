@@ -30,8 +30,10 @@
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.2",
     "openai": "^4.4.0",
-    "prisma": "^5.2.0",
     "viem": "^1.19.13",
     "web-push": "^3.6.4"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
   }
 }
