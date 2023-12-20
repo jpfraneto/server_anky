@@ -37,12 +37,19 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
     console.log("the time the user wrote is: ", serverTimeUserWrote);
     activeRuns.splice(thisActiveRunIndex, 1);
     const isValid = Math.abs(serverTimeUserWrote - frontendWrittenTime) < 3;
+    const manaToAdd = Math.min(serverTimeUserWrote, frontendWrittenTime);
     if (isValid) {
       console.log("it is valid", serverTimeUserWrote, frontendWrittenTime);
-      const responseFromManaFunction = await addManaToUser(
-        user,
-        Math.min(serverTimeUserWrote, frontendWrittenTime)
+      const responseFromManaFunction = await addManaToUser(user, manaToAdd);
+      console.log(
+        "the response freom mana function is: ",
+        responseFromManaFunction
       );
+      res
+        .status(200)
+        .json({
+          message: `Successfully added ${manaToAdd} maná to your balance`,
+        });
     }
 
     console.log("inside the server session end", user, timestamp);

@@ -6,7 +6,7 @@ const express = require("express");
 const { ethers } = require("ethers");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { PrismaClient } = require("@prisma/client");
+const prisma = require("./lib/prismaClient");
 const { TypedEthereumSigner } = require("arbundles");
 
 // Internal Modules
@@ -41,7 +41,6 @@ const corsOptions = {
 const app = express();
 app.use(cors(corsOptions));
 const PORT = process.env.PORT || 3000;
-const prisma = new PrismaClient();
 
 let subscriptions = []; // Store subscriptions
 
@@ -72,6 +71,7 @@ app.get("/", (req, res) => {
 
 const network = "base";
 console.log("before here");
+
 const privateKey = process.env.PRIVATE_KEY;
 
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);

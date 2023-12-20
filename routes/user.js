@@ -1,16 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
-const { prisma } = require("../lib/prismaClient");
+const prisma = require("../lib/prismaClient");
+const privy = require("../lib/privyClient");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
+
+router.get("/", async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({});
+    console.log("the users are: ", users);
+    res.json({ 123: 456 });
+  } catch (error) {
+    console.log("there was an error", error);
+  }
+});
 
 router.post("/login", async (req, res) => {
   try {
     const { privyId } = req.body; // Ensure you are receiving the correct fields from the frontend
-    console.log("inside here, the privy IDDDDD is: ", privyId);
-    console.log("prisma is: ", prisma);
-    return res.status(200).json({ 123: 446 });
-    // Check if the user already exists
+
+    const privyUser = await privy.getUser(`did:privy:${privyId}`);
+    if (!privyUser)
+      return res.status(500).json({ message: "You are not authorized here" });
+
     let user = await prisma.user.findUnique({
       where: { privyId },
     });
@@ -20,8 +32,6 @@ router.post("/login", async (req, res) => {
       user = await prisma.user.create({
         data: {
           privyId,
-          email,
-          // Include any other fields you want to initialize
         },
       });
     } else {
@@ -30,7 +40,6 @@ router.post("/login", async (req, res) => {
         where: { privyId },
         data: {
           lastLogin: new Date(),
-          // Update other fields if necessary
         },
       });
     }
