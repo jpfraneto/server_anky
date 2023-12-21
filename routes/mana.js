@@ -6,15 +6,6 @@ const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 
 const activeRuns = [];
 
-router.get("/", async (req, res) => {
-  try {
-    console.log("inside the mana get route");
-    res.json({ 123: 456 });
-  } catch (error) {
-    console.log("in here in the error");
-  }
-});
-
 router.post("/session-start", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { user, timestamp } = req.body;
@@ -35,7 +26,7 @@ router.post("/anon-session-start", async (req, res) => {
     activeRuns.push({ randomUUID: randomUUID, startingTimestamp: timestamp });
     res.status(200).json({ message: "your session started" });
   } catch (error) {
-    console.log("there was an error with the anon session start", error);
+    console.log("there was an error with the anon session start");
     res
       .status(500)
       .json({ message: "There was an error starting your session anon" });
@@ -66,7 +57,6 @@ router.post("/anon-session-end", async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("there was an error in the session end function", error);
     res
       .status(500)
       .json({ message: "There was an error in the saving the anon mana" });
@@ -105,9 +95,7 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
         });
       }
     }
-  } catch (error) {
-    console.log("there was an error in the session end function", error);
-  }
+  } catch (error) {}
 });
 
 router.get("/:privyUID", async (req, res) => {

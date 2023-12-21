@@ -34,7 +34,6 @@ const whitelist = [
 ];
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log("the origin is: ", origin);
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
@@ -55,13 +54,10 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use((req, res, next) => {
-  console.log("Request URL:", req.url);
-  console.log("Request Body:", req.body);
   next();
 });
 
 app.use((req, res, next) => {
-  console.log("CORS headers set:", res.get("Access-Control-Allow-Origin"));
   next();
 });
 
@@ -77,7 +73,6 @@ app.get("/", (req, res) => {
 });
 
 const network = "base";
-console.log("before here");
 
 const privateKey = process.env.PRIVATE_KEY;
 
@@ -114,28 +109,15 @@ app.post("/signData", async (req, res) => {
   res.status(200).json({ signature: signature.toString("hex") });
 });
 
-app.get("/writings", async (req, res) => {
-  console.log("inside here, prims0, ", prisma);
-  const day = await prisma.day.findMany({});
-  console.log("the writings are:", day);
-  res.json(day);
-});
-
 app.post("/upload-writing", async (req, res) => {
-  console.log("inside the upload writing route");
   try {
-    console.log("IN HERE", req.body);
     const { text } = req.body;
-    console.log("Time to save the writing of today", text);
 
     if (!text) {
       return res.status(400).json({ error: "Invalid text" });
     }
 
-    console.log("right before here");
-
     const cid = await uploadToIrys(text);
-    console.log("IN HEREEEE, the cid is: ", cid);
 
     res.status(201).json({ cid });
   } catch (error) {

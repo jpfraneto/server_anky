@@ -8,7 +8,6 @@ const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 router.get("/", async (req, res) => {
   try {
     const users = await prisma.user.findMany({});
-    console.log("the users are: ", users);
     res.json({ 123: 456 });
   } catch (error) {
     console.log("there was an error", error);

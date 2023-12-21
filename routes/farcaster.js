@@ -116,8 +116,6 @@ router.post("/api/signer", async (req, res) => {
       }
     );
 
-    console.log("in here, the signedKeyResponse is: ", signedKeyResponse);
-
     res.json(signedKeyResponse.data);
   } catch (error) {
     console.error(error);
@@ -190,7 +188,6 @@ router.post("/api/cast/anon", async (req, res) => {
       }
     );
     let secondCastText = `welcome to a limitless era of farcaster\n\n $SPAM`;
-    console.log("IN HERE, THE PUBLISHED CAST IS: ", response);
     if (!response.status)
       return res.status(500).json({ message: "there was a problem here" });
     const secondResponse = await axios.post(
@@ -207,7 +204,6 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    console.log("in here, the second response is: ", secondResponse);
     res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
@@ -232,7 +228,6 @@ router.post("/api/cast/anon-reply", async (req, res) => {
         },
       }
     );
-    console.log("IN HERE, THE PUBLISHED CAST IS: ", response);
     res.json({ cast: publishedCast });
   } catch (error) {
     console.error(error);
@@ -241,7 +236,6 @@ router.post("/api/cast/anon-reply", async (req, res) => {
 });
 
 router.post("/api/cast/replies/:hash", async (req, res) => {
-  console.log("IN HERE", req);
   const { viewerFid, threadHash } = req.body;
   console.log("THE REQ BODY IS: ", req.body);
   try {
@@ -268,7 +262,6 @@ router.post("/api/cast/replies/:hash", async (req, res) => {
 });
 
 router.get("/api/cast/:hash", async (req, res) => {
-  console.log("IN HERE", req);
   try {
     console.log("router.params.hash", req.params.hash);
     // const cast = await client.lookUpCastByHashOrWarpcastUrl(
