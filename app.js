@@ -8,9 +8,15 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const prisma = require("./lib/prismaClient");
 const { TypedEthereumSigner } = require("arbundles");
+const rateLimit = require("express-rate-limit");
 
 // Internal Modules
 const { uploadToIrys } = require("./lib/irys");
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // limit each IP to 100 requests per windowMs
+});
 
 // Routes
 const blockchainRoutes = require("./routes/blockchain");
@@ -19,6 +25,8 @@ const notebooksRoutes = require("./routes/notebooks");
 const farcasterRoutes = require("./routes/farcaster");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
+
+app.use(limiter);
 
 // Middleware
 const whitelist = [

@@ -17,6 +17,7 @@ router.get("/", async (req, res) => {
 
 router.get("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
   try {
+    console.log("checking the user here:", req.params.privyId);
     const user = await prisma.user.findUnique({
       where: { privyId: req.params.privyId },
     });
