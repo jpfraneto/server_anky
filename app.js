@@ -127,5 +127,6 @@ app.post("/upload-writing", async (req, res) => {
 });
 
 app.listen(PORT, () => {
+  console.log("Connected to database:", process.env.DATABASE_URL);
   console.log(`Server started on port ${PORT}`);
 });
