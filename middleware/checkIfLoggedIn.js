@@ -2,6 +2,7 @@ const jose = require("jose"); // Assuming you are using node-jose library
 
 const checkIfLoggedInMiddleware = async (req, res, next) => {
   try {
+    console.log("req. heraders", req.headers);
     const authToken = req.headers.authorization.replace("Bearer ", "");
     console.log("inside the get subsequent page route", req.body);
     console.log("the auth token is: ", authToken);

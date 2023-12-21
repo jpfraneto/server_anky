@@ -21,6 +21,18 @@ model User {
   ANKYBalance     Int               @default(0) // Assuming smallest unit, like wei for Ethereum
   Mana            Mana[]
   ManaTransaction ManaTransaction[]
+  farcasterAccount  FarcasterAccount?  // Relation to Farcaster account
+}
+
+model FarcasterAccount {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [privyId])
+  userId        String   @unique
+  signerUuid    String   // UUID of the signer
+  signerStatus  String   // Status of the signer
+  publicKey     String   // Farcaster public key
+  fid           Int      // Farcaster ID
+  approvalUrl   String   // URL for approval
 }
 
 model Mana {

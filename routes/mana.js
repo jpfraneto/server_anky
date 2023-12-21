@@ -62,7 +62,7 @@ router.post("/anon-session-end", async (req, res) => {
     if (isValid) {
       console.log("it is valid", serverTimeUserWrote, frontendWrittenTime);
       res.status(200).json({
-        message: `If you had logged in, you would have earned ${manaToAdd} $ANKYMANA`,
+        message: `If you had logged in, you would have earned ${manaToAdd} $ANKY`,
       });
     }
   } catch (error) {
@@ -90,14 +90,20 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
     const manaToAdd = Math.min(serverTimeUserWrote, frontendWrittenTime);
     if (isValid) {
       console.log("it is valid", serverTimeUserWrote, frontendWrittenTime);
-      const responseFromManaFunction = await addManaToUser(user, manaToAdd);
-      console.log(
-        "the response freom mana function is: ",
-        responseFromManaFunction
-      );
-      res.status(200).json({
-        message: `Successfully added ${manaToAdd} maná to your balance`,
-      });
+      if (manaToAdd > 30) {
+        const responseFromManaFunction = await addManaToUser(user, manaToAdd);
+        console.log(
+          "the response freom mana function is: ",
+          responseFromManaFunction
+        );
+        res.status(200).json({
+          message: `Successfully added ${manaToAdd} maná to your balance`,
+        });
+      } else {
+        res.status(200).json({
+          message: `You need to write for more than 30 seconds to earn that juicy $ANKY`,
+        });
+      }
     }
   } catch (error) {
     console.log("there was an error in the session end function", error);

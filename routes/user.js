@@ -15,6 +15,18 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { privyId: req.params.privyId },
+    });
+    console.log("the user is: ", user);
+    res.json({ user });
+  } catch (error) {
+    console.log("there was an error", error);
+  }
+});
+
 router.post("/login", async (req, res) => {
   try {
     const { privyId } = req.body; // Ensure you are receiving the correct fields from the frontend

@@ -78,7 +78,6 @@ router.get("/feed", async (req, res) => {
       parentUrl: memesChannelUrl,
     });
 
-    console.log("THE FEED IS: ", feed);
     res.status(200).json({ feed });
   } catch (error) {
     console.log("there was an error on the feed here:", error);
@@ -87,6 +86,7 @@ router.get("/feed", async (req, res) => {
 
 router.post("/api/signer", async (req, res) => {
   try {
+    console.log("the req.body is: ", req.body);
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
       {},
@@ -116,8 +116,29 @@ router.post("/api/signer", async (req, res) => {
       }
     );
 
+    console.log("in here, the signedKeyResponse is: ", signedKeyResponse);
+
     res.json(signedKeyResponse.data);
   } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/api/signer", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://api.neynar.com/v2/farcaster/signer",
+      {
+        params: req.query,
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.log("there was an error inside here!");
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -147,25 +168,6 @@ router.post("/api/reaction", async (req, res) => {
   } catch (error) {
     console.log("there was an error", error);
     res.status(500).json({ message: "there was an error adding the reaction" });
-  }
-});
-
-router.get("/api/signer", async (req, res) => {
-  try {
-    const response = await axios.get(
-      "https://api.neynar.com/v2/farcaster/signer",
-      {
-        params: req.query,
-        headers: {
-          api_key: process.env.NEYNAR_API_KEY,
-        },
-      }
-    );
-    res.json(response.data);
-  } catch (error) {
-    console.log("there was an error inside here!");
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -346,26 +348,6 @@ router.get("/test", async (req, res) => {
   } catch (error) {
     console.log("there was an error", error);
   }
-});
-
-router.get("/neynar", async (req, res) => {
-  try {
-    // console.log("testing route");
-    // const response = await axios.post(
-    //   "https://api.neynar.com/v2/farcaster/cast",
-    //   {
-    //     text: "aloja"",
-    //     embeds: [],
-    //     signer_uuid: signer_uuid,
-    //     parent: parent,
-    //   },
-    //   {
-    //     headers: {
-    //       api_key: process.env.NEYNAR_API_KEY,
-    //     },
-    //   }
-    // );
-  } catch (error) {}
 });
 
 module.exports = router;
