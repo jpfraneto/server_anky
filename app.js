@@ -26,8 +26,6 @@ const farcasterRoutes = require("./routes/farcaster");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
 
-app.use(limiter);
-
 // Middleware
 const whitelist = [
   "http://localhost:3001",
@@ -48,6 +46,7 @@ const corsOptions = {
 // App initialization
 const app = express();
 app.use(cors(corsOptions));
+app.use(limiter);
 const PORT = process.env.PORT || 3000;
 
 let subscriptions = []; // Store subscriptions
