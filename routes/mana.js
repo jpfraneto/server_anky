@@ -20,7 +20,12 @@ router.post("/session-start", checkIfLoggedInMiddleware, async (req, res) => {
     const { user, timestamp } = req.body;
     console.log("inside the server session start", user, timestamp);
     activeRuns.push({ userId: user, startingTimestamp: timestamp });
-  } catch (error) {}
+    res.status(200).json({ message: "your session started" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "There was an error starting your session " });
+  }
 });
 
 router.post("/anon-session-start", async (req, res) => {
@@ -31,6 +36,9 @@ router.post("/anon-session-start", async (req, res) => {
     res.status(200).json({ message: "your session started" });
   } catch (error) {
     console.log("there was an error with the anon session start", error);
+    res
+      .status(500)
+      .json({ message: "There was an error starting your session anon" });
   }
 });
 
@@ -56,17 +64,7 @@ router.post("/anon-session-end", async (req, res) => {
       res.status(200).json({
         message: `If you had logged in, you would have earned ${manaToAdd} $ANKYMANA`,
       });
-      //const responseFromManaFunction = await addManaToUser(user, manaToAdd);
-      // console.log(
-      //   "the response freom mana function is: ",
-      //   responseFromManaFunction
-      // );
-      // res.status(200).json({
-      //   message: `Successfully added ${manaToAdd} maná to your balance`,
-      // });
     }
-
-    console.log("inside the server session end", user, timestamp);
   } catch (error) {
     console.log("there was an error in the session end function", error);
     res
@@ -101,8 +99,6 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
         message: `Successfully added ${manaToAdd} maná to your balance`,
       });
     }
-
-    console.log("inside the server session end", user, timestamp);
   } catch (error) {
     console.log("there was an error in the session end function", error);
   }
