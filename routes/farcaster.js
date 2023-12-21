@@ -187,7 +187,7 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    let secondCastText = `welcome to a limitless era of farcaster`;
+    let secondCastText = `welcome to a limitless era of farcaster\n\n $SPAM`;
     console.log("IN HERE, THE PUBLISHED CAST IS: ", response);
     if (!response.status)
       return res.status(500).json({ message: "there was a problem here" });
