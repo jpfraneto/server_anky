@@ -154,7 +154,7 @@ router.get("/u/:fid/feed", async (req, res) => {
 
 router.get("/random-feed", async (req, res) => {
   try {
-    const ankyGenesisAddress = "0x5806485215C8542C448EcF707aB6321b948cAb90";
+    const ankyGenesisAddress = "0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB";
     const addrs = await getAddressesThatOwnNFT(ankyGenesisAddress);
 
     const usersLookup = async (addrs) => {
