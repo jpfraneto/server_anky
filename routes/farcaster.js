@@ -77,10 +77,11 @@ router.get("/feed", async (req, res) => {
       filterType: FilterType.ParentUrl,
       parentUrl: memesChannelUrl,
     });
+    console.log("in here, getting the feed");
 
     res.status(200).json({ feed });
   } catch (error) {
-    console.log("there was an error on the feed here:", error);
+    console.log("there was an error on the feed here");
   }
 });
 
@@ -122,6 +123,82 @@ router.post("/api/signer", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+router.get("/u/:fid", async (req, res) => {
+  try {
+    const response = await client.lookupUserByFid(req.params.fid);
+    console.log("here, the reposnse is: ", response);
+    res.status(200).json({ user: response.result.user });
+  } catch (error) {
+    console.log("there was an error here");
+  }
+});
+
+router.get("/u/:fid/feed", async (req, res) => {
+  try {
+    const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
+    console.log("looking for the feed for this user", req.params.fid);
+    const result = await client.fetchFeed(FeedType.Filter, {
+      filterType: FilterType.ParentUrl,
+      parentUrl: ankyChannelUrl,
+      limit: 20,
+      fid: req.params.fid,
+    });
+    console.log("IN HERE, THE RESULT IS: ", result);
+
+    res.status(200).json({ feed: result.casts });
+  } catch (error) {
+    console.log("there was an error here", error);
+  }
+});
+
+router.get("/random-feed", async (req, res) => {
+  try {
+    const ankyGenesisAddress = "0x5806485215C8542C448EcF707aB6321b948cAb90";
+    const addrs = await getAddressesThatOwnNFT(ankyGenesisAddress);
+
+    const usersLookup = async (addrs) => {
+      const users = await Promise.all(
+        addrs.map(async (addr) => {
+          try {
+            const response = await client.lookupUserByVerification(addr);
+            return response ? response.result.user : undefined;
+          } catch (error) {
+            return undefined;
+          }
+        })
+      );
+      return users.filter((fid) => fid !== undefined);
+    };
+
+    const usersThatOwnThisNft = await usersLookup(addrs);
+
+    console.log("the fids are", usersThatOwnThisNft);
+
+    res.status(200).json({ users: usersThatOwnThisNft });
+  } catch (error) {
+    console.log("there was an error getting the random feed", error);
+  }
+});
+
+const getAddressesThatOwnNFT = async (address) => {
+  try {
+    const apiKey = process.env.ALCHEMY_API_KEY;
+    const baseUrl = `https://eth-mainnet.g.alchemy.com/nft/v3/${apiKey}/getOwnersForContract?`;
+    const url = `${baseUrl}contractAddress=${address}&withTokenBalances=false`;
+
+    const result = await fetch(url, {
+      headers: { accept: "application/json" },
+    });
+    const data = await result.json();
+    return data.owners;
+  } catch (error) {
+    console.log(
+      "there was an error fetching the addresses that own that nft",
+      error
+    );
+  }
+};
 
 router.get("/api/signer", async (req, res) => {
   try {
@@ -187,7 +264,7 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    let secondCastText = `welcome to a limitless era of farcaster\n\n $SPAM`;
+    let secondCastText = `welcome to a limitless era of farcaster`;
     if (!response.status)
       return res.status(500).json({ message: "there was a problem here" });
     const secondResponse = await axios.post(
@@ -237,9 +314,7 @@ router.post("/api/cast/anon-reply", async (req, res) => {
 
 router.post("/api/cast/replies/:hash", async (req, res) => {
   const { viewerFid, threadHash } = req.body;
-  console.log("THE REQ BODY IS: ", req.body);
   try {
-    console.log("router.params.hash", req.params.hash);
     // const cast = await client.lookUpCastByHashOrWarpcastUrl(
     //   router.params.hash,
     //   CastParamType.Hash
