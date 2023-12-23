@@ -127,7 +127,6 @@ router.post("/api/signer", async (req, res) => {
 router.get("/u/:fid", async (req, res) => {
   try {
     const response = await client.lookupUserByFid(req.params.fid);
-    console.log("here, the reposnse is: ", response);
     res.status(200).json({ user: response.result.user });
   } catch (error) {
     console.log("there was an error here");
@@ -137,12 +136,13 @@ router.get("/u/:fid", async (req, res) => {
 router.get("/u/:fid/feed", async (req, res) => {
   try {
     const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
-    console.log("looking for the feed for this user", req.params.fid);
+    const usersFid = req.params.fid;
+
     const result = await client.fetchFeed(FeedType.Filter, {
       filterType: FilterType.ParentUrl,
       parentUrl: ankyChannelUrl,
       limit: 20,
-      fid: req.params.fid,
+      fid: usersFid,
     });
     console.log("IN HERE, THE RESULT IS: ", result);
 
@@ -152,10 +152,9 @@ router.get("/u/:fid/feed", async (req, res) => {
   }
 });
 
-router.get("/random-feed", async (req, res) => {
+router.get("/get-feed/:collectionId", async (req, res) => {
   try {
-    const ankyGenesisAddress = "0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB";
-    const addrs = await getAddressesThatOwnNFT(ankyGenesisAddress);
+    const addrs = await getAddressesThatOwnNFT(req.params.collectionId);
 
     const usersLookup = async (addrs) => {
       const users = await Promise.all(
