@@ -10,6 +10,7 @@ router.post("/session-start", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { user, timestamp } = req.body;
     console.log("inside the server session start", user, timestamp);
+    activeRuns.filter((x) => x.userId != user);
     activeRuns.push({ userId: user, startingTimestamp: timestamp });
     res.status(200).json({ message: "your session started" });
   } catch (error) {
@@ -88,6 +89,10 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
         );
         res.status(200).json({
           message: `Successfully added ${manaToAdd} maná to your balance`,
+          data: {
+            activeStreak: responseFromManaFunction.streakResult,
+            manaBalance: responseFromManaFunction.transaction[1].manaBalance,
+          },
         });
       } else {
         res.status(200).json({
