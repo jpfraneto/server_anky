@@ -133,20 +133,31 @@ router.get("/u/:fid", async (req, res) => {
   }
 });
 
-router.get("/u/:fid/feed", async (req, res) => {
+router.post("/u/:fid/feed", async (req, res) => {
   try {
+    const { viewerFid } = req.body;
     const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
     const usersFid = req.params.fid;
+    console.log("IN HERE, QUERYING FOR THIS FEED", usersFid);
 
-    const result = await client.fetchFeed(FeedType.Filter, {
-      filterType: FilterType.ParentUrl,
-      parentUrl: ankyChannelUrl,
-      limit: 20,
-      fid: usersFid,
-    });
-    console.log("IN HERE, THE RESULT IS: ", result);
+    const response = await axios.get(
+      `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${usersFid}&with_recasts=true&limit=25`,
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
 
-    res.status(200).json({ feed: result.casts });
+    // const result = await client.fetchFeed(FeedType.Filter, {
+    //   filterType: FilterType.ParentUrl,
+    //   parentUrl: ankyChannelUrl,
+    //   limit: 20,
+    //   fid: usersFid,
+    // });
+    // console.log("IN HERE, THE RESULT IS: ", result);
+
+    res.status(200).json({ feed: response.data.casts });
   } catch (error) {
     console.log("there was an error here", error);
   }
