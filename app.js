@@ -44,7 +44,7 @@ const corsOptions = {
 };
 // App initialization
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(limiter);
 const PORT = process.env.PORT || 3000;
 
@@ -52,10 +52,6 @@ let subscriptions = []; // Store subscriptions
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-
-app.use((req, res, next) => {
-  next();
-});
 
 app.use((req, res, next) => {
   next();
