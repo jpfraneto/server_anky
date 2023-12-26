@@ -38,11 +38,6 @@ const generate_signature = async function (public_key) {
     { name: "key", type: "bytes" },
     { name: "deadline", type: "uint256" },
   ];
-  console.log("the farcaster developer mnemonic", FARCASTER_DEVELOPER_MNEMONIC);
-  console.log(
-    "the farcaster developer mnemonic",
-    typeof FARCASTER_DEVELOPER_MNEMONIC
-  );
 
   const account = mnemonicToAccount(FARCASTER_DEVELOPER_MNEMONIC);
 
@@ -77,7 +72,6 @@ router.get("/feed", async (req, res) => {
       filterType: FilterType.ParentUrl,
       parentUrl: memesChannelUrl,
     });
-    console.log("in here, getting the feed");
 
     res.status(200).json({ feed });
   } catch (error) {
@@ -87,7 +81,6 @@ router.get("/feed", async (req, res) => {
 
 router.post("/api/signer", async (req, res) => {
   try {
-    console.log("the req.body is: ", req.body);
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
       {},
@@ -138,7 +131,6 @@ router.post("/u/:fid/feed", async (req, res) => {
     const { viewerFid } = req.body;
     const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
     const usersFid = req.params.fid;
-    console.log("IN HERE, QUERYING FOR THIS FEED", usersFid);
 
     const response = await axios.get(
       `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${usersFid}&with_recasts=true&limit=25`,
@@ -182,8 +174,6 @@ router.get("/get-feed/:collectionId", async (req, res) => {
     };
 
     const usersThatOwnThisNft = await usersLookup(addrs);
-
-    console.log("the fids are", usersThatOwnThisNft);
 
     res.status(200).json({ users: usersThatOwnThisNft });
   } catch (error) {
@@ -232,7 +222,6 @@ router.get("/api/signer", async (req, res) => {
 router.post("/api/reaction", async (req, res) => {
   try {
     const { reactionType, hash, signer_uuid } = req.body;
-    console.log("the req.bdoy is: ", req.body, signer_uuid);
 
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/reaction",
@@ -248,7 +237,6 @@ router.post("/api/reaction", async (req, res) => {
       }
     );
 
-    console.log("the response data is: ", response.data);
     res.json(response.data);
   } catch (error) {
     console.log("there was an error", error);
@@ -259,7 +247,6 @@ router.post("/api/reaction", async (req, res) => {
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds } = req.body;
   try {
-    console.log("sending the cast from the backend");
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
       {
@@ -337,7 +324,6 @@ router.post("/api/cast/replies/:hash", async (req, res) => {
         },
       }
     );
-    console.log("the repsonse asdasdasdsis: ", response);
     res.json({ casts: response.data.result.casts });
   } catch (error) {
     console.log("there was an error)");
@@ -348,7 +334,6 @@ router.post("/api/cast/replies/:hash", async (req, res) => {
 
 router.get("/api/cast/:hash", async (req, res) => {
   try {
-    console.log("router.params.hash", req.params.hash);
     // const cast = await client.lookUpCastByHashOrWarpcastUrl(
     //   router.params.hash,
     //   CastParamType.Hash
@@ -400,7 +385,6 @@ router.post("/api/cast", async (req, res) => {
 
 router.get("/test", async (req, res) => {
   try {
-    console.log("in the test route");
     // const signerUuid = process.env.MFGA_SIGNER_UUID;
     // const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
     // const publishedCast = await client.clients.v2.publishCast(
