@@ -4,16 +4,19 @@ const axios = require("axios");
 const { addManaToUser } = require("../lib/mana/index");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 
-const activeRuns = [];
+let activeRuns = [];
 
 router.post("/session-start", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { user, timestamp } = req.body;
     console.log("inside the server session start", user, timestamp);
-    activeRuns.filter((x) => x.userId != user);
+    const filteredActiveRuns = activeRuns.filter((x) => x.userId != user);
+    activeRuns = filteredActiveRuns;
     activeRuns.push({ userId: user, startingTimestamp: timestamp });
+    console.log("in here, the active runs are now: ", activeRuns);
     res.status(200).json({ message: "your session started" });
   } catch (error) {
+    console.log("there was an error here", error);
     res
       .status(500)
       .json({ message: "There was an error starting your session " });
@@ -88,9 +91,9 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
           responseFromManaFunction
         );
         res.status(200).json({
-          message: `Successfully added ${manaToAdd} maná to your balance`,
+          message: `Successfully added ${manaToAdd} $NEWEN to your balance`,
           data: {
-            activeStreak: responseFromManaFunction.streakResult,
+            activeStreak: responseFromManaFunction.streakResult.streak,
             manaBalance: responseFromManaFunction.transaction[1].manaBalance,
           },
         });
