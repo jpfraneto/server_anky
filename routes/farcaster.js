@@ -126,6 +126,23 @@ router.get("/u/:fid", async (req, res) => {
   }
 });
 
+router.get("/u/:fid/feed", async (req, res) => {
+  try {
+    console.log("in here", req.params.fid);
+    const response = await axios.get(
+      `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${req.params.fid}&limit=50`,
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    res.status(200).json({ casts: response.data.casts });
+  } catch (error) {
+    console.log("there was an error fetching the feed");
+  }
+});
+
 router.post("/u/:fid/feed", async (req, res) => {
   try {
     const { viewerFid } = req.body;

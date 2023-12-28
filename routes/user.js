@@ -14,6 +14,36 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/farcaster/:fid", async (req, res) => {
+  try {
+    let user, response;
+    if (req.params.fid.length > 16) {
+      user = await prisma.user.findUnique({
+        where: { privyId: req.params.fid },
+      });
+    } else {
+      user = await prisma.user.findUnique({
+        where: { farcasterFID: Number(req.params.fid) },
+      });
+      response = await axios.get(
+        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${req.params.fid}`,
+        {
+          headers: {
+            api_key: process.env.NEYNAR_API_KEY,
+          },
+        }
+      );
+    }
+
+    res.json({
+      farcasterUser: response?.data?.users[0] || null,
+      ankyUser: user,
+    });
+  } catch (error) {
+    console.log("there was an error that happened querying this user", error);
+  }
+});
+
 router.get("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     console.log("checking the user here:", req.params.privyId);
