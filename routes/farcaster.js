@@ -143,28 +143,48 @@ router.get("/u/:fid/feed", async (req, res) => {
   }
 });
 
+router.get("/anky-channel-feed", async (req, res) => {
+  try {
+    console.log("getting the anky feed");
+    const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
+
+    const feed = await client.fetchFeed(FeedType.Filter, {
+      filterType: FilterType.ParentUrl,
+      parentUrl: ankyChannelUrl,
+    });
+    console.log("the feed for the anky client is: ", feed);
+    res.status(200).json({ feed });
+  } catch (error) {
+    console.log("there was an error getting the anky feed");
+    res
+      .status(500)
+      .json({ message: "there was an error loading the anky feed" });
+  }
+});
+
 router.post("/u/:fid/feed", async (req, res) => {
   try {
+    console.log("getting the feed");
     const { viewerFid } = req.body;
     const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
     const usersFid = req.params.fid;
 
-    const response = await axios.get(
-      `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${usersFid}&with_recasts=true&limit=25`,
-      {
-        headers: {
-          api_key: process.env.NEYNAR_API_KEY,
-        },
-      }
-    );
+    // const response = await axios.get(
+    //   `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${usersFid}&with_recasts=true&limit=25`,
+    //   {
+    //     headers: {
+    //       api_key: process.env.NEYNAR_API_KEY,
+    //     },
+    //   }
+    // );
 
-    // const result = await client.fetchFeed(FeedType.Filter, {
-    //   filterType: FilterType.ParentUrl,
-    //   parentUrl: ankyChannelUrl,
-    //   limit: 20,
-    //   fid: usersFid,
-    // });
-    // console.log("IN HERE, THE RESULT IS: ", result);
+    const result = await client.fetchFeed(FeedType.Filter, {
+      filterType: FilterType.ParentUrl,
+      parentUrl: ankyChannelUrl,
+      limit: 20,
+      fid: usersFid,
+    });
+    console.log("IN HERE, THE RESULT IS: ", result);
 
     res.status(200).json({ feed: response.data.casts });
   } catch (error) {
