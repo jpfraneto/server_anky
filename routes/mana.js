@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const prisma = require("../lib/prismaClient");
 const { addManaToUser } = require("../lib/mana/index");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 
@@ -112,6 +113,73 @@ router.get("/:privyUID", async (req, res) => {
     res.json({ 123: 456 });
   } catch (error) {
     console.log("in here in the error");
+  }
+});
+
+router.get("/leaderboard/:category", async (req, res) => {
+  try {
+    let leaderboard;
+    switch (req.params.category) {
+      case "all-time":
+        leaderboard = await prisma.manaTransaction.groupBy({
+          by: ["userId"],
+          _sum: {
+            amount: true,
+          },
+          where: {
+            type: "earned",
+          },
+          orderBy: {
+            _sum: {
+              amount: "desc",
+            },
+          },
+        });
+        res.status(200).json(leaderboard);
+        break;
+      case "today":
+        leaderboard = await prisma.manaTransaction.groupBy({
+          by: ["userId"],
+          _sum: {
+            amount: true,
+          },
+          where: {
+            type: "earned",
+          },
+          orderBy: {
+            _sum: {
+              amount: "desc",
+            },
+          },
+        });
+        res.status(200).json(leaderboard);
+        break;
+      case "longest-runs":
+        leaderboard = await prisma.manaTransaction.groupBy({
+          by: ["userId"],
+          _sum: {
+            amount: true,
+          },
+          where: {
+            type: "earned",
+          },
+          orderBy: {
+            _sum: {
+              amount: "desc",
+            },
+          },
+        });
+        res.status(200).json(leaderboard);
+        break;
+    }
+  } catch (error) {
+    console.log(
+      "there was an error getting the leaderboard information",
+      error
+    );
+    res.status(500).json({
+      message: "There was an error getting the leaderboard information",
+    });
   }
 });
 

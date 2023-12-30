@@ -31,7 +31,7 @@ const checkIfLoggedInMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.log("the error is: ", error);
+    console.log("The user is not authorized");
     res.status(401).json({ message: "Not authorized" }); // Sending 401 for unauthorized requests
   }
 };
