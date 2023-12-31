@@ -51,6 +51,7 @@ model ManaTransaction {
   amount    Int
   type      String // "earned" or "spent"
   createdAt DateTime @default(now())
+  cid       String?
 }
 
 model Wallet {

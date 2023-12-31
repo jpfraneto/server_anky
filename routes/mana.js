@@ -86,7 +86,12 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
     if (isValid) {
       console.log("it is valid", serverTimeUserWrote, frontendWrittenTime);
       if (manaToAdd > 30) {
-        const responseFromManaFunction = await addManaToUser(user, manaToAdd);
+        let cid = ""; // THIS HAS TO BE UPDATED ONE DAY TO CAPTURE THE IRYS CID ON THE FRONTEND AND ADD IT HERE FOR REFERENCE
+        const responseFromManaFunction = await addManaToUser(
+          user,
+          manaToAdd,
+          cid
+        );
         console.log(
           "the response freom mana function is: ",
           responseFromManaFunction
@@ -119,6 +124,8 @@ router.get("/:privyUID", async (req, res) => {
 router.get("/leaderboard/:category", async (req, res) => {
   try {
     let leaderboard;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     switch (req.params.category) {
       case "all-time":
         leaderboard = await prisma.manaTransaction.groupBy({
@@ -144,7 +151,15 @@ router.get("/leaderboard/:category", async (req, res) => {
             amount: true,
           },
           where: {
-            type: "earned",
+            AND: [
+              { type: "earned" },
+              {
+                createdAt: {
+                  gte: today,
+                  lt: new Date(today.valueOf() + 24 * 60 * 60 * 1000), // Less than the start of the next day
+                },
+              },
+            ],
           },
           orderBy: {
             _sum: {
@@ -155,21 +170,24 @@ router.get("/leaderboard/:category", async (req, res) => {
         res.status(200).json(leaderboard);
         break;
       case "longest-runs":
-        leaderboard = await prisma.manaTransaction.groupBy({
-          by: ["userId"],
-          _sum: {
-            amount: true,
-          },
-          where: {
-            type: "earned",
-          },
-          orderBy: {
-            _sum: {
-              amount: "desc",
-            },
-          },
+        const longestRuns = await prisma.manaTransaction.findMany({
+          where: { type: "earned" },
+          orderBy: { amount: "desc" },
+          take: 20,
+          include: { user: true }, // Include user details in the result
         });
-        res.status(200).json(leaderboard);
+
+        res.status(200).json(
+          longestRuns.map((run) => ({
+            userId: run.user.privyId, // or username if it's available
+            amount: run.amount,
+            // Include other user details as needed
+          }))
+        );
+        break;
+
+      default:
+        res.status(400).json({ message: "Invalid category" });
         break;
     }
   } catch (error) {
