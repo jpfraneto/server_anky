@@ -33,7 +33,6 @@ model FarcasterAccount {
   signerStatus  String   // Status of the signer
   publicKey     String   // Farcaster public key
   fid           Int?     // Farcaster fid
-  approvalUrl   String?   // URL for approval
 }
 
 model Mana {
