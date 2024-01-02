@@ -45,7 +45,7 @@ const corsOptions = {
 // App initialization
 const app = express();
 app.use(cors(corsOptions));
-app.use(limiter);
+// app.use(limiter);
 const PORT = process.env.PORT || 3000;
 
 let subscriptions = []; // Store subscriptions

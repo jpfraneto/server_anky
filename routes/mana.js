@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const prisma = require("../lib/prismaClient");
-const { addManaToUser } = require("../lib/mana/index");
+const { addManaToUser, manaGiftBetweenUsers } = require("../lib/mana/index");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 
 let activeRuns = [];
@@ -68,6 +68,27 @@ router.post("/anon-session-end", async (req, res) => {
   }
 });
 
+router.post(
+  "/mana-transaction",
+  checkIfLoggedInMiddleware,
+  async (req, res) => {
+    try {
+      const { sender, receiver, manaSent } = req.body;
+      const responseFromManaTransaction = await manaGiftBetweenUsers(
+        sender,
+        receiver,
+        manaSent
+      );
+      console.log(
+        "the response after sending the mana between users is: ",
+        responseFromManaTransaction
+      );
+    } catch (error) {
+      console.log("THERE WAS AN ERROR HERE!!0", error);
+    }
+  }
+);
+
 router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { user, timestamp, frontendWrittenTime } = req.body;
@@ -87,11 +108,7 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
       console.log("it is valid", serverTimeUserWrote, frontendWrittenTime);
       if (manaToAdd > 30) {
         let cid = ""; // THIS HAS TO BE UPDATED ONE DAY TO CAPTURE THE IRYS CID ON THE FRONTEND AND ADD IT HERE FOR REFERENCE
-        const responseFromManaFunction = await addManaToUser(
-          user,
-          manaToAdd,
-          cid
-        );
+        const responseFromManaFunction = await addManaToUser(user, manaToAdd);
         console.log(
           "the response freom mana function is: ",
           responseFromManaFunction

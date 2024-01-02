@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const prisma = require("../lib/prismaClient");
 const { getCastsByFid } = require("../lib/blockchain/farcaster");
 const { mnemonicToAccount } = require("viem/accounts");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
@@ -79,8 +80,9 @@ router.get("/feed", async (req, res) => {
   }
 });
 
-router.post("/api/signer", async (req, res) => {
+router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
   try {
+    const { privyId } = req.body;
     const createSignerResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer",
       {},
@@ -109,9 +111,80 @@ router.post("/api/signer", async (req, res) => {
         },
       }
     );
+    console.log("IN HEEEERE", signedKeyResponse);
+    const { public_key, signer_uuid, signer_approval_url, status } =
+      signedKeyResponse.data;
+    const existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
+      where: { userId: privyId },
+    });
+    console.log("IN HEEERE", existingFarcasterAccount);
+    if (existingFarcasterAccount) {
+      await prisma.farcasterAccount.update({
+        where: { id: existingFarcasterAccount.id },
+        data: {
+          publicKey: public_key,
+          signerUuid: signer_uuid,
+          approvalUrl: signer_approval_url,
+          signerStatus: status,
+        },
+      });
+      console.log("the farcaster account was updated");
+    } else {
+      await prisma.farcasterAccount.create({
+        data: {
+          user: { connect: { privyId: privyId } },
+          publicKey: public_key,
+          signerUuid: signer_uuid,
+          approvalUrl: signer_approval_url,
+          signerStatus: status,
+        },
+      });
+      console.log("the farcaster account was created");
+    }
 
+    // Respond with the signed key response data
     res.json(signedKeyResponse.data);
   } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/api/signer", async (req, res) => {
+  const { signer_uuid, privyId } = req.query;
+  try {
+    const response = await axios.get(
+      "https://api.neynar.com/v2/farcaster/signer",
+      {
+        params: {
+          signer_uuid,
+        },
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    if (response.data.status == "approved") {
+      const existingFarcasterAccount = await prisma.farcasterAccount.findUnique(
+        {
+          where: { userId: privyId },
+        }
+      );
+      if (existingFarcasterAccount) {
+        await prisma.farcasterAccount.update({
+          where: { id: existingFarcasterAccount.id },
+          data: {
+            signerStatus: response.data.status,
+          },
+        });
+        console.log(
+          "the farcaster account was updated with the new signer status"
+        );
+      }
+    }
+    res.json(response.data);
+  } catch (error) {
+    console.log("there was an error inside here!");
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -236,25 +309,6 @@ const getAddressesThatOwnNFT = async (address) => {
     );
   }
 };
-
-router.get("/api/signer", async (req, res) => {
-  try {
-    const response = await axios.get(
-      "https://api.neynar.com/v2/farcaster/signer",
-      {
-        params: req.query,
-        headers: {
-          api_key: process.env.NEYNAR_API_KEY,
-        },
-      }
-    );
-    res.json(response.data);
-  } catch (error) {
-    console.log("there was an error inside here!");
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
 
 router.post("/api/reaction", async (req, res) => {
   try {

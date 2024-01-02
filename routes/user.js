@@ -101,13 +101,65 @@ router.get("/farcaster/:fid", async (req, res) => {
 //   }
 // });
 
-router.get("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
+router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
   try {
-    console.log("checking the user here:", req.params.privyId);
+    const privyId = req.params.privyId;
+    const { thisFarcasterAccount } = req.body;
     const user = await prisma.user.findUnique({
-      where: { privyId: req.params.privyId },
+      where: { privyId },
+      include: { farcasterAccount: true },
     });
-    console.log("the user is: ", user);
+    let updatedUser;
+    if (thisFarcasterAccount) {
+      const { signer_uuid, status, public_key, fid } = thisFarcasterAccount;
+
+      const existingFarcasterAccount = await prisma.farcasterAccount.findUnique(
+        {
+          where: { userId: privyId },
+        }
+      );
+      if (existingFarcasterAccount) {
+        await prisma.farcasterAccount.update({
+          where: { id: existingFarcasterAccount.id },
+          data: {
+            signerUuid: signer_uuid,
+            publicKey: public_key,
+            signerStatus: status,
+            fid: fid || 0,
+          },
+        });
+        updatedUser = await prisma.user.update({
+          where: { id: existingFarcasterAccount.id },
+          data: {
+            fid: fid,
+          },
+        });
+        console.log(
+          "the farcaster account was UPDATED with the new signer status"
+        );
+      } else {
+        await prisma.farcasterAccount.create({
+          data: {
+            user: { connect: { privyId: privyId } },
+            publicKey: public_key,
+            signerUuid: signer_uuid,
+            signerStatus: status,
+            fid: fid || 0,
+          },
+        });
+        updatedUser = await prisma.user.update({
+          where: { id: existingFarcasterAccount.id },
+          data: {
+            fid: fid,
+          },
+        });
+        console.log(
+          "the farcaster account was CREATED with the new signer status"
+        );
+      }
+    }
+
+    console.log("the user is: ", user, updatedUser);
     res.json({ user });
   } catch (error) {
     console.log("there was an error", error);
