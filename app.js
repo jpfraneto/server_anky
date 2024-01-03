@@ -75,10 +75,6 @@ const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
-async function getPendingTransactionCount(wallet) {
-  return await provider.getTransactionCount(wallet, "pending");
-}
-
 app.get("/publicKey", async (req, res) => {
   async function serverInit() {
     const key = process.env.PRIVATE_KEY; // your private key;

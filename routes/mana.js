@@ -73,8 +73,9 @@ router.post(
   checkIfLoggedInMiddleware,
   async (req, res) => {
     try {
-      const { sender, receiver, manaSent } = req.body;
+      const { senderPrivyId, sender, receiver, manaSent } = req.body;
       const responseFromManaTransaction = await manaGiftBetweenUsers(
+        senderPrivyId,
         sender,
         receiver,
         manaSent
