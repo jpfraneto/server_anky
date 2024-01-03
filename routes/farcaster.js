@@ -150,6 +150,7 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
 router.get("/api/signer", async (req, res) => {
   const { signer_uuid, privyId } = req.query;
   try {
+    console.log("before theraoñ get api signer", signer_uuid);
     const response = await axios.get(
       "https://api.neynar.com/v2/farcaster/signer",
       {
@@ -161,6 +162,7 @@ router.get("/api/signer", async (req, res) => {
         },
       }
     );
+    console.log("the response is: ", response.data);
     if (response.data.status == "approved") {
       const existingFarcasterAccount = await prisma.farcasterAccount.findUnique(
         {

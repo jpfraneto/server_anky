@@ -176,10 +176,12 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const privyId = req.params.privyId;
     const { thisFarcasterAccount } = req.body;
+    console.log("before calling the user", privyId, thisFarcasterAccount);
     const user = await prisma.user.findUnique({
       where: { privyId },
       include: { farcasterAccount: true },
     });
+    console.log("the found user is: ", user);
     let updatedUser;
     if (thisFarcasterAccount) {
       const { signer_uuid, status, public_key, fid } = thisFarcasterAccount;
@@ -193,14 +195,14 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
         "the existing farcaster account is: ",
         existingFarcasterAccount
       );
-      if (existingFarcasterAccount) {
+      if (existingFarcasterAccount && thisFarcasterAccount.fid != 0) {
         await prisma.farcasterAccount.update({
           where: { id: existingFarcasterAccount.id },
           data: {
             signerUuid: signer_uuid,
             publicKey: public_key,
             signerStatus: status,
-            fid: fid || 0,
+            fid: fid || null,
           },
         });
         updatedUser = await prisma.user.update({
@@ -213,24 +215,26 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
           "the farcaster account was UPDATED with the new signer status"
         );
       } else {
-        await prisma.farcasterAccount.create({
-          data: {
-            user: { connect: { privyId: privyId } },
-            publicKey: public_key,
-            signerUuid: signer_uuid,
-            signerStatus: status,
-            fid: fid || 0,
-          },
-        });
-        updatedUser = await prisma.user.update({
-          where: { privyId },
-          data: {
-            farcasterFID: fid,
-          },
-        });
-        console.log(
-          "the farcaster account was CREATED with the new signer status"
-        );
+        if (fid) {
+          await prisma.farcasterAccount.create({
+            data: {
+              user: { connect: { privyId: privyId } },
+              publicKey: public_key,
+              signerUuid: signer_uuid,
+              signerStatus: status,
+              fid: fid || 0,
+            },
+          });
+          updatedUser = await prisma.user.update({
+            where: { privyId },
+            data: {
+              farcasterFID: fid,
+            },
+          });
+          console.log(
+            "the farcaster account was CREATED with the new signer status"
+          );
+        }
       }
     }
 

@@ -4,7 +4,6 @@ const checkIfLoggedInMiddleware = async (req, res, next) => {
   try {
     console.log("req. heraders", req.headers);
     const authToken = req.headers.authorization.replace("Bearer ", "");
-    console.log("inside the get subsequent page route", req.body);
     console.log("the auth token is: ", authToken);
     const algorithm = "ES256";
     const spki = `-----BEGIN PUBLIC KEY-----
