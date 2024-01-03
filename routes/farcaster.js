@@ -44,8 +44,8 @@ const generate_signature = async function (public_key) {
 
   // Generates an expiration date for the signature
   // e.g. 1693927665
-  // const deadline = Math.floor(Date.now() / 1000) + 86400; // signature is valid for 1 day from now
-  const deadline = 1702675646;
+  const deadline = Math.floor(Date.now() / 1000) + 3 * 86400; // signature is valid for 1 day from now
+  // const deadline = 1702675646;
   // You should pass the same value generated here into the POST /signer/signed-key Neynar API
 
   // Generates the signature
