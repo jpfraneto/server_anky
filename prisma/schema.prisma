@@ -14,7 +14,7 @@ model User {
   wallets         Wallet[]
   lastLogin       DateTime?
   streak          Int               @default(0)
-  longestStreak   Int        @default(0)
+  longestStreak   Int?        @default(0)
   writingSessions WritingSession[]
   manaBalance     Int               @default(0)
   totalManaEarned Int               @default(0)
