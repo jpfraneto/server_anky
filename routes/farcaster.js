@@ -112,8 +112,7 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
       }
     );
     console.log("IN HEEEERE", signedKeyResponse);
-    const { public_key, signer_uuid, signer_approval_url, status } =
-      signedKeyResponse.data;
+    const { public_key, signer_uuid, status } = signedKeyResponse.data;
     const existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
       where: { userId: privyId },
     });
