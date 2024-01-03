@@ -124,7 +124,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
         data: {
           publicKey: public_key,
           signerUuid: signer_uuid,
-          approvalUrl: signer_approval_url,
           signerStatus: status,
         },
       });
@@ -135,7 +134,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
           user: { connect: { privyId: privyId } },
           publicKey: public_key,
           signerUuid: signer_uuid,
-          approvalUrl: signer_approval_url,
           signerStatus: status,
         },
       });
