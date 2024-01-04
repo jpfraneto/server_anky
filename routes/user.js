@@ -13,13 +13,13 @@ router.get("/", async (req, res) => {
     console.log("there was an error", error);
   }
 });
+
 router.get("/fid/:fid", async (req, res) => {
   try {
     console.log("IN HERE", req.params.fid);
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findMany({
       where: { farcasterFID: Number(req.params.fid) },
     });
-    console.log("in here, theeee user is: ", user);
     if (user) {
       res.status(200).json({ user, success: true });
     } else {
@@ -41,7 +41,23 @@ router.get("/farcaster/:privyId", async (req, res) => {
     // Find the user by privyId or farcasterFID
     user = await prisma.user.findUnique({
       where: { privyId: req.params.privyId },
+      include: {
+        farcasterAccount: {
+          select: {
+            id: false, // Why would a third party want to know the id?
+            username: true,
+            displayName: true,
+            bio: true,
+            pfp: true,
+            signerStatus: true,
+            fid: true,
+            // signerUuid: false, // Not needed, omitted fields are excluded by default
+            // publicKey: false, // Not needed, omitted fields are excluded by default
+          },
+        },
+      },
     });
+    console.log("the user is: ", user);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -144,6 +160,21 @@ router.post("/login", async (req, res) => {
 
     let user = await prisma.user.findUnique({
       where: { privyId },
+      include: {
+        farcasterAccount: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            bio: true,
+            pfp: true,
+            signerStatus: true,
+            fid: true,
+            // signerUuid: false, // Not needed, omitted fields are excluded by default
+            // publicKey: false, // Not needed, omitted fields are excluded by default
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -162,6 +193,8 @@ router.post("/login", async (req, res) => {
         },
       });
     }
+
+    console.log("IN HERE, THE USERRRRR IS:", user);
 
     res.status(200).json(user);
   } catch (error) {
@@ -184,7 +217,16 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
     console.log("the found user is: ", user);
     let updatedUser;
     if (thisFarcasterAccount) {
-      const { signer_uuid, status, public_key, fid } = thisFarcasterAccount;
+      const {
+        signer_uuid,
+        status,
+        public_key,
+        fid,
+        pfp,
+        username,
+        displayName,
+      } = thisFarcasterAccount;
+      const bio = thisFarcasterAccount.bio.text;
 
       const existingFarcasterAccount = await prisma.farcasterAccount.findUnique(
         {
@@ -193,16 +235,22 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
       );
       console.log(
         "the existing farcaster account is: ",
-        existingFarcasterAccount
+        existingFarcasterAccount,
+        fid
       );
-      if (existingFarcasterAccount && thisFarcasterAccount.fid != 0) {
+      if (existingFarcasterAccount && fid) {
+        console.log("IN HERE, THE FID IIIIIS", fid);
         await prisma.farcasterAccount.update({
           where: { id: existingFarcasterAccount.id },
           data: {
             signerUuid: signer_uuid,
             publicKey: public_key,
             signerStatus: status,
-            fid: fid || null,
+            fid: fid,
+            bio,
+            pfp,
+            username,
+            displayName,
           },
         });
         updatedUser = await prisma.user.update({
@@ -222,7 +270,10 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
               publicKey: public_key,
               signerUuid: signer_uuid,
               signerStatus: status,
-              fid: fid || 0,
+              fid: fid,
+              bio,
+              pfp,
+              username,
             },
           });
           updatedUser = await prisma.user.update({
@@ -238,7 +289,6 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
       }
     }
 
-    console.log("the user is: ", user, updatedUser);
     res.json({ user });
   } catch (error) {
     console.log("there was an error", error);

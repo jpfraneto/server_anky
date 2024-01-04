@@ -201,15 +201,19 @@ router.get("/u/:fid", async (req, res) => {
 router.get("/u/:fid/feed", async (req, res) => {
   try {
     console.log("in here", req.params.fid);
-    const response = await axios.get(
-      `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${req.params.fid}&limit=50`,
-      {
-        headers: {
-          api_key: process.env.NEYNAR_API_KEY,
-        },
-      }
-    );
-    res.status(200).json({ casts: response.data.casts });
+    if (typeof req.params.fid == "number") {
+      const response = await axios.get(
+        `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${req.params.fid}&limit=50`,
+        {
+          headers: {
+            api_key: process.env.NEYNAR_API_KEY,
+          },
+        }
+      );
+      res.status(200).json({ casts: response.data.casts });
+    } else {
+      res.status(200).json({ casts: null });
+    }
   } catch (error) {
     console.log("there was an error fetching the feed");
   }
@@ -470,35 +474,6 @@ router.post("/api/cast", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-router.get("/test", async (req, res) => {
-  try {
-    // const signerUuid = process.env.MFGA_SIGNER_UUID;
-    // const client = new NeynarAPIClient(process.env.MFGA_API_KEY);
-    // const publishedCast = await client.clients.v2.publishCast(
-    //   signerUuid,
-    //   "This is a test cast."
-    // );
-    // console.log(`New cast hash: ${publishedCast.hash}`);
-    const response = await axios.post(
-      "https://api.neynar.com/v2/farcaster/cast",
-      {
-        text: "aloja",
-        embeds: [],
-        signer_uuid: process.env.MFGA_SIGNER_UUID,
-        parent: "https://warpcast.com/~/channel/anky",
-      },
-      {
-        headers: {
-          api_key: process.env.MFGA_API_KEY,
-        },
-      }
-    );
-    console.log("in the test route, the post is: ", response);
-  } catch (error) {
-    console.log("there was an error", error);
   }
 });
 
