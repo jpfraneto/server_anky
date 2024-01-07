@@ -221,7 +221,6 @@ router.get("/u/:fid/feed", async (req, res) => {
 
 router.get("/anky-channel-feed", async (req, res) => {
   try {
-    console.log("getting the anky feed");
     const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
 
     const feed = await client.fetchFeed(FeedType.Filter, {
@@ -355,23 +354,23 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    let secondCastText = `welcome to a limitless era of farcaster`;
-    if (!response.status)
-      return res.status(500).json({ message: "there was a problem here" });
-    const secondResponse = await axios.post(
-      "https://api.neynar.com/v2/farcaster/cast",
-      {
-        text: secondCastText,
-        embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
-        signer_uuid: process.env.MFGA_SIGNER_UUID,
-        parent: response.data.cast.hash,
-      },
-      {
-        headers: {
-          api_key: process.env.MFGA_API_KEY,
-        },
-      }
-    );
+    // let secondCastText = `welcome to a limitless era of farcaster`;
+    // if (!response.status)
+    //   return res.status(500).json({ message: "there was a problem here" });
+    // const secondResponse = await axios.post(
+    //   "https://api.neynar.com/v2/farcaster/cast",
+    //   {
+    //     text: secondCastText,
+    //     embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
+    //     signer_uuid: process.env.MFGA_SIGNER_UUID,
+    //     parent: response.data.cast.hash,
+    //   },
+    //   {
+    //     headers: {
+    //       api_key: process.env.MFGA_API_KEY,
+    //     },
+    //   }
+    // );
     res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
