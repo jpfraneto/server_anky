@@ -476,4 +476,21 @@ router.post("/api/cast", async (req, res) => {
   }
 });
 
+router.get("/api/all-casts", async (req, res) => {
+  try {
+    const response = axios.get(
+      "https://api.neynar.com/v1/farcaster/recent-casts?viewerFid=3&limit=25",
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    console.log("the response from the server is: ", response);
+  } catch (error) {
+    console.log("there was an error here");
+    res.status(500).json({ success: false, message: "There was an error" });
+  }
+});
+
 module.exports = router;
