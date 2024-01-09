@@ -354,24 +354,24 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    // let secondCastText = `welcome to a limitless era of farcaster`;
-    // if (!response.status)
-    //   return res.status(500).json({ message: "there was a problem here" });
-    // const secondResponse = await axios.post(
-    //   "https://api.neynar.com/v2/farcaster/cast",
-    //   {
-    //     text: secondCastText,
-    //     embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
-    //     signer_uuid: process.env.MFGA_SIGNER_UUID,
-    //     parent: response.data.cast.hash,
-    //   },
-    //   {
-    //     headers: {
-    //       api_key: process.env.MFGA_API_KEY,
-    //     },
-    //   }
-    // );
-    res.json({ cast: response.data.cast });
+    let secondCastText = `welcome to a limitless era of farcaster`;
+    if (!response.status)
+      return res.status(500).json({ message: "there was a problem here" });
+    const secondResponse = await axios.post(
+      "https://api.neynar.com/v2/farcaster/cast",
+      {
+        text: secondCastText,
+        embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
+        signer_uuid: process.env.MFGA_SIGNER_UUID,
+        parent: response.data.cast.hash,
+      },
+      {
+        headers: {
+          api_key: process.env.MFGA_API_KEY,
+        },
+      }
+    );
+    res.json({ cast: secondResponse.data.cast });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -478,7 +478,7 @@ router.post("/api/cast", async (req, res) => {
 
 router.get("/api/all-casts", async (req, res) => {
   try {
-    const response = axios.get(
+    const response = await axios.get(
       "https://api.neynar.com/v1/farcaster/recent-casts?viewerFid=3&limit=25",
       {
         headers: {
@@ -486,6 +486,7 @@ router.get("/api/all-casts", async (req, res) => {
         },
       }
     );
+    res.status(200).json({ casts: response.data.result.casts });
     console.log("the response from the server is: ", response);
   } catch (error) {
     console.log("there was an error here");

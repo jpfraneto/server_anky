@@ -207,6 +207,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
   try {
+    let existingFarcasterAccount;
     const privyId = req.params.privyId;
     const { thisFarcasterAccount } = req.body;
     console.log("before calling the user", privyId, thisFarcasterAccount);
@@ -226,13 +227,11 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
         username,
         displayName,
       } = thisFarcasterAccount;
-      const bio = thisFarcasterAccount.bio.text;
+      const bio = thisFarcasterAccount?.bio?.text || "";
 
-      const existingFarcasterAccount = await prisma.farcasterAccount.findUnique(
-        {
-          where: { userId: privyId },
-        }
-      );
+      existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
+        where: { userId: privyId },
+      });
       console.log(
         "the existing farcaster account is: ",
         existingFarcasterAccount,
@@ -287,9 +286,13 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
           );
         }
       }
+    } else {
+      if (user.farcasterAccount) {
+        existingFarcasterAccount = user.farcasterAccount;
+      }
     }
 
-    res.json({ user });
+    res.json({ user, farcasterAccount: existingFarcasterAccount });
   } catch (error) {
     console.log("there was an error", error);
   }
