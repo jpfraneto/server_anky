@@ -456,6 +456,9 @@ router.get("/api/cast/:hash", async (req, res) => {
 
 router.post("/api/cast", async (req, res) => {
   const { embeds, text, signer_uuid, parent } = req.body;
+  console.log("in here, the cast issssss", embeds, text, signer_uuid, parent);
+  const formattedUrl = `\'${parent.parent}\'`;
+  console.log("the formatted url is: ", formattedUrl);
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -463,7 +466,7 @@ router.post("/api/cast", async (req, res) => {
         text: text,
         embeds: embeds,
         signer_uuid: signer_uuid,
-        parent: parent,
+        parent: formattedUrl,
       },
       {
         headers: {
@@ -471,7 +474,8 @@ router.post("/api/cast", async (req, res) => {
         },
       }
     );
-    res.json(response.data);
+    console.log("the response hereeeee is: ", response.data);
+    res.status(200).json(response.data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
