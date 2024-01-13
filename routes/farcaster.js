@@ -339,6 +339,7 @@ router.post("/api/reaction", async (req, res) => {
 
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds } = req.body;
+  console.log("the text, parent and embeds are: ", text, parent, embeds);
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -354,24 +355,25 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
+    console.log("the cast was published on farcaster: ", response.data);
     let secondCastText = `welcome to a limitless era of farcaster`;
     if (!response.status)
       return res.status(500).json({ message: "there was a problem here" });
-    const secondResponse = await axios.post(
-      "https://api.neynar.com/v2/farcaster/cast",
-      {
-        text: secondCastText,
-        embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
-        signer_uuid: process.env.MFGA_SIGNER_UUID,
-        parent: response.data.cast.hash,
-      },
-      {
-        headers: {
-          api_key: process.env.MFGA_API_KEY,
-        },
-      }
-    );
-    res.json({ cast: secondResponse.data.cast });
+    // const secondResponse = await axios.post(
+    //   "https://api.neynar.com/v2/farcaster/cast",
+    //   {
+    //     text: secondCastText,
+    //     embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
+    //     signer_uuid: process.env.MFGA_SIGNER_UUID,
+    //     parent: response.data.cast.hash,
+    //   },
+    //   {
+    //     headers: {
+    //       api_key: process.env.MFGA_API_KEY,
+    //     },
+    //   }
+    // );
+    res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -92,7 +92,18 @@ router.post(
 
 router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
   try {
-    const { user, timestamp, frontendWrittenTime } = req.body;
+    // dataForCalculatingMultiplier (on frontend): {
+    //   amountOfKeystrokes: "",
+    //   keystrokesPerMinute: "",
+    //   backkeystrokes: "",
+    //   newenMultiplierFromSpeed: 1,
+    // },
+    const {
+      user,
+      timestamp,
+      frontendWrittenTime,
+      dataForCalculatingMultiplier,
+    } = req.body;
     console.log("the active runs are", activeRuns);
     console.log("the user is: ", user);
     const thisActiveRunIndex = activeRuns.findIndex((x) => x.userId == user);
@@ -109,7 +120,12 @@ router.post("/session-end", checkIfLoggedInMiddleware, async (req, res) => {
       console.log("it is valid", serverTimeUserWrote, frontendWrittenTime);
       if (manaToAdd > 30) {
         let cid = ""; // THIS HAS TO BE UPDATED ONE DAY TO CAPTURE THE IRYS CID ON THE FRONTEND AND ADD IT HERE FOR REFERENCE
-        const responseFromManaFunction = await addManaToUser(user, manaToAdd);
+        const responseFromManaFunction = await addManaToUser(
+          user,
+          manaToAdd,
+          1,
+          ""
+        );
         console.log(
           "the response freom mana function is: ",
           responseFromManaFunction
