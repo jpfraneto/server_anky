@@ -454,11 +454,27 @@ router.get("/api/cast/:hash", async (req, res) => {
   }
 });
 
+async function getFullCastFromWarpcasterUrl(url) {
+  try {
+    const apiRoute = `https://api.neynar.com/v2/farcaster/cast?identifier=${url.replace(
+      "/",
+      "%2F"
+    )}&type=url`;
+    const response = await axios.get(apiRoute, {
+      headers: {
+        api_key: process.env.NEYNAR_API_KEY,
+      },
+    });
+    return response.data.cast;
+  } catch (error) {
+    console.log("there was an error ");
+  }
+}
+
 router.post("/api/cast", async (req, res) => {
   const { embeds, text, signer_uuid, parent } = req.body;
-  console.log("in here, the cast issssss", embeds, text, signer_uuid, parent);
-  const formattedUrl = `\'${parent.parent}\'`;
-  console.log("the formatted url is: ", formattedUrl);
+  // Parent is on this format: { parent: 'https://warpcast.com/jpfraneto/0xa7c31262' }
+  const fullCast = await getFullCastFromWarpcasterUrl(parent.parent);
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -466,7 +482,7 @@ router.post("/api/cast", async (req, res) => {
         text: text,
         embeds: embeds,
         signer_uuid: signer_uuid,
-        parent: formattedUrl,
+        parent: fullCast.hash,
       },
       {
         headers: {
@@ -474,7 +490,7 @@ router.post("/api/cast", async (req, res) => {
         },
       }
     );
-    console.log("the response hereeeee is: ", response.data);
+    console.log("after casting the cast");
     res.status(200).json(response.data);
   } catch (error) {
     console.error(error);
