@@ -347,7 +347,7 @@ router.post("/api/cast/anon", async (req, res) => {
         text: text,
         embeds: embeds,
         signer_uuid: process.env.MFGA_SIGNER_UUID,
-        parent: "https://warpcast.com/~/channel/anky",
+        parent: parent,
       },
       {
         headers: {
@@ -424,6 +424,34 @@ router.post("/api/cast/replies/:hash", async (req, res) => {
     console.log("there was an error)");
     console.log(error);
     res.json({ cast: null });
+  }
+});
+
+router.post("/api/get-cast", async (req, res) => {
+  try {
+    console.log("in here, the req body. is.", req.body);
+    const { url } = req.body;
+    if (!url)
+      return res
+        .status(500)
+        .json({ message: "that is not a valid warpcast url" });
+    const response = await axios.get(
+      "https://api.neynar.com/v2/farcaster/cast",
+      {
+        params: {
+          identifier: url,
+          type: "url",
+        },
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    console.log("the cast is: ", response.data);
+    return res.status(200).json({ cast: response.data.cast });
+  } catch (error) {
+    console.log("there was an error here");
+    console.log(error);
   }
 });
 
