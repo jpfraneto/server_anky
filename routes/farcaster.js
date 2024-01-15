@@ -338,7 +338,7 @@ router.post("/api/reaction", async (req, res) => {
 });
 
 router.post("/api/cast/anon", async (req, res) => {
-  const { text, parent, embeds } = req.body;
+  const { text, parent, embeds, cid, manaEarned } = req.body;
   console.log("the text, parent and embeds are: ", text, parent, embeds);
   try {
     const response = await axios.post(
@@ -356,23 +356,18 @@ router.post("/api/cast/anon", async (req, res) => {
       }
     );
     console.log("the cast was published on farcaster: ", response.data);
-    let secondCastText = `welcome to a limitless era of farcaster`;
-    if (!response.status)
-      return res.status(500).json({ message: "there was a problem here" });
-    // const secondResponse = await axios.post(
-    //   "https://api.neynar.com/v2/farcaster/cast",
-    //   {
-    //     text: secondCastText,
-    //     embeds: [{ url: `https://www.anky.lat/r/${response.data.cast.hash}` }],
-    //     signer_uuid: process.env.MFGA_SIGNER_UUID,
-    //     parent: response.data.cast.hash,
-    //   },
-    //   {
-    //     headers: {
-    //       api_key: process.env.MFGA_API_KEY,
-    //     },
-    //   }
-    // );
+    const prismaResponse = await prisma.castWrapper.create({
+      data: {
+        cid: cid,
+        manaEarned: manaEarned,
+        castHash: response.data.cast.hash,
+        castAuthor: response.data.cast.author.username,
+      },
+    });
+    console.log(
+      "the prisma response from adding the cast is: ",
+      prismaResponse
+    );
     res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
@@ -499,8 +494,31 @@ async function getFullCastFromWarpcasterUrl(url) {
   }
 }
 
+router.get("/cast-by-cid/:cid", async (req, res) => {
+  try {
+    const prismaResponse = await prisma.castWrapper.findUnique({
+      where: { cid: req.params.cid },
+    });
+
+    if (prismaResponse) {
+      const fullCast = await getFullCastFromWarpcasterUrl(
+        `https://warpcast.com/${prismaResponse.castAuthor}/${prismaResponse.castHash}`
+      );
+      return res
+        .status(200)
+        .json({ castWrapper: prismaResponse, cast: fullCast });
+    } else {
+      return res.status(200).json({ castWrapper: null });
+    }
+  } catch (error) {
+    console.log("there was an error fetching the cast by cid");
+    console.log(error);
+    res.status(500).json({ message: "The cast wrapper was not found" });
+  }
+});
+
 router.post("/api/cast", async (req, res) => {
-  const { embeds, text, signer_uuid, parent } = req.body;
+  const { embeds, text, signer_uuid, parent, cid, manaEarned } = req.body;
   // Parent is on this format: { parent: 'https://warpcast.com/jpfraneto/0xa7c31262' }
   const fullCast = await getFullCastFromWarpcasterUrl(parent.parent);
   try {
@@ -518,7 +536,14 @@ router.post("/api/cast", async (req, res) => {
         },
       }
     );
-    console.log("after casting the cast");
+    const prismaResponse = await prisma.castWrapper.create({
+      data: {
+        cid: cid,
+        manaEarned: manaEarned,
+        castHash: response.data.cast.hash,
+        castAuthor: response.data.cast.author.username,
+      },
+    });
     res.status(200).json(response.data);
   } catch (error) {
     console.error(error);

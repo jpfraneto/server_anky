@@ -78,3 +78,11 @@ model WritingSession {
   uploadedToFarcaster Boolean  @default(false)
   farcasterHash       String?
 }
+
+model CastWrapper {
+  cid               String    @unique
+  castHash          String    @unique
+  createdAt         DateTime @default(now())
+  manaEarned        Int?
+  castAuthor        String
+}
