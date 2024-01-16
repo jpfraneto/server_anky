@@ -111,12 +111,10 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
         },
       }
     );
-    console.log("IN HEEEERE", signedKeyResponse);
     const { public_key, signer_uuid, status } = signedKeyResponse.data;
     const existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
       where: { userId: privyId },
     });
-    console.log("IN HEEERE", existingFarcasterAccount);
     if (existingFarcasterAccount) {
       await prisma.farcasterAccount.update({
         where: { id: existingFarcasterAccount.id },
@@ -126,7 +124,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
           signerStatus: status,
         },
       });
-      console.log("the farcaster account was updated");
     } else {
       await prisma.farcasterAccount.create({
         data: {
@@ -136,7 +133,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
           signerStatus: status,
         },
       });
-      console.log("the farcaster account was created");
     }
 
     // Respond with the signed key response data
@@ -150,7 +146,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
 router.get("/api/signer", async (req, res) => {
   const { signer_uuid, privyId } = req.query;
   try {
-    console.log("before theraoñ get api signer", signer_uuid);
     const response = await axios.get(
       "https://api.neynar.com/v2/farcaster/signer",
       {
@@ -162,7 +157,6 @@ router.get("/api/signer", async (req, res) => {
         },
       }
     );
-    console.log("the response is: ", response.data);
     if (response.data.status == "approved") {
       const existingFarcasterAccount = await prisma.farcasterAccount.findUnique(
         {
@@ -176,9 +170,6 @@ router.get("/api/signer", async (req, res) => {
             signerStatus: response.data.status,
           },
         });
-        console.log(
-          "the farcaster account was updated with the new signer status"
-        );
       }
     }
     res.json(response.data);
@@ -200,7 +191,6 @@ router.get("/u/:fid", async (req, res) => {
 
 router.get("/u/:fid/feed", async (req, res) => {
   try {
-    console.log("in here", req.params.fid);
     if (typeof req.params.fid == "number") {
       const response = await axios.get(
         `https://api.neynar.com/v2/farcaster/feed?feed_type=filter&filter_type=fids&fids=${req.params.fid}&limit=50`,
@@ -227,7 +217,6 @@ router.get("/anky-channel-feed", async (req, res) => {
       filterType: FilterType.ParentUrl,
       parentUrl: ankyChannelUrl,
     });
-    console.log("the feed for the anky client is: ", feed);
     res.status(200).json({ feed });
   } catch (error) {
     console.log("there was an error getting the anky feed");
@@ -239,7 +228,6 @@ router.get("/anky-channel-feed", async (req, res) => {
 
 router.post("/u/:fid/feed", async (req, res) => {
   try {
-    console.log("getting the feed");
     const { viewerFid } = req.body;
     const ankyChannelUrl = "https://warpcast.com/~/channel/anky";
     const usersFid = req.params.fid;
@@ -259,7 +247,6 @@ router.post("/u/:fid/feed", async (req, res) => {
       limit: 20,
       fid: usersFid,
     });
-    console.log("IN HERE, THE RESULT IS: ", result);
 
     res.status(200).json({ feed: response.data.casts });
   } catch (error) {
@@ -339,7 +326,6 @@ router.post("/api/reaction", async (req, res) => {
 
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds, cid, manaEarned } = req.body;
-  console.log("the text, parent and embeds are: ", text, parent, embeds);
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -355,7 +341,6 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    console.log("the cast was published on farcaster: ", response.data);
     const prismaResponse = await prisma.castWrapper.create({
       data: {
         cid: cid,
@@ -364,10 +349,7 @@ router.post("/api/cast/anon", async (req, res) => {
         castAuthor: response.data.cast.author.username,
       },
     });
-    console.log(
-      "the prisma response from adding the cast anon is: ",
-      prismaResponse
-    );
+
     res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
@@ -424,7 +406,6 @@ router.post("/api/cast/replies/:hash", async (req, res) => {
 
 router.post("/api/get-cast", async (req, res) => {
   try {
-    console.log("in here, the req body. is.", req.body);
     const { url } = req.body;
     if (!url)
       return res
@@ -442,7 +423,6 @@ router.post("/api/get-cast", async (req, res) => {
         },
       }
     );
-    console.log("the cast is: ", response.data);
     return res.status(200).json({ cast: response.data.cast });
   } catch (error) {
     console.log("there was an error here");
@@ -468,7 +448,6 @@ router.get("/api/cast/:hash", async (req, res) => {
         },
       }
     );
-    console.log("the repsonse is: ", response);
     res.json({ cast: response.data.cast });
   } catch (error) {
     console.log("there was an error)");
@@ -521,7 +500,6 @@ router.post("/api/cast", async (req, res) => {
   const { embeds, text, signer_uuid, parent, cid, manaEarned } = req.body;
   // Parent is on this format: { parent: 'https://warpcast.com/jpfraneto/0xa7c31262' }
   let fullCast;
-  console.log("the req.body is: ", req.body);
   if (parent.parent.includes("/channel")) {
     fullCast = parent.parent;
   } else {
@@ -573,7 +551,6 @@ router.get("/api/all-casts", async (req, res) => {
       }
     );
     res.status(200).json({ casts: response.data.result.casts });
-    console.log("the response from the server is: ", response);
   } catch (error) {
     console.log("there was an error here");
     res.status(500).json({ success: false, message: "There was an error" });
