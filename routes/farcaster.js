@@ -365,7 +365,7 @@ router.post("/api/cast/anon", async (req, res) => {
       },
     });
     console.log(
-      "the prisma response from adding the cast is: ",
+      "the prisma response from adding the cast anon is: ",
       prismaResponse
     );
     res.json({ cast: response.data.cast });
@@ -520,7 +520,14 @@ router.get("/cast-by-cid/:cid", async (req, res) => {
 router.post("/api/cast", async (req, res) => {
   const { embeds, text, signer_uuid, parent, cid, manaEarned } = req.body;
   // Parent is on this format: { parent: 'https://warpcast.com/jpfraneto/0xa7c31262' }
-  const fullCast = await getFullCastFromWarpcasterUrl(parent.parent);
+  let fullCast;
+  console.log("the req.body is: ", req.body);
+  if (parent.parent.includes("/channel")) {
+    fullCast = parent.parent;
+  } else {
+    fullCast = await getFullCastFromWarpcasterUrl(parent.parent);
+    fullCast = fullCast.hash;
+  }
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -528,7 +535,7 @@ router.post("/api/cast", async (req, res) => {
         text: text,
         embeds: embeds,
         signer_uuid: signer_uuid,
-        parent: fullCast.hash,
+        parent: fullCast,
       },
       {
         headers: {
@@ -544,6 +551,10 @@ router.post("/api/cast", async (req, res) => {
         castAuthor: response.data.cast.author.username,
       },
     });
+    console.log(
+      "the prisma response from adding the cast to the dabasentsalñ is: ",
+      prismaResponse
+    );
     res.status(200).json(response.data);
   } catch (error) {
     console.error(error);
