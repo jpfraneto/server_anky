@@ -85,4 +85,5 @@ model CastWrapper {
   createdAt         DateTime @default(now())
   manaEarned        Int?
   castAuthor        String
+  castType          String?
 }

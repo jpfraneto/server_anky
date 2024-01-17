@@ -500,10 +500,10 @@ router.post("/api/cast", async (req, res) => {
   const { embeds, text, signer_uuid, parent, cid, manaEarned } = req.body;
   // Parent is on this format: { parent: 'https://warpcast.com/jpfraneto/0xa7c31262' }
   let fullCast;
-  if (parent.parent.includes("/channel")) {
-    fullCast = parent.parent;
+  if (parent.includes("/channel")) {
+    fullCast = parent;
   } else {
-    fullCast = await getFullCastFromWarpcasterUrl(parent.parent);
+    fullCast = await getFullCastFromWarpcasterUrl(parent);
     fullCast = fullCast.hash;
   }
   try {
@@ -537,6 +537,27 @@ router.post("/api/cast", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/get-channels", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://api.neynar.com/v2/farcaster/channel/list",
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+    console.log("THE RESPONSE FET CHING THE CHANNELS IS: ", response);
+    res.status(200).json({ channels: response.data.channels });
+  } catch (error) {
+    console.log("there was an error fetching all the channels");
+    res.status(500).json({
+      success: false,
+      message: "There was an error fetching the channels",
+    });
   }
 });
 
