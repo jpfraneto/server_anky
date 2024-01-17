@@ -326,6 +326,13 @@ router.post("/api/reaction", async (req, res) => {
 
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds, cid, manaEarned } = req.body;
+  let fullCast;
+  if (parent.includes("/channel")) {
+    fullCast = parent;
+  } else {
+    fullCast = await getFullCastFromWarpcasterUrl(parent);
+    fullCast = fullCast.hash;
+  }
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
