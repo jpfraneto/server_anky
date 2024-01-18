@@ -327,12 +327,18 @@ router.post("/api/reaction", async (req, res) => {
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds, cid, manaEarned } = req.body;
   let fullCast;
-  if (parent.includes("/channel")) {
+  console.log("IN HERE", parent);
+  console.log("asc", parent.slice(0, 2));
+  if (parent.includes("/channel") || parent.slice(0, 2) == "0x") {
     fullCast = parent;
-  } else {
+  } else if (parent.includes("warpcast")) {
+    console.log("get full cast from warpcast");
     fullCast = await getFullCastFromWarpcasterUrl(parent);
+    console.log("the full cast is:", fullCast);
     fullCast = fullCast.hash;
   }
+
+  console.log("before casting anon, the parent is: ", fullCast);
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
@@ -340,7 +346,7 @@ router.post("/api/cast/anon", async (req, res) => {
         text: text,
         embeds: embeds,
         signer_uuid: process.env.MFGA_SIGNER_UUID,
-        parent: parent,
+        parent: fullCast,
       },
       {
         headers: {
@@ -476,20 +482,27 @@ async function getFullCastFromWarpcasterUrl(url) {
     });
     return response.data.cast;
   } catch (error) {
-    console.log("there was an error ");
+    console.log("there was an error ", error);
   }
 }
 
 router.get("/cast-by-cid/:cid", async (req, res) => {
   try {
+    console.log("salkdjassc", req.params.cid);
+    if (!req.params.cid)
+      return res
+        .status(500)
+        .json({ castWrapper: null, message: "invalid cid" });
     const prismaResponse = await prisma.castWrapper.findUnique({
       where: { cid: req.params.cid },
     });
+    console.log("INSIDE HERE", prismaResponse);
 
     if (prismaResponse) {
       const fullCast = await getFullCastFromWarpcasterUrl(
         `https://warpcast.com/${prismaResponse.castAuthor}/${prismaResponse.castHash}`
       );
+      console.log("the full cast is:", fullCast);
       return res
         .status(200)
         .json({ castWrapper: prismaResponse, cast: fullCast });
@@ -511,8 +524,12 @@ router.post("/api/cast", async (req, res) => {
     fullCast = parent;
   } else {
     fullCast = await getFullCastFromWarpcasterUrl(parent);
+    console.log("the full castsada is:", fullCast);
+
     fullCast = fullCast.hash;
   }
+  console.log("before casting as the user, the parent is: ", fullCast);
+
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
