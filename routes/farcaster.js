@@ -488,7 +488,6 @@ async function getFullCastFromWarpcasterUrl(url) {
 
 router.get("/cast-by-cid/:cid", async (req, res) => {
   try {
-    console.log("salkdjassc", req.params.cid);
     if (!req.params.cid)
       return res
         .status(500)
@@ -496,13 +495,11 @@ router.get("/cast-by-cid/:cid", async (req, res) => {
     const prismaResponse = await prisma.castWrapper.findUnique({
       where: { cid: req.params.cid },
     });
-    console.log("INSIDE HERE", prismaResponse);
 
     if (prismaResponse) {
       const fullCast = await getFullCastFromWarpcasterUrl(
         `https://warpcast.com/${prismaResponse.castAuthor}/${prismaResponse.castHash}`
       );
-      console.log("the full cast is:", fullCast);
       return res
         .status(200)
         .json({ castWrapper: prismaResponse, cast: fullCast });
@@ -524,11 +521,9 @@ router.post("/api/cast", async (req, res) => {
     fullCast = parent;
   } else {
     fullCast = await getFullCastFromWarpcasterUrl(parent);
-    console.log("the full castsada is:", fullCast);
 
     fullCast = fullCast.hash;
   }
-  console.log("before casting as the user, the parent is: ", fullCast);
 
   try {
     const response = await axios.post(
@@ -553,10 +548,7 @@ router.post("/api/cast", async (req, res) => {
         castAuthor: response.data.cast.author.username,
       },
     });
-    console.log(
-      "the prisma response from adding the cast to the dabasentsalñ is: ",
-      prismaResponse
-    );
+
     res.status(200).json(response.data);
   } catch (error) {
     console.error(error);
@@ -574,7 +566,6 @@ router.get("/get-channels", async (req, res) => {
         },
       }
     );
-    console.log("THE RESPONSE FET CHING THE CHANNELS IS: ", response);
     res.status(200).json({ channels: response.data.channels });
   } catch (error) {
     console.log("there was an error fetching all the channels");
