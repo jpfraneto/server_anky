@@ -73,8 +73,20 @@ router.get("/feed", async (req, res) => {
       filterType: FilterType.ParentUrl,
       parentUrl: memesChannelUrl,
     });
+    const fid = "18350";
+    const fids = "18350";
+    const feed_type = "filter";
+    const filter_type = "fids";
+    const limit = 100;
+    const queryUrl = `https://api.neynar.com/v2/farcaster/feed?feed_type=${feed_type}&filter_type=${filter_type}&fid=${fid}&fids=${fids}&with_recasts=true&with_replies=true&limit=${limit}`;
+    const response = await axios.get(queryUrl, {
+      headers: {
+        api_key: process.env.NEYNAR_API_KEY,
+      },
+    });
+    console.log("the response is: ", response.data);
 
-    res.status(200).json({ feed });
+    res.status(200).json({ feed: response.data.casts });
   } catch (error) {
     console.log("there was an error on the feed here");
   }
@@ -326,24 +338,23 @@ router.post("/api/reaction", async (req, res) => {
 
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds, cid, manaEarned, channelId } = req.body;
+  console.log("thererac", req.body);
   let fullCast;
   let castOptions = {
     text: text,
     embeds: embeds,
-    parent: fullCast,
     signer_uuid: process.env.MFGA_SIGNER_UUID,
   };
 
   if (channelId) {
     castOptions.channel_id = channelId;
   } else if (parent.includes("/channel") || parent.slice(0, 2) == "0x") {
-    fullCast = parent;
+    castOptions.parent = parent;
   } else if (parent.includes("warpcast")) {
-    console.log("get full cast from warpcast");
     fullCast = await getFullCastFromWarpcasterUrl(parent);
-    console.log("the full cast is:", fullCast);
-    fullCast = fullCast.hash;
+    castOptions.parent = fullCast.hash;
   }
+  console.log("the cast options are: ", castOptions);
 
   try {
     const response = await axios.post(
@@ -537,6 +548,7 @@ router.post("/api/cast", async (req, res) => {
   }
 
   try {
+    console.log("the cast options are: ", castOptions);
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
       castOptions,
