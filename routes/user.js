@@ -16,7 +16,6 @@ router.get("/", async (req, res) => {
 
 router.get("/fid/:fid", async (req, res) => {
   try {
-    console.log("IN HERE", req.params.fid);
     const user = await prisma.user.findMany({
       where: { farcasterFID: Number(req.params.fid) },
     });
@@ -194,8 +193,6 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    console.log("IN HERE, THE USERRRRR IS:", user);
-
     res.status(200).json(user);
   } catch (error) {
     console.error("Error handling user login:", error);
@@ -232,13 +229,8 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
       existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
         where: { userId: privyId },
       });
-      console.log(
-        "the existing farcaster account is: ",
-        existingFarcasterAccount,
-        fid
-      );
+
       if (existingFarcasterAccount && fid) {
-        console.log("IN HERE, THE FID IIIIIS", fid);
         await prisma.farcasterAccount.update({
           where: { id: existingFarcasterAccount.id },
           data: {
