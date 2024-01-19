@@ -120,6 +120,10 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
       createSignerResponse.data.public_key
     );
 
+    console.log("the createSignerResponse is: ", createSignerResponse);
+    console.log("the deadline is: ", deadline);
+    console.log("the signature is: ", signature);
+
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
       {
@@ -134,6 +138,7 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
         },
       }
     );
+    console.log("the signedKeyResponse.data is: ", signedKeyResponse.data);
     const { public_key, signer_uuid, status } = signedKeyResponse.data;
     const existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
       where: { userId: privyId },
