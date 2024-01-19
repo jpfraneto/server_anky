@@ -61,6 +61,23 @@ const generate_signature = async function (public_key) {
   return { deadline, signature };
 };
 
+router.get("/feed-by-fid/:fid", async (req, res) => {
+  try {
+    if (!req.params.fid)
+      return res.status(500).json({ message: "invalid fid" });
+    const url = `https://api.neynar.com/v2/farcaster/feed?feed_type=following&fid=${req.params.fid}&with_recasts=true&with_replies=true&limit=100`;
+    const response = await axios.get(url, {
+      headers: {
+        api_key: process.env.NEYNAR_API_KEY,
+      },
+    });
+    res.status(200).json({ feed: response.data.casts });
+  } catch (error) {
+    console.log("there was an error");
+    res.status(401).json({ message: "there was an error" });
+  }
+});
+
 router.get("/feed", async (req, res) => {
   try {
     const memesChannelUrl = "https://warpcast.com/~/channel/anky";
