@@ -325,11 +325,18 @@ router.post("/api/reaction", async (req, res) => {
 });
 
 router.post("/api/cast/anon", async (req, res) => {
-  const { text, parent, embeds, cid, manaEarned } = req.body;
+  const { text, parent, embeds, cid, manaEarned, channelId } = req.body;
   let fullCast;
-  console.log("IN HERE", parent);
-  console.log("asc", parent.slice(0, 2));
-  if (parent.includes("/channel") || parent.slice(0, 2) == "0x") {
+  let castOptions = {
+    text: text,
+    embeds: embeds,
+    parent: fullCast,
+    signer_uuid: process.env.MFGA_SIGNER_UUID,
+  };
+
+  if (channelId) {
+    castOptions.channel_id = channelId;
+  } else if (parent.includes("/channel") || parent.slice(0, 2) == "0x") {
     fullCast = parent;
   } else if (parent.includes("warpcast")) {
     console.log("get full cast from warpcast");
@@ -338,22 +345,17 @@ router.post("/api/cast/anon", async (req, res) => {
     fullCast = fullCast.hash;
   }
 
-  console.log("before casting anon, the parent is: ", fullCast);
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
-      {
-        text: text,
-        embeds: embeds,
-        signer_uuid: process.env.MFGA_SIGNER_UUID,
-        parent: fullCast,
-      },
+      castOptions,
       {
         headers: {
           api_key: process.env.MFGA_API_KEY,
         },
       }
     );
+    console.log("after sending the cast anon: ", response.data);
     const prismaResponse = await prisma.castWrapper.create({
       data: {
         cid: cid,
@@ -514,26 +516,30 @@ router.get("/cast-by-cid/:cid", async (req, res) => {
 });
 
 router.post("/api/cast", async (req, res) => {
-  const { embeds, text, signer_uuid, parent, cid, manaEarned } = req.body;
+  const { embeds, text, signer_uuid, parent, cid, manaEarned, channelId } =
+    req.body;
   // Parent is on this format: { parent: 'https://warpcast.com/jpfraneto/0xa7c31262' }
   let fullCast;
+  let castOptions = {
+    text: text,
+    embeds: embeds,
+    signer_uuid: signer_uuid,
+    parent: fullCast,
+  };
+  if (channelId) {
+    castOptions.channel_id = channelId;
+  }
   if (parent.includes("/channel")) {
     fullCast = parent;
   } else {
     fullCast = await getFullCastFromWarpcasterUrl(parent);
-
     fullCast = fullCast.hash;
   }
 
   try {
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
-      {
-        text: text,
-        embeds: embeds,
-        signer_uuid: signer_uuid,
-        parent: fullCast,
-      },
+      castOptions,
       {
         headers: {
           api_key: process.env.NEYNAR_API_KEY,
