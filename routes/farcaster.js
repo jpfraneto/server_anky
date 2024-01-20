@@ -97,8 +97,13 @@ router.get("/feed", async (req, res) => {
         api_key: process.env.NEYNAR_API_KEY,
       },
     });
+    const theFeed = response.data.casts;
+    console.log("the feed is:", theFeed);
+    // for (let i = 0; i<theFeed.length; i++) {
 
-    res.status(200).json({ feed: response.data.casts });
+    // }
+
+    res.status(200).json({ feed: theFeed });
   } catch (error) {
     console.log("there was an error on the feed here");
   }
