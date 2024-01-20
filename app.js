@@ -45,6 +45,7 @@ const corsOptions = {
 // App initialization
 const app = express();
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 // app.use(limiter);
 const PORT = process.env.PORT || 3000;
 
