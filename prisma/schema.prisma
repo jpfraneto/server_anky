@@ -23,6 +23,8 @@ model User {
   Mana            Mana[]
   ManaTransaction ManaTransaction[]
   farcasterAccount  FarcasterAccount?  // Relation to Farcaster account
+  farcasterNotificationsEnabled Boolean @default(false)
+  lastNotified         DateTime?
 }
 
 model FarcasterAccount {

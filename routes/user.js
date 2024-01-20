@@ -14,6 +14,23 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.post("/toggle-notifications", async (req, res) => {
+  console.log("inside the toggle notifications route");
+  const { userId } = req.body;
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { privyId: userId },
+      data: { farcasterNotificationsEnabled: true },
+    });
+
+    res.json({ message: "Notification setting updated", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating notification setting:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 router.get("/fid/:fid", async (req, res) => {
   try {
     const user = await prisma.user.findMany({

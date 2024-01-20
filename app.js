@@ -7,6 +7,7 @@ const { ethers } = require("ethers");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const prisma = require("./lib/prismaClient");
+const { scheduleReminders, sendCast } = require("./lib/writingReminder");
 const { TypedEthereumSigner } = require("arbundles");
 const rateLimit = require("express-rate-limit");
 
@@ -65,16 +66,12 @@ app.use("/farcaster", farcasterRoutes);
 app.use("/mana", manaRoutes);
 app.use("/user", userRoutes);
 
+scheduleReminders();
+// sendCast("wena compare", 16098);
+
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");
 });
-
-const network = "base";
-
-const privateKey = process.env.PRIVATE_KEY;
-
-const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
-const wallet = new ethers.Wallet(privateKey, provider);
 
 app.get("/publicKey", async (req, res) => {
   async function serverInit() {
