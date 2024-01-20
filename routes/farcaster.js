@@ -98,7 +98,6 @@ router.get("/feed", async (req, res) => {
       },
     });
     const theFeed = response.data.casts;
-    console.log("the feed is:", theFeed);
     // for (let i = 0; i<theFeed.length; i++) {
 
     // }
@@ -126,10 +125,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
       createSignerResponse.data.public_key
     );
 
-    console.log("the createSignerResponse is: ", createSignerResponse);
-    console.log("the deadline is: ", deadline);
-    console.log("the signature is: ", signature);
-
     const signedKeyResponse = await axios.post(
       "https://api.neynar.com/v2/farcaster/signer/signed_key",
       {
@@ -144,7 +139,6 @@ router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
         },
       }
     );
-    console.log("the signedKeyResponse.data is: ", signedKeyResponse.data);
     const { public_key, signer_uuid, status } = signedKeyResponse.data;
     const existingFarcasterAccount = await prisma.farcasterAccount.findUnique({
       where: { userId: privyId },
@@ -360,7 +354,6 @@ router.post("/api/reaction", async (req, res) => {
 
 router.post("/api/cast/anon", async (req, res) => {
   const { text, parent, embeds, cid, manaEarned, channelId } = req.body;
-  console.log("thererac", req.body);
   let fullCast;
   let castOptions = {
     text: text,
@@ -376,7 +369,6 @@ router.post("/api/cast/anon", async (req, res) => {
     fullCast = await getFullCastFromWarpcasterUrl(parent);
     castOptions.parent = fullCast.hash;
   }
-  console.log("the cast options are: ", castOptions);
 
   try {
     const response = await axios.post(
@@ -388,7 +380,6 @@ router.post("/api/cast/anon", async (req, res) => {
         },
       }
     );
-    console.log("after sending the cast anon: ", response.data);
     const prismaResponse = await prisma.castWrapper.create({
       data: {
         cid: cid,
@@ -570,7 +561,6 @@ router.post("/api/cast", async (req, res) => {
   }
 
   try {
-    console.log("the cast options are: ", castOptions);
     const response = await axios.post(
       "https://api.neynar.com/v2/farcaster/cast",
       castOptions,

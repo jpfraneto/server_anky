@@ -52,7 +52,6 @@ router.get("/fid/:fid", async (req, res) => {
 
 router.get("/farcaster/:privyId", async (req, res) => {
   try {
-    console.log("inside the privyId route");
     let user, manaData;
     // Find the user by privyId or farcasterFID
     user = await prisma.user.findUnique({
