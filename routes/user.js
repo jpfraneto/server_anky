@@ -66,13 +66,10 @@ router.get("/farcaster/:privyId", async (req, res) => {
             pfp: true,
             signerStatus: true,
             fid: true,
-            // signerUuid: false, // Not needed, omitted fields are excluded by default
-            // publicKey: false, // Not needed, omitted fields are excluded by default
           },
         },
       },
     });
-    console.log("the user is: ", user);
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -118,51 +115,6 @@ router.get("/farcaster/:privyId", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// router.get("/farcaster/:fid", async (req, res) => {
-//   try {
-//     console.log("inside the farcaster fid route");
-//     let user, response, manaData;
-//     if (req.params.fid.length > 16) {
-//       user = await prisma.user.findUnique({
-//         where: { privyId: req.params.fid },
-//       });
-//       manaData = await prisma.mana.findMany({
-//         where: { privyId: req.params.fid },
-//         orderBy: {
-//           earnedAt: "asc",
-//         },
-//       });
-//       console.log("THE MANA DATA IS: ", manaData);
-//     } else {
-//       user = await prisma.user.findUnique({
-//         where: { farcasterFID: Number(req.params.fid) },
-//       });
-//       manaData = await prisma.mana.findMany({
-//         where: { farcasterFID: Number(req.params.fid) },
-//         orderBy: {
-//           earnedAt: "asc",
-//         },
-//       });
-//       console.log("in heeeeere, the mana data is: ", manaData);
-//       response = await axios.get(
-//         `https://api.neynar.com/v2/farcaster/user/bulk?fids=${req.params.fid}`,
-//         {
-//           headers: {
-//             api_key: process.env.NEYNAR_API_KEY,
-//           },
-//         }
-//       );
-//     }
-
-//     res.json({
-//       farcasterUser: response?.data?.users[0] || null,
-//       ankyUser: user,
-//     });
-//   } catch (error) {
-//     console.log("there was an error that happened querying this user", error);
-//   }
-// });
 
 router.post("/login", async (req, res) => {
   console.log("inside the login route");
@@ -223,13 +175,10 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
     let existingFarcasterAccount;
     const privyId = req.params.privyId;
     const { thisFarcasterAccount } = req.body;
-    console.log("before calling the user", privyId, thisFarcasterAccount);
     const user = await prisma.user.findUnique({
       where: { privyId },
       include: { farcasterAccount: true },
     });
-    console.log("the found user is: ", user);
-    let updatedUser;
     if (thisFarcasterAccount) {
       const {
         signer_uuid,
@@ -266,9 +215,6 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
             farcasterFID: fid,
           },
         });
-        console.log(
-          "the farcaster account was UPDATED with the new signer status"
-        );
       } else {
         if (fid) {
           await prisma.farcasterAccount.create({
@@ -289,9 +235,6 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
               farcasterFID: fid,
             },
           });
-          console.log(
-            "the farcaster account was CREATED with the new signer status"
-          );
         }
       }
     } else {
