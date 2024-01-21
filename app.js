@@ -27,20 +27,14 @@ const farcasterRoutes = require("./routes/farcaster");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
 
-const whitelist = [
-  "http://localhost:3001",
-  "https://anky.lat",
-  "https://www.anky.lat",
-];
-
-const corsOptions = {
-  origin: whitelist,
-  credentials: true,
-};
-
 const app = express();
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.use(
+  cors({
+    origin: "*", // Allows all origins
+    credentials: true, // Reflects the request's credentials mode
+  })
+);
+app.options("*", cors());
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json({ limit: "50mb" }));
