@@ -363,7 +363,10 @@ router.post("/api/cast/anon", async (req, res) => {
 
   if (channelId) {
     castOptions.channel_id = channelId;
-  } else if (parent.includes("/channel") || parent.slice(0, 2) == "0x") {
+  } else if (
+    (parent && parent.includes("/channel")) ||
+    parent.slice(0, 2) == "0x"
+  ) {
     castOptions.parent = parent;
   } else if (parent.includes("warpcast")) {
     fullCast = await getFullCastFromWarpcasterUrl(parent);
