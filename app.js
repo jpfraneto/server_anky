@@ -27,30 +27,21 @@ const farcasterRoutes = require("./routes/farcaster");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
 
-// Middleware
 const whitelist = [
   "http://localhost:3001",
   "https://anky.lat",
   "https://www.anky.lat",
 ];
+
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true, // This is important.
+  origin: whitelist,
+  credentials: true,
 };
-// App initialization
+
 const app = express();
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
-// app.use(limiter);
 const PORT = process.env.PORT || 3000;
-
-let subscriptions = []; // Store subscriptions
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
