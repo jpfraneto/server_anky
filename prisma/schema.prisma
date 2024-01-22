@@ -88,4 +88,5 @@ model CastWrapper {
   manaEarned        Int?
   castAuthor        String
   castType          String?
+  time              Int?
 }

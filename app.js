@@ -30,8 +30,8 @@ const userRoutes = require("./routes/user");
 const app = express();
 app.use(
   cors({
-    origin: "*", // Allows all origins
-    credentials: true, // Reflects the request's credentials mode
+    origin: "*",
+    credentials: true,
   })
 );
 app.options("*", cors());

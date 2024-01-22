@@ -353,7 +353,7 @@ router.post("/api/reaction", async (req, res) => {
 });
 
 router.post("/api/cast/anon", async (req, res) => {
-  const { text, parent, embeds, cid, manaEarned, channelId } = req.body;
+  const { text, parent, embeds, cid, manaEarned, channelId, time } = req.body;
   let fullCast;
   let castOptions = {
     text: text,
@@ -385,6 +385,7 @@ router.post("/api/cast/anon", async (req, res) => {
     );
     const prismaResponse = await prisma.castWrapper.create({
       data: {
+        time: time,
         cid: cid,
         manaEarned: manaEarned,
         castHash: response.data.cast.hash,
@@ -416,7 +417,7 @@ router.post("/api/cast/anon-reply", async (req, res) => {
         },
       }
     );
-    res.json({ cast: publishedCast });
+    res.json({ cast: response.data.cast });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -517,6 +518,7 @@ async function getFullCastFromWarpcasterUrl(url) {
 
 router.get("/cast-by-cid/:cid", async (req, res) => {
   try {
+    console.log("the req.params cid is:", req.params);
     if (!req.params.cid)
       return res
         .status(500)
