@@ -50,6 +50,41 @@ router.get("/fid/:fid", async (req, res) => {
   }
 });
 
+router.get("/farcaster-feed/:fid", async (req, res) => {
+  try {
+    const fidToQuery = Number(req.params.fid);
+    if (!fidToQuery)
+      return res.status(401).json({ message: "there was an error here" });
+    const viewerFid = 18350;
+    const limit = 25;
+    const userResponse = await axios.get(
+      `https://api.neynar.com/v1/farcaster/user?fid=${fidToQuery}&viewerFid=${18350}`,
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+
+    const response = await axios.get(
+      `https://api.neynar.com/v1/farcaster/casts?fid=${fidToQuery}&viewerFid=${viewerFid}&limit=${limit}`,
+      {
+        headers: {
+          api_key: process.env.NEYNAR_API_KEY,
+        },
+      }
+    );
+
+    res.status(200).json({
+      user: userResponse.data.result.user,
+      feed: response.data.result.casts,
+    });
+  } catch (error) {
+    console.log("there was an error fetching the feed");
+    res.status(500).json({ message: "There was an error" });
+  }
+});
+
 router.get("/farcaster/:privyId", async (req, res) => {
   try {
     let user, manaData;

@@ -18,7 +18,7 @@ model User {
   writingSessions WritingSession[]
   manaBalance     Int               @default(0)
   totalManaEarned Int               @default(0)
-  farcasterFID    Int?              
+  farcasterFID    Int?              @unique
   ANKYBalance     Int               @default(0) // Assuming smallest unit, like wei for Ethereum
   Mana            Mana[]
   ManaTransaction ManaTransaction[]
@@ -38,7 +38,7 @@ model FarcasterAccount {
   pfp           String?
   signerStatus  String   // Status of the signer
   publicKey     String   // Farcaster public key
-  fid           Int?     // Farcaster fid
+  fid           Int?     @unique        // Farcaster fid
 }
 
 model Mana {
