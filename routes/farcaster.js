@@ -42,8 +42,8 @@ const generate_signature = async function (public_key) {
 
   const account = mnemonicToAccount(FARCASTER_DEVELOPER_MNEMONIC);
 
-  //const deadline = Math.floor(Date.now() / 1000) + 3 * 86400;
-  const deadline = 1705751578 + 3 * 86400;
+  const deadline = Math.floor(Date.now() / 1000) + 3 * 86400;
+  // const deadline = 1705751578 + 3 * 86400;
 
   // Generates the signature
   const signature = await account.signTypedData({
