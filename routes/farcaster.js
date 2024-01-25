@@ -473,6 +473,34 @@ router.post("/api/get-cast", async (req, res) => {
   }
 });
 
+router.get("/get-cast-by-cid/:cid", async (req, res) => {
+  try {
+    const thisCastWrapper = await prisma.castWrapper.findUnique({
+      where: { cid: req.params.cid },
+    });
+    if (thisCastWrapper && thisCastWrapper.castHash) {
+      const response = await axios.get(
+        "https://api.neynar.com/v2/farcaster/cast",
+        {
+          params: {
+            identifier: thisCastWrapper.castHash,
+            type: "hash",
+          },
+          headers: {
+            api_key: process.env.NEYNAR_API_KEY,
+          },
+        }
+      );
+      res.status(200).json({ cast: response.data.cast });
+    } else {
+      res.status(401).json({ message: "hash not found" });
+    }
+  } catch (error) {
+    console.log("the error is: ", error);
+    res.status(500).json({ message: "there was an error here" });
+  }
+});
+
 router.get("/api/cast/:hash", async (req, res) => {
   try {
     // const cast = await client.lookUpCastByHashOrWarpcastUrl(
@@ -518,7 +546,6 @@ async function getFullCastFromWarpcasterUrl(url) {
 
 router.get("/cast-by-cid/:cid", async (req, res) => {
   try {
-    console.log("the req.params cid is:", req.params);
     if (!req.params.cid)
       return res
         .status(500)

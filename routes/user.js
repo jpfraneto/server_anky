@@ -15,7 +15,6 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/toggle-notifications", async (req, res) => {
-  console.log("inside the toggle notifications route");
   const { userId } = req.body;
 
   try {
@@ -152,7 +151,6 @@ router.get("/farcaster/:privyId", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  console.log("inside the login route");
   try {
     const { privyId } = req.body; // Ensure you are receiving the correct fields from the frontend
 
