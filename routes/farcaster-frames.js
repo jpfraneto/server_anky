@@ -289,4 +289,52 @@ router.post("/write-reminder", async (req, res) => {
   }
 });
 
+router.get("/degen", async (req, res) => {
+  try {
+    console.log("inside the write get route", postRoute);
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>degen</title>
+    <meta property="og:title" content="degen">
+    <meta property="og:image" content="https://jpfraneto.github.io/images/degen_2.png">
+    <meta name="fc:frame" content="vNext">
+    <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/degen_2.png">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/degen">
+    <meta name="fc:frame:button:1" content="read more...">
+  </head>
+  </html>
+  `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+router.post("/degen", async (req, res) => {
+  try {
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>degen</title>
+      <meta property="og:title" content="degen">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/degen_tip.png">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/write">
+      <meta name="fc:frame" content="vNext">     
+    </head>
+    </html>
+      </html>
+      `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
 module.exports = router;
