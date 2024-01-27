@@ -18,7 +18,7 @@ const client = getSSLHubRpcClient(HUB_URL);
 
 router.get("/", async (req, res) => {
   try {
-    let randomAnkyIndex = Math.floor(11 * Math.random());
+    let randomAnkyIndex = Math.floor(8888 * Math.random());
     console.log("the random anky index is", randomAnkyIndex);
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
   <meta property="og:title" content="you are it">
   <meta property="og:image" content="https://ibb.co/R7jYYBq">
   <meta name="fc:frame" content="vNext">
-  <meta name="fc:frame:image" content="https://cdn.midjourney.com/b8a75ec5-dec3-4147-ba7a-1b913358c1b2/0_0.webp">
+  <meta name="fc:frame:image" content="https://harlequin-written-fox-319.mypinata.cloud/ipfs/bafybeienpaqfmetmel6vctkxmg5cmcmcma3cvw23w32jxgxxfj3gjeuuni/${randomAnkyIndex}.png">
   <meta name="fc:frame:post_url" content="https://api.anky.lat/farcaster-frames">
   <meta name="fc:frame:button:1" content="prev">
   <meta name="fc:frame:button:2" content="i like this one">
