@@ -34,44 +34,7 @@ router.get("/", async (req, res) => {
   <meta name="fc:frame:button:1" content="<">
   <meta name="fc:frame:button:2" content="👽">
   <meta name="fc:frame:button:3" content=">">
-  
-  <meta 
-	property="eth:nft:collection" 
-	content="hello world"
-  />
-  <meta 
-    property="eth:nft:contract_address" 
-    content="0x5806485215C8542C448EcF707aB6321b948cAb90"
-  />
-  <meta 
-  property=":eth:nft:creator_address" 
-  content="0xC3475034e6118938396FB1B3d1032c3ec65a142b"
-  />
-  <meta 
-  property="eth:nft:schema" 
-  content="erc721"
-  />
-  <meta 
-  property="eth:nft:mint_status" 
-  content="live"
-  />
-  <meta 
-  property="eth:nft:mint_count" 
-  content="27"
-  />
-  <meta 
-  property="eth:nft:mint_url" 
-  content="https://mint.anky.lat/about"
-  />
-  <meta 
-  property="eth:nft:chain" 
-  content="ethereum"
-  />
- 
 </head>
-<body>
-  <p></p>
-</body>
 </html>
 `);
   } catch (error) {
