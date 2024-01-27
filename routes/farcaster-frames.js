@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
 <head>
   <title>you are it</title>
   <meta name="fc:frame" content="vNext">
-  <meta name="fc:frame:image" content=" chain://eip155:1/erc721:0x5806485215C8542C448EcF707aB6321b948cAb90/37">
+  <meta name="fc:frame:image" content="chain://eip155:1/erc721:0x5806485215C8542C448EcF707aB6321b948cAb90/37">
   <meta name="fc:frame:post_url" content="https://api.anky.lat/farcaster-frames">
   <meta name="fc:frame:button:1" content="prev">
   <meta name="fc:frame:button:2" content="i like this one">
