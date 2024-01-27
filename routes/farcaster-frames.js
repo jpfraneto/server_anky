@@ -145,6 +145,9 @@ router.post("/", async (req, res) => {
   }
 });
 
+// <meta name="fc:frame:button:2" content="remind me later">
+// <meta name="fc:frame:button:3" content="nope and i won't">
+
 router.get("/write", async (req, res) => {
   try {
     console.log("inside the write get route", postRoute);
@@ -161,8 +164,7 @@ router.get("/write", async (req, res) => {
     <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/3.png">
     <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/write">
     <meta name="fc:frame:button:1" content="trigger me">
-    <meta name="fc:frame:button:2" content="remind me later">
-    <meta name="fc:frame:button:3" content="nope and i won't">
+
    
   </head>
   </html>
