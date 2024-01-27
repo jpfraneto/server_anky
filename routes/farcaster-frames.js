@@ -30,11 +30,11 @@ router.get("/", async (req, res) => {
   <meta property="og:title" content="Vote Recorded">
   <meta property="og:image" content="https://ibb.co/R7jYYBq">
   <meta name="fc:frame" content="vNext">
-  <meta name="fc:frame:image" content="chain://eip155:1/erc721:0x5806485215C8542C448EcF707aB6321b948cAb90/${randomAnkyIndex}">
+  <meta name="fc:frame:image" content="https://ipfs.io/ipfs/bafybeienpaqfmetmel6vctkxmg5cmcmcma3cvw23w32jxgxxfj3gjeuuni/1.png">
   <meta name="fc:frame:post_url" content="https://api.anky.lat/farcaster-frames">
   <meta name="fc:frame:button:1" content="prev">
   <meta name="fc:frame:button:2" content="i like this one">
-  <meta name="fc:frame:button:2" content="next">
+  <meta name="fc:frame:button:3" content="next">
   
   <meta 
 	property="eth:nft:collection" 
