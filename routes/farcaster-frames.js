@@ -4,8 +4,8 @@ const axios = require("axios");
 const prisma = require("../lib/prismaClient");
 const { getCastsByFid } = require("../lib/blockchain/farcaster");
 const { mnemonicToAccount } = require("viem/accounts");
-import { kv } from "@vercel/kv";
-import { getSSLHubRpcClient, Message } from "@farcaster/hub-nodejs";
+const { kv } = require("@vercel/kv");
+const { getSSLHubRpcClient, Message } = require("@farcaster/hub-nodejs");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 const {
   NeynarAPIClient,
