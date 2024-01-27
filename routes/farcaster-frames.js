@@ -12,6 +12,16 @@ const {
   FeedType,
   FilterType,
 } = require("@neynar/nodejs-sdk");
+const rateLimit = require("express-rate-limit");
+
+// Define the rate limiter
+const createAccountLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 1, // limit each IP to 1 requests per windowMs
+  message:
+    "Too many accounts created from this IP, please try again after an hour",
+  headers: true,
+});
 
 const neynarClient = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
 
@@ -175,7 +185,7 @@ router.get("/write", async (req, res) => {
   }
 });
 
-router.post("/write", async (req, res) => {
+router.post("/write", createAccountLimiter, async (req, res) => {
   try {
     res.setHeader("Content-Type", "text/html");
     const fullUrl = req.protocol + "://" + req.get("host");
