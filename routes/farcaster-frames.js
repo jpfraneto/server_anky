@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Anky Genesis</title>
+  <title>you are it</title>
   <meta property="og:title" content="Vote Recorded">
   <meta property="og:image" content="https://ibb.co/R7jYYBq">
   <meta name="fc:frame" content="vNext">
@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
   
   <meta 
 	property="eth:nft:collection" 
-	content="Anky Genesis"
+	content="hello world"
   />
   <meta 
     property="eth:nft:contract_address" 
