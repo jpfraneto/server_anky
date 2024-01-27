@@ -24,6 +24,7 @@ const blockchainRoutes = require("./routes/blockchain");
 const aiRoutes = require("./routes/ai");
 const notebooksRoutes = require("./routes/notebooks");
 const farcasterRoutes = require("./routes/farcaster");
+const farcasterFramesRoutes = require("./routes/farcaster-frames");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
 
@@ -48,6 +49,8 @@ app.use("/blockchain", blockchainRoutes);
 app.use("/ai", aiRoutes);
 app.use("/notebooks", notebooksRoutes);
 app.use("/farcaster", farcasterRoutes);
+app.use("/farcaster-frames", farcasterFramesRoutes);
+
 app.use("/mana", manaRoutes);
 app.use("/user", userRoutes);
 
