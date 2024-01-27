@@ -325,6 +325,8 @@ router.post("/degen", async (req, res) => {
       <title>degen</title>
       <meta property="og:title" content="degen">
       <meta property="og:image" content="https://jpfraneto.github.io/images/degen_tip.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/degen_tip.png">
+
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/write">
       <meta name="fc:frame" content="vNext">     
     </head>
