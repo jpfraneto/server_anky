@@ -30,10 +30,8 @@ router.get("/", async (req, res) => {
   <meta property="og:title" content="Vote Recorded">
   <meta property="og:image" content="">
   <meta name="fc:frame" content="vNext">
-  <meta name="fc:frame:image" content="chain://eip155:1/erc721:0xa723a8a69d9b8cf0bc93b92f9cb41532c1a27f8f/${randomAnkyIndex}">
-  <meta name="fc:frame:post_url" content="${
-    process.env["HOST"]
-  }/api/vote?id=${3}&voted=true&results=${true ? "false" : "true"}">
+  <meta name="fc:frame:image" content="chain://eip155:1/erc721:0x5806485215C8542C448EcF707aB6321b948cAb90/${randomAnkyIndex}">
+  <meta name="fc:frame:post_url" content="https://api.anky.lat/farcaster-frames">
   <meta name="fc:frame:button:1" content="prev">
   <meta name="fc:frame:button:2" content="i like this one">
   <meta name="fc:frame:button:2" content="next">
