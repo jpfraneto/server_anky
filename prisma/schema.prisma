@@ -100,4 +100,5 @@ model GeneratedAnky {
   imageIPFSHash     String?  // Nullable fields for IPFS hashes
   metadataIPFSHash  String?
   createdAt         DateTime @default(now())
+  castHash          String?
 }

@@ -452,9 +452,9 @@ router.get("/mintable-ankys", async (req, res) => {
   <head>
     <title>anky mint</title>
     <meta property="og:title" content="anky mint">
-    <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
+    <meta property="og:image" content="https://jpfraneto.github.io/images/reflections.png">
     <meta name="fc:frame" content="vNext">
-    <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
+    <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/reflections.png">
     <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=false">
     <meta name="fc:frame:button:1" content="reveal my anky 👽">
   </head>
@@ -468,9 +468,30 @@ router.get("/mintable-ankys", async (req, res) => {
 
 router.post("/mintable-ankys", async (req, res) => {
   try {
+    console.log("inside the post route");
+    const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
     const cid = req.query.cid;
     const mintable = req.query.mint;
-    if (mintable) {
+    if (mintable && anky) {
+      const fid = req.body.untrustedData.fid;
+      const addressFromFid = await getAddrByFid(fid);
+      console.log(
+        "Extracted address from FID passed to Syndicate: ",
+        addressFromFid
+      );
+      const mintTx = await syndicate.transact.sendTransaction({
+        projectId: "",
+        contractAddress: "0xBeFD018F3864F5BBdE665D6dc553e012076A5d44",
+        chainId: 84532,
+        functionSignature: "mint(address to, string ipfshash)",
+        args: {
+          // TODO: Change to the user's connected Farcaster address. This is going
+          // to WillPapper.eth for now
+          to: addressFromFid,
+          ipfshash: anky.metadataIPFSHash,
+        },
+      });
+      console.log("Syndicate Transaction ID: ", mintTx.transactionId);
       return res.status(200).send(`
           <!DOCTYPE html>
           <html>
@@ -488,7 +509,6 @@ router.post("/mintable-ankys", async (req, res) => {
           </html>
           `);
     }
-    const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
     console.log("this anky is");
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
@@ -530,5 +550,33 @@ router.post("/mintable-ankys", async (req, res) => {
     res.status(500).send("Error generating image");
   }
 });
+
+async function getAddrByFid(fid) {
+  console.log("Extracting address for FID: ", fid);
+  const options = {
+    method: "GET",
+    url: `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
+    headers: {
+      accept: "application/json",
+      api_key: process.env.NEYNAR_API_KEY || "",
+    },
+  };
+  console.log("Fetching user address from Neynar API");
+  const resp = await fetch(options.url, { headers: options.headers });
+  console.log("Response: ", resp);
+  const responseBody = await resp.json(); // Parse the response body as JSON
+  if (responseBody.users) {
+    const userVerifications = responseBody.users[0];
+    if (userVerifications.verifications) {
+      console.log(
+        "User address from Neynar API: ",
+        userVerifications.verifications[0]
+      );
+      return userVerifications.verifications[0].toString();
+    }
+  }
+  console.log("Could not fetch user address from Neynar API for FID: ", fid);
+  return "0x0000000000000000000000000000000000000000";
+}
 
 module.exports = router;
