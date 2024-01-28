@@ -5,6 +5,8 @@ const prisma = require("../lib/prismaClient");
 const { getCastsByFid } = require("../lib/blockchain/farcaster");
 const { mnemonicToAccount } = require("viem/accounts");
 const { getSSLHubRpcClient, Message } = require("@farcaster/hub-nodejs");
+const { SyndicateClient } = require("@syndicateio/syndicate-node");
+
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 const {
   NeynarAPIClient,
@@ -465,8 +467,6 @@ router.get("/mintable-ankys", async (req, res) => {
     res.status(500).send("Error generating image");
   }
 });
-
-import { SyndicateClient } from "@syndicateio/syndicate-node";
 
 const syndicate = new SyndicateClient({
   token: () => {
