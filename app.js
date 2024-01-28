@@ -59,8 +59,8 @@ app.use("/user", userRoutes);
 
 scheduleReminders();
 
-// schedule.scheduleJob("* * * * *", checkAndUpdateAnkys);
-checkAndUpdateAnkys();
+schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
+// checkAndUpdateAnkys();
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");
