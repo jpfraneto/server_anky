@@ -439,4 +439,96 @@ router.post("/anky2", async (req, res) => {
   }
 });
 
+///// MINTABLE ANKYS    /////////////////
+
+router.get("/mintable-ankys", async (req, res) => {
+  try {
+    const cid = req.query.cid;
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>anky mint</title>
+    <meta property="og:title" content="anky mint">
+    <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
+    <meta name="fc:frame" content="vNext">
+    <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=false">
+    <meta name="fc:frame:button:1" content="reveal my anky 👽">
+  </head>
+  </html>
+  `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+router.post("/mintable-ankys", async (req, res) => {
+  try {
+    const cid = req.query.cid;
+    const mintable = req.query.mint;
+    if (mintable) {
+      return res.status(200).send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <title>anky mint</title>
+          <meta property="og:title" content="anky mint">
+          <meta property="og:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
+          <meta name="fc:frame:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
+    
+          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=true">
+          <meta name="fc:frame" content="vNext">     
+        </head>
+        </html>
+        <p>YOUR ANKY WAS MINTED!</p>
+          </html>
+          `);
+    }
+    const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
+    console.log("this anky is");
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    if (anky) {
+      res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
+        <meta name="fc:frame:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
+  
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=true">
+        <meta name="fc:frame" content="vNext">     
+      </head>
+      </html>
+        </html>
+        `);
+    } else {
+      res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/excuse.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/excuse.png">
+  
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=false">
+        <meta name="fc:frame" content="vNext">     
+      </head>
+      </html>
+        </html>
+        `);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
 module.exports = router;

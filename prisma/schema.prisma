@@ -38,7 +38,7 @@ model FarcasterAccount {
   pfp           String?
   signerStatus  String   // Status of the signer
   publicKey     String   // Farcaster public key
-  fid           Int?     @unique        // Farcaster fid
+  fid           Int?            // Farcaster fid
 }
 
 model Mana {
@@ -89,4 +89,15 @@ model CastWrapper {
   castAuthor        String
   castType          String?
   time              Int?
+}
+
+model GeneratedAnky {
+  cid               String   @id @unique
+  ankyBio           String?
+  imagePrompt       String?
+  imagineApiID      String?
+  imagineApiStatus  String?   @default("pending")
+  imageIPFSHash     String?  // Nullable fields for IPFS hashes
+  metadataIPFSHash  String?
+  createdAt         DateTime @default(now())
 }

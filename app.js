@@ -2,12 +2,14 @@
 require("dotenv").config();
 
 // Third-party libraries
+const schedule = require("node-schedule");
 const express = require("express");
 const { ethers } = require("ethers");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const prisma = require("./lib/prismaClient");
 const { scheduleReminders, sendCast } = require("./lib/writingReminder");
+const { checkAndUpdateAnkys } = require("./lib/ankys");
 const { TypedEthereumSigner } = require("arbundles");
 const rateLimit = require("express-rate-limit");
 
@@ -27,6 +29,7 @@ const farcasterRoutes = require("./routes/farcaster");
 const farcasterFramesRoutes = require("./routes/farcaster-frames");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
+const midjourneyRoutes = require("./routes/midjourney");
 
 const app = express();
 app.use(
@@ -50,12 +53,14 @@ app.use("/ai", aiRoutes);
 app.use("/notebooks", notebooksRoutes);
 app.use("/farcaster", farcasterRoutes);
 app.use("/farcaster-frames", farcasterFramesRoutes);
-
+app.use("/midjourney", midjourneyRoutes);
 app.use("/mana", manaRoutes);
 app.use("/user", userRoutes);
 
 scheduleReminders();
-// sendCast("wena compare", 16098);
+
+// schedule.scheduleJob("* * * * *", checkAndUpdateAnkys);
+checkAndUpdateAnkys();
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");

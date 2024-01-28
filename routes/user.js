@@ -249,6 +249,14 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
           },
         });
       } else {
+        let newUser;
+        if (!user) {
+          newUser = await prisma.user.create({
+            data: {
+              privyId,
+            },
+          });
+        }
         if (fid) {
           await prisma.farcasterAccount.create({
             data: {
