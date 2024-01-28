@@ -389,7 +389,7 @@ router.post("/aua", async (req, res) => {
   }
 });
 
-router.get("/anky", async (req, res) => {
+router.get("/aua", async (req, res) => {
   try {
     console.log("inside the write get route", postRoute);
     const fullUrl = req.protocol + "://" + req.get("host");
@@ -398,8 +398,8 @@ router.get("/anky", async (req, res) => {
   <!DOCTYPE html>
   <html>
   <head>
-    <title>frames aua</title>
-    <meta property="og:title" content="frames aua">
+    <title>anky mint</title>
+    <meta property="og:title" content="anky mint">
     <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
@@ -422,8 +422,8 @@ router.post("/anky", async (req, res) => {
       <!DOCTYPE html>
       <html>
       <head>
-      <title>frames aua</title>
-      <meta property="og:title" content="frames aua">
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
       <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
       <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
 
