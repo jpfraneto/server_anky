@@ -403,7 +403,7 @@ router.get("/anky", async (req, res) => {
     <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
-    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/aua">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/anky">
     <meta name="fc:frame:button:1" content="mint 👽">
   </head>
   </html>
@@ -427,7 +427,7 @@ router.post("/anky", async (req, res) => {
       <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
       <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
 
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/aua">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/anky">
       <meta name="fc:frame" content="vNext">     
     </head>
     </html>
