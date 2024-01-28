@@ -22,6 +22,7 @@
     "@pinata/sdk": "^2.1.0",
     "@prisma/client": "^5.2.0",
     "@privy-io/server-auth": "^1.6.1",
+    "@syndicateio/syndicate-node": "^0.0.449",
     "@vercel/kv": "^1.0.1",
     "arbundles": "^0.9.9",
     "axios": "^1.4.0",

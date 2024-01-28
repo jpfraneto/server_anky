@@ -466,6 +466,23 @@ router.get("/mintable-ankys", async (req, res) => {
   }
 });
 
+import { SyndicateClient } from "@syndicateio/syndicate-node";
+
+const syndicate = new SyndicateClient({
+  token: () => {
+    const apiKey = process.env.SYNDICATE_API_KEY;
+    if (typeof apiKey === "undefined") {
+      // If you receive this error, you need to define the SYNDICATE_API_KEY in
+      // your Vercel environment variables. You can find the API key in your
+      // Syndicate project settings under the "API Keys" tab.
+      throw new Error(
+        "SYNDICATE_API_KEY is not defined in environment variables."
+      );
+    }
+    return apiKey;
+  },
+});
+
 router.post("/mintable-ankys", async (req, res) => {
   try {
     console.log("inside the post route");
@@ -475,20 +492,16 @@ router.post("/mintable-ankys", async (req, res) => {
     if (mintable && anky) {
       const fid = req.body.untrustedData.fid;
       const addressFromFid = await getAddrByFid(fid);
-      console.log(
-        "Extracted address from FID passed to Syndicate: ",
-        addressFromFid
-      );
       const mintTx = await syndicate.transact.sendTransaction({
         projectId: "",
         contractAddress: "0xBeFD018F3864F5BBdE665D6dc553e012076A5d44",
         chainId: 84532,
-        functionSignature: "mint(address to, string ipfshash)",
+        functionSignature: "mint(address to, string ipfsRoute)",
         args: {
           // TODO: Change to the user's connected Farcaster address. This is going
           // to WillPapper.eth for now
           to: addressFromFid,
-          ipfshash: anky.metadataIPFSHash,
+          ipfsRoute: `ipfs://${anky.metadataIPFSHash}`,
         },
       });
       console.log("Syndicate Transaction ID: ", mintTx.transactionId);
