@@ -493,8 +493,8 @@ router.post("/mintable-ankys", async (req, res) => {
       const fid = req.body.untrustedData.fid;
       const addressFromFid = await getAddrByFid(fid);
       const mintTx = await syndicate.transact.sendTransaction({
-        projectId: "",
-        contractAddress: "0xBeFD018F3864F5BBdE665D6dc553e012076A5d44",
+        projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
+        contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
         chainId: 84532,
         functionSignature: "mint(address to, string ipfsRoute)",
         args: {
@@ -504,7 +504,6 @@ router.post("/mintable-ankys", async (req, res) => {
           ipfsRoute: `ipfs://${anky.metadataIPFSHash}`,
         },
       });
-      console.log("Syndicate Transaction ID: ", mintTx.transactionId);
       return res.status(200).send(`
           <!DOCTYPE html>
           <html>
@@ -522,7 +521,6 @@ router.post("/mintable-ankys", async (req, res) => {
           </html>
           `);
     }
-    console.log("this anky is");
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     if (anky) {
