@@ -389,4 +389,54 @@ router.post("/aua", async (req, res) => {
   }
 });
 
+router.get("/anky", async (req, res) => {
+  try {
+    console.log("inside the write get route", postRoute);
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>frames aua</title>
+    <meta property="og:title" content="frames aua">
+    <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png.png">
+    <meta name="fc:frame" content="vNext">
+    <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png.png">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/aua">
+    <meta name="fc:frame:button:1" content="mint 👽">
+  </head>
+  </html>
+  `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+router.post("/anky", async (req, res) => {
+  try {
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>frames aua</title>
+      <meta property="og:title" content="frames aua">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png.png">
+
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/aua">
+      <meta name="fc:frame" content="vNext">     
+    </head>
+    </html>
+      </html>
+      `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
 module.exports = router;
