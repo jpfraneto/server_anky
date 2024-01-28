@@ -374,8 +374,8 @@ router.post("/aua", async (req, res) => {
       <head>
       <title>frames aua</title>
       <meta property="og:title" content="frames aua">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/aua.png">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/aua.png">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/excuse.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/excuse.png">
 
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/aua">
       <meta name="fc:frame" content="vNext">     
