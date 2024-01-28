@@ -389,7 +389,7 @@ router.post("/aua", async (req, res) => {
   }
 });
 
-router.get("/aua", async (req, res) => {
+router.get("/anky2", async (req, res) => {
   try {
     console.log("inside the write get route", postRoute);
     const fullUrl = req.protocol + "://" + req.get("host");
@@ -414,7 +414,7 @@ router.get("/aua", async (req, res) => {
   }
 });
 
-router.post("/anky", async (req, res) => {
+router.post("/anky2", async (req, res) => {
   try {
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
