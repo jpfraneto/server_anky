@@ -472,9 +472,6 @@ const syndicate = new SyndicateClient({
   token: () => {
     const apiKey = process.env.SYNDICATE_API_KEY;
     if (typeof apiKey === "undefined") {
-      // If you receive this error, you need to define the SYNDICATE_API_KEY in
-      // your Vercel environment variables. You can find the API key in your
-      // Syndicate project settings under the "API Keys" tab.
       throw new Error(
         "SYNDICATE_API_KEY is not defined in environment variables."
       );
@@ -485,59 +482,72 @@ const syndicate = new SyndicateClient({
 
 router.post("/mintable-ankys", async (req, res) => {
   try {
+    const fullUrl = req.protocol + "://" + req.get("host");
     const cid = req.query.cid;
     const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
+    console.log("in here, the anky is: ", anky);
+
     const mintable = req.query.mint;
     if (mintable && anky) {
       const fid = req.body.untrustedData.fid;
-      const addressFromFid = await getAddrByFid(fid);
-      const mintTx = await syndicate.transact.sendTransaction({
-        projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
-        contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
-        chainId: 84532,
-        functionSignature: "mint(address to, string ipfsRoute)",
-        args: {
-          // TODO: Change to the user's connected Farcaster address. This is going
-          // to WillPapper.eth for now
-          to: addressFromFid,
-          ipfsRoute: `ipfs://${anky.metadataIPFSHash}`,
-        },
-      });
-      return res.status(200).send(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <title>anky mint</title>
-          <meta property="og:title" content="anky mint">
-          <meta property="og:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
-          <meta name="fc:frame:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
-    
-          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=true">
-          <meta name="fc:frame" content="vNext">     
-        </head>
-        </html>
-        <p>YOUR ANKY WAS MINTED!</p>
+      console.log("in here, the fid is: ", fid);
+      if (Number(fid) === 16098) {
+        const addressFromFid = await getAddrByFid(fid);
+        console.log(
+          "before calling the mint function, the syndicate is: ",
+          syndicate
+        );
+        console.log("the transact is: ", syndicate.transact);
+        console.log("the address from fid is: ", addressFromFid);
+        const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
+        console.log("the ipfs route is :", ipfsRoute);
+        const mintTx = await syndicate.transact.sendTransaction({
+          projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
+          contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
+          chainId: 8453,
+          functionSignature: "mint(address to, string ipfsRoute)",
+          args: {
+            to: addressFromFid,
+            ipfsRoute: ipfsRoute,
+          },
+        });
+        console.log("Syndicate Transaction ID: ", mintTx.transactionId);
+        const thisAnkyImageUrl = `http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}`;
+        console.log("this anky image is: ", thisAnkyImageUrl);
+        return res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>anky mint</title>
+            <meta property="og:title" content="anky mint">
+            <meta property="og:image" content="${thisAnkyImageUrl}">
+            <meta name="fc:frame:image" content="${thisAnkyImageUrl}">
+      
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=true">
+            <meta name="fc:frame" content="vNext">     
+          </head>
           </html>
-          `);
-    }
-    const fullUrl = req.protocol + "://" + req.get("host");
-    res.setHeader("Content-Type", "text/html");
-    if (anky) {
-      res.status(200).send(`
+          <p>YOUR ANKY WAS MINTED!</p>
+            </html>
+            `);
+      } else {
+        console.log("this means that the user is not the owner of this anky");
+        res.status(200).send(`
         <!DOCTYPE html>
         <html>
         <head>
         <title>anky mint</title>
         <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
-        <meta name="fc:frame:image" content="http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/excuse.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/excuse.png">
   
-        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=true">
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=false">
         <meta name="fc:frame" content="vNext">     
       </head>
       </html>
         </html>
         `);
+      }
     } else {
       res.status(200).send(`
         <!DOCTYPE html>
@@ -573,15 +583,10 @@ async function getAddrByFid(fid) {
   };
   console.log("Fetching user address from Neynar API");
   const resp = await fetch(options.url, { headers: options.headers });
-  console.log("Response: ", resp);
   const responseBody = await resp.json(); // Parse the response body as JSON
   if (responseBody.users) {
     const userVerifications = responseBody.users[0];
     if (userVerifications.verifications) {
-      console.log(
-        "User address from Neynar API: ",
-        userVerifications.verifications[0]
-      );
       return userVerifications.verifications[0].toString();
     }
   }

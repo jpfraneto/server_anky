@@ -101,4 +101,6 @@ model GeneratedAnky {
   metadataIPFSHash  String?
   createdAt         DateTime @default(now())
   castHash          String?
+  userFid           Int?
+  alreadyMinted     Boolean @default(false)
 }

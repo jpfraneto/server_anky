@@ -12,13 +12,16 @@ const {
   getThisPageStory,
 } = require("../lib/ai/anky-dementor");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
-const { uploadToBundlr } = require("../lib/bundlrSetup");
-const { uploadImageToPinata } = require("../lib/pinataSetup");
 const router = express.Router();
 
 const openai = new OpenAI();
 
 router.post("/process-writing", async (req, res) => {
+  const writingsByFid = await prisma.generatedAnky.findMany({
+    where: { userFid: req.body.userFid },
+  });
+  console.log("the writings by fid are: ", writingsByFid);
+  // the writingsByFid will be used to limit the amount of ankys that the user can generate with her writing.
   if (!openai) {
     res.status(500).json({
       error: {
@@ -28,7 +31,9 @@ router.post("/process-writing", async (req, res) => {
     });
     return;
   }
+
   const message = req.body.text || "";
+  const userFid = req.body.userFid;
   const cid = req.body.cid;
   if (message.trim().length === 0) {
     res.status(400).json({
@@ -42,10 +47,20 @@ router.post("/process-writing", async (req, res) => {
     const messages = [
       {
         role: "system",
-        content: `You are in charge of imagining a description of a human being in a cartoon world. I will send you a block of text that was written as a stream of consciousness, and your goal is to distill the essence of that writing so that you can come up with a graphic description of how the human that wrote it looks. The important part is crafting a situation that represents the subconscious aspects of this human, so that the image that will be generated becomes a mirror of this human. Please avoid direct references to the writer, or the technologies that take place. The goal of the prompt is just to get a description of how the whole situation looks like.
+        content: `You are in charge of imagining a description of a human being in a cartoon world. I will send you a block of text that was written as a stream of consciousness, and your goal is to distill the essence of that writing so that you can come up with a graphic description of a situation that deeply reflect the state of that human, and also craft a short story that reflects what the user wrote.
+        
+        On the image prompt, please avoid direct references to the writer, or the technologies that take place. The goal of the prompt is just to reflect the subconscious of the writer.
 
-    Make it no more than 333 characters long, and onky one paragraph.
-    Here is the block of text: `,
+        On the story, make it fun and appealing. Make the user smile, but don't over act it.
+
+        Practically speaking, create a valid JSON object following this exact format:
+
+        {
+            "imagePrompt": "A one paragraph description of the image that reflects the situation of the users writing. less than 500 characters",
+            "story": "a short story that reflects what the user wrote. less than 500 characters",
+        }
+    
+        The JSON object, correctly formatted is: `,
       },
       { role: "user", content: message },
     ];
@@ -55,13 +70,33 @@ router.post("/process-writing", async (req, res) => {
       messages: messages,
     });
 
+    const dataResponse = completion.choices[0].message.content;
+    console.log("the data response is: ", dataResponse);
+
+    const storyRegex = /"story"\s*:\s*"([\s\S]*?)"/;
+    const promptsRegex = /"imagePrompt"\s*:\s*"([\s\S]*?)"/;
+
+    const storyMatch = dataResponse.match(storyRegex);
+    const promptMatch = dataResponse.match(promptsRegex);
+
+    let story, prompt;
+
+    if (promptMatch !== null && promptMatch.length > 1) {
+      prompt = promptMatch[1];
+    }
+
+    if (storyMatch !== null && storyMatch.length > 1) {
+      story = storyMatch[1];
+    }
+    return res.status(200).json({ story, prompt });
+
     const config = {
       headers: { Authorization: `Bearer ${process.env.IMAGINE_API_TOKEN}` },
     };
 
     let imagineApiID, newImagePrompt;
-    if (completion) {
-      newImagePrompt = `https://s.mj.run/YLJMlMJbo70, ${completion.choices[0].message.content}`;
+    if (prompt && story) {
+      newImagePrompt = `https://s.mj.run/YLJMlMJbo70, ${prompt}`;
       const responseFromImagineApi = await axios.post(
         `http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images`,
         {
@@ -71,54 +106,27 @@ router.post("/process-writing", async (req, res) => {
       );
       imagineApiID = responseFromImagineApi.data.data.id;
 
-      const messages2 = [
-        {
-          role: "system",
-          content: `You are Anky, a representation of God, and you are in charge of distilling the essence of the block of text that you will get below, so that you can create with as much detail as possible a biography of the person that wrote it. The writing is a stream of consciousness, and your mission is to write the bio that will be displayed in this persons profile.
-  
-          Your goal is to make this person cry of emotion, because no one ever understood her as you did now.
-  
-          Don't use direct references to you as the creator of the text, just write it as if this person had written it.
-  
-          Here is the block of text: `,
-        },
-        { role: "user", content: message },
-      ];
-
-      const completion2 = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: messages2,
-      });
-      console.log("the completion 2 is: ", completion2);
-      if (completion2) {
-        const userBio = completion2.choices[0].message.content;
-        console.log("IN HERE, THE USER BIO IS: ", userBio);
-        await prisma.generatedAnky.create({
-          data: {
-            ankyBio: userBio,
-            imagineApiID: imagineApiID,
-            imagePrompt: newImagePrompt,
-            imagineApiStatus: "pending",
-            cid: cid,
-            imageIPFSHash: null,
-            metadataIPFSHash: null,
-          },
-        });
-
-        return res.status(200).json({
-          success: true,
+      await prisma.generatedAnky.create({
+        data: {
+          ankyBio: story,
           imagineApiID: imagineApiID,
-          userBio: userBio,
-        });
-      } else {
-        return res.status(500).json({
-          message:
-            "There was an error generating the story of the human from the writing.",
-        });
-      }
+          imagePrompt: newImagePrompt,
+          imagineApiStatus: "pending",
+          cid: cid,
+          imageIPFSHash: null,
+          metadataIPFSHash: null,
+          userFid: userFid,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        imagineApiID: imagineApiID,
+        userBio: userBio,
+      });
     } else {
       return res.status(500).json({
-        message: "There was an error generating the prompt from the writing.",
+        message: "There was an error processing the users writing.",
       });
     }
   } catch (error) {
