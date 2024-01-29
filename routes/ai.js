@@ -88,7 +88,7 @@ router.post("/process-writing", async (req, res) => {
     if (storyMatch !== null && storyMatch.length > 1) {
       story = storyMatch[1];
     }
-    return res.status(200).json({ story, prompt });
+    // return res.status(200).json({ story, prompt });
 
     const config = {
       headers: { Authorization: `Bearer ${process.env.IMAGINE_API_TOKEN}` },
