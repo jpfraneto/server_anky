@@ -445,7 +445,7 @@ router.post("/anky2", async (req, res) => {
 
 router.get("/mintable-ankys", async (req, res) => {
   try {
-    const cid = req.query.cid;
+    console.log("inside here, the req.query is: ", req.query.cid);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -485,9 +485,8 @@ const syndicate = new SyndicateClient({
 
 router.post("/mintable-ankys", async (req, res) => {
   try {
-    console.log("inside the post route");
-    const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
     const cid = req.query.cid;
+    const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
     const mintable = req.query.mint;
     if (mintable && anky) {
       const fid = req.body.untrustedData.fid;
