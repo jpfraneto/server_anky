@@ -485,22 +485,14 @@ router.post("/mintable-ankys", async (req, res) => {
     const fullUrl = req.protocol + "://" + req.get("host");
     const cid = req.query.cid;
     const anky = await prisma.generatedAnky.findUnique({ where: { cid: cid } });
-    console.log("in here, the anky is: ", anky);
 
     const mintable = req.query.mint;
     if (mintable && anky) {
       const fid = req.body.untrustedData.fid;
-      console.log("in here, the fid is: ", fid);
-      if (Number(fid) === 16098) {
+      if (Number(fid) === anky.userFid) {
         const addressFromFid = await getAddrByFid(fid);
-        console.log(
-          "before calling the mint function, the syndicate is: ",
-          syndicate
-        );
-        console.log("the transact is: ", syndicate.transact);
-        console.log("the address from fid is: ", addressFromFid);
+
         const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
-        console.log("the ipfs route is :", ipfsRoute);
         const mintTx = await syndicate.transact.sendTransaction({
           projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
           contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
@@ -511,9 +503,7 @@ router.post("/mintable-ankys", async (req, res) => {
             ipfsRoute: ipfsRoute,
           },
         });
-        console.log("Syndicate Transaction ID: ", mintTx.transactionId);
         const thisAnkyImageUrl = `http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}`;
-        console.log("this anky image is: ", thisAnkyImageUrl);
         return res.status(200).send(`
             <!DOCTYPE html>
             <html>
@@ -531,15 +521,14 @@ router.post("/mintable-ankys", async (req, res) => {
             </html>
             `);
       } else {
-        console.log("this means that the user is not the owner of this anky");
         res.status(200).send(`
         <!DOCTYPE html>
         <html>
         <head>
         <title>anky mint</title>
         <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="https://jpfraneto.github.io/images/excuse.png">
-        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/excuse.png">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/sorry.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/sorry.png">
   
         <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=false">
         <meta name="fc:frame" content="vNext">     
@@ -555,8 +544,8 @@ router.post("/mintable-ankys", async (req, res) => {
         <head>
         <title>anky mint</title>
         <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="https://jpfraneto.github.io/images/excuse.png">
-        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/excuse.png">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
   
         <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.cid}&mint=false">
         <meta name="fc:frame" content="vNext">     
