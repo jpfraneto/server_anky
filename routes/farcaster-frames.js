@@ -625,10 +625,22 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
 
     const response = await getCastFromNeynar(frameCastHash);
     const casts = response.data.result.casts;
+    console.log("the user fid si:", userFid);
     casts.shift(); // eliminate the first cast, which is the original frame.
-    const thisUserCast = casts.filter((x) => x.author.fid == userFid);
-    console.log("n here", thisUserCast.length);
-    if (thisUserCast.length > 1) {
+    console.log("the casts are:", casts);
+    const thisUserCast = casts.filter(
+      (x) => Number(x.author.fid) === Number(userFid)
+    );
+    console.log("the thisUserCast", thisUserCast);
+    const moreFiltered = thisUserCast.filter(
+      (x) => x.parentHash == process.env.FRAME_CAST_HASH
+    );
+    console.log("the more filtered is: ", moreFiltered);
+    const evenMoreFiltered = moreFiltered.filter(
+      (x) => Number(x.parentAuthor?.fid) === 16098
+    );
+    console.log("even more filtered is: ", evenMoreFiltered);
+    if (evenMoreFiltered.length > 1) {
       return res.status(200).send(`
       <!DOCTYPE html>
       <html>
@@ -645,7 +657,7 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     </html>
       </html>
       `);
-    } else if (thisUserCast.length == 0) {
+    } else if (evenMoreFiltered.length == 0) {
       return res.status(200).send(`
       <!DOCTYPE html>
       <html>
@@ -665,15 +677,17 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     } else {
       console.log(
         "the user commented the cast, and her prompt is: ",
-        casts[0].text
+        evenMoreFiltered[0].text
       );
       // CHECK THAT THE USER HASN'T SENT A REQUEST YET
       const thisUserAnkyCreation = await prisma.midjourneyOnAFrame.findUnique({
         where: { userFid: userFid },
       });
+      console.log("the sur creation", thisUserAnkyCreation);
       if (!thisUserAnkyCreation) {
+        console.log("now i'm going to send the thing to the askjcasjs");
         const responseFromMidjourney = await createAnkyFromPrompt(
-          casts[0].text,
+          evenMoreFiltered[0].text,
           userFid,
           frameCastHash
         );
@@ -753,7 +767,7 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
 
 router.get("/mint-this-anky", async (req, res) => {
   try {
-    console.log("inside here, the req.query is: ", req.query.castHash);
+    console.log("inside here, the req.query is: ", req.query.midjourneyId);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -765,7 +779,7 @@ router.get("/mint-this-anky", async (req, res) => {
     <meta property="og:image" content="https://jpfraneto.github.io/images/anky-ready-to-be-minted.png">
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/anky-ready-to-be-minted.png">
-    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.castHash}&mint=false">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${req.query.midjourneyId}&revealed=1&mint=0">
     <meta name="fc:frame:button:1" content="reveal 👽">
   </head>
   </html>
@@ -779,50 +793,85 @@ router.get("/mint-this-anky", async (req, res) => {
 router.post("/mint-this-anky", async (req, res) => {
   try {
     const fullUrl = req.protocol + "://" + req.get("host");
-    const castHash = req.query.castHash;
+    const midjourneyId = req.query.midjourneyId;
+    const revealed = Number(req.query.revealed);
+    const mint = Number(req.query.mint);
     const userFid = req.body.untrustedData.fid;
-
     if (!userFid) return;
+    console.log("the user fid is:", userFid);
     const anky = await prisma.midjourneyOnAFrame.findUnique({
       where: { userFid: userFid },
     });
 
-    if (anky && mint) {
-      if (Number(userFid) === anky.userFid) {
-        const addressFromFid = await getAddrByFid(userFid);
+    if (mint == 1) {
+      console.log("now it should be minted");
+      return;
+      const mintTx = await syndicate.transact.sendTransaction({
+        projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
+        contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
+        chainId: 8453,
+        functionSignature: "mint(address to, string ipfsRoute)",
+        args: {
+          to: addressFromFid,
+          ipfsRoute: ipfsRoute,
+        },
+      });
+      const thisAnkyImageUrl = `http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}`;
+      return res.status(200).send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <title>anky mint</title>
+          <meta property="og:title" content="anky mint">
+          <meta property="og:image" content="${thisAnkyImageUrl}">
+          <meta name="fc:frame:image" content="${thisAnkyImageUrl}">
+    
+          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+          <meta name="fc:frame" content="vNext">     
+        </head>
+        </html>
+        <p>YOUR ANKY WAS MINTED!</p>
+          </html>
+          `);
+      console.log("the users anky is: ", anky);
 
-        const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
-        console.log("in here, the ipfs route is: ", ipfsRoute);
-        return;
-        const mintTx = await syndicate.transact.sendTransaction({
-          projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
-          contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
-          chainId: 8453,
-          functionSignature: "mint(address to, string ipfsRoute)",
-          args: {
-            to: addressFromFid,
-            ipfsRoute: ipfsRoute,
-          },
-        });
-        const thisAnkyImageUrl = `http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}`;
+      return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="${revealedAnkyImageUrl}">
+      <meta name="fc:frame:image" content="${revealedAnkyImageUrl}">
+
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=0">
+      <meta name="fc:frame" content="vNext">  
+    </head>
+    </html>
+ 
+      </html>
+      `);
+    } else {
+      if (Number(userFid) === anky.userFid) {
         return res.status(200).send(`
             <!DOCTYPE html>
             <html>
             <head>
             <title>anky mint</title>
             <meta property="og:title" content="anky mint">
-            <meta property="og:image" content="${thisAnkyImageUrl}">
-            <meta name="fc:frame:image" content="${thisAnkyImageUrl}">
+            <meta property="og:image" content="${anky.imageAvailableUrl}">
+            <meta name="fc:frame:image" content="${anky.imageAvailableUrl}">
       
-            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.castHash}&mint=true">
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
             <meta name="fc:frame" content="vNext">     
+            <meta name="fc:frame:button:1" content="mint 🐒">   
           </head>
           </html>
-          <p>YOUR ANKY WAS MINTED!</p>
+        
             </html>
             `);
       } else {
-        res.status(200).send(`
+        return res.status(200).send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -831,29 +880,13 @@ router.post("/mint-this-anky", async (req, res) => {
         <meta property="og:image" content="https://jpfraneto.github.io/images/isnt-yours.png">
         <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/isnt-yours.png">
   
-        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.castHash}&mint=true">
-        <meta name="fc:frame" content="vNext">
-      </head>
-      </html>
-        </html>
-        `);
-      }
-    } else {
-      res.status(200).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <title>anky mint</title>
-        <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="https://jpfraneto.github.io/images/there-was-an-error.png">
-        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/there-was-an-error.png">
-  
-        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mintable-ankys?cid=${req.query.castHash}&mint=false">
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed?=1&mint=0">
         <meta name="fc:frame" content="vNext">     
       </head>
       </html>
         </html>
         `);
+      }
     }
   } catch (error) {
     console.error(error);
