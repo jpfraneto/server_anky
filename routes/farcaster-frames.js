@@ -621,6 +621,7 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
 
     const response = await getCastFromNeynar(frameCastHash);
     const casts = response.data.result.casts;
+
     casts.shift(); // eliminate the first cast, which is the original frame.
     const thisUserCast = casts.filter(
       (x) => Number(x.author.fid) === Number(userFid)
