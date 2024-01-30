@@ -110,7 +110,6 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     let randomAnkyIndex = Math.floor(88 * Math.random());
-    console.log("the random anky indeISNIDE THE POST ROUTEx is: ", req.body);
     const fullUrl = req.protocol + "://" + req.get("host");
     console.log(fullUrl);
 
@@ -618,27 +617,22 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     // what is it that i'm trying to do here? fetch midjourney. that's it.
 
     const frameCastHash = process.env.FRAME_CAST_HASH;
-    console.log(frameCastHash);
     const response = await getCastFromNeynar(frameCastHash, userFid);
-    console.log(response.data.casts);
     const casts = response.data.result.casts;
 
     casts.shift(); // eliminate the first cast, which is the original frame.
     const thisUserCast = casts.filter(
       (x) => Number(x.author.fid) === Number(userFid)
     );
-    console.log("this user cast", thisUserCast);
     const moreFiltered = thisUserCast.filter(
       (x) => x.parentHash == process.env.FRAME_CAST_HASH
     );
-    console.log("more filtered", moreFiltered);
-    const evenMoreFiltered = moreFiltered.filter(
-      (x) => Number(x.parentAuthor?.fid) === 210758
-    );
-    console.log("even more filtered", evenMoreFiltered);
     // const evenMoreFiltered = moreFiltered.filter(
-    //   (x) => Number(x.parentAuthor?.fid) === 16098
+    //   (x) => Number(x.parentAuthor?.fid) === 210758
     // );
+    const evenMoreFiltered = moreFiltered.filter(
+      (x) => Number(x.parentAuthor?.fid) === 16098
+    );
     if (evenMoreFiltered.length > 1) {
       return res.status(200).send(`
       <!DOCTYPE html>
@@ -674,28 +668,17 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
       </html>
       `);
     } else {
-      console.log(
-        "the user commented the cast, and her prompt is: ",
-        evenMoreFiltered[0].text
-      );
       // CHECK THAT THE USER HASN'T SENT A REQUEST YET
       const thisUserAnkyCreation = await prisma.midjourneyOnAFrame.findUnique({
         where: { userFid: userFid },
       });
-      console.log("the sur creation", thisUserAnkyCreation);
       if (!thisUserAnkyCreation) {
-        console.log("now i'm going to send the thing to the askjcasjs");
         const responseFromMidjourney = await createAnkyFromPrompt(
           evenMoreFiltered[0].text,
           userFid,
           frameCastHash
         );
-        console.log(
-          "the response from midjourney is: ",
-          responseFromMidjourney
-        );
       }
-      // return;
 
       return res.status(200).send(`
       <!DOCTYPE html>
@@ -705,49 +688,6 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
       <meta property="og:title" content="anky mint">
       <meta property="og:image" content="https://jpfraneto.github.io/images/being-created.png">
       <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/being-created.png">
-
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2">
-      <meta name="fc:frame" content="vNext">    
-    </head>
-    </html>
-      </html>
-      `);
-    }
-
-    return;
-
-    const prompt = `https://s.mj.run/YLJMlMJbo70 , ${thisCast.text}`;
-
-    const userResponse = await neynarClient.lookupUserByFid(
-      req.body.untrustedData.fid
-    );
-
-    res.setHeader("Content-Type", "text/html");
-    if (paso == 1) {
-      return res.status(200).send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-      <title>anky mint</title>
-      <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/get-back-at-you.png">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/get-back-at-you.png">
-
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2">
-      <meta name="fc:frame" content="vNext">    
-    </head>
-    </html>
-      </html>
-      `);
-    } else if (paso == 2) {
-      return res.status(200).send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-      <title>anky mint</title>
-      <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/get-back-at-you.png">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/get-back-at-you.png">
 
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2">
       <meta name="fc:frame" content="vNext">    
