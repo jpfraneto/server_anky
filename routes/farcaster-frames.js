@@ -741,6 +741,7 @@ router.post("/mint-this-anky", async (req, res) => {
     });
 
     if (mint == 1) {
+      if (!anky?.metadataIPFSHash) return;
       const wasMinted = await prisma.midjourneyOnAFrame.update({
         where: { userFid: anky.userFid },
         data: { alreadyMinted: true },
