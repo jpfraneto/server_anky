@@ -104,3 +104,16 @@ model GeneratedAnky {
   userFid           Int?
   alreadyMinted     Boolean @default(false)
 }
+
+model MidjourneyOnAFrame {
+  userFid           Int       @id @unique 
+  alreadyMinted     Boolean @default(false)
+  imagePrompt       String?
+  imagineApiID      String?
+  imagineApiStatus  String?   @default("pending")
+  imageIPFSHash     String?  // Nullable fields for IPFS hashes
+  metadataIPFSHash  String?
+  createdAt         DateTime @default(now())
+  castHash          String?
+  wasCastedOnFrame  Boolean @default(false)
+}

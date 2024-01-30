@@ -9,7 +9,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const prisma = require("./lib/prismaClient");
 const { scheduleReminders, sendCast } = require("./lib/writingReminder");
-const { checkAndUpdateAnkys } = require("./lib/ankys");
+const {
+  checkAndUpdateAnkys,
+  checkAndUpdateMidjourneyOnAFrameAnkys,
+} = require("./lib/ankys");
 const { TypedEthereumSigner } = require("arbundles");
 const rateLimit = require("express-rate-limit");
 
@@ -59,7 +62,9 @@ app.use("/user", userRoutes);
 
 scheduleReminders();
 
-schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
+// schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
+// schedule.scheduleJob("*/5 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
+checkAndUpdateMidjourneyOnAFrameAnkys();
 // checkAndUpdateAnkys();
 
 app.get("/", (req, res) => {

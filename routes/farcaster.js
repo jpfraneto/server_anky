@@ -276,7 +276,7 @@ router.post("/u/:fid/feed", async (req, res) => {
       fid: usersFid,
     });
 
-    res.status(200).json({ feed: response.data.casts });
+    res.status(200).json({ feed: result.data.casts });
   } catch (error) {
     console.log("there was an error here", error);
   }
