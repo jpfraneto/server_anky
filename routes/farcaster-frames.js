@@ -787,7 +787,7 @@ router.post("/mint-this-anky", async (req, res) => {
       </html>
       `);
     } else {
-      if (Number(userFid) === anky.userFid) {
+      if (anky && Number(userFid) === anky?.userFid) {
         return res.status(200).send(`
             <!DOCTYPE html>
             <html>
