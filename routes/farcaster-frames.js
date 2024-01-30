@@ -618,20 +618,24 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     // what is it that i'm trying to do here? fetch midjourney. that's it.
 
     const frameCastHash = process.env.FRAME_CAST_HASH;
-
-    const response = await getCastFromNeynar(frameCastHash);
+    console.log(frameCastHash);
+    const response = await getCastFromNeynar(frameCastHash, userFid);
+    console.log(response.data.casts);
     const casts = response.data.result.casts;
 
     casts.shift(); // eliminate the first cast, which is the original frame.
     const thisUserCast = casts.filter(
       (x) => Number(x.author.fid) === Number(userFid)
     );
+    console.log("this user cast", thisUserCast);
     const moreFiltered = thisUserCast.filter(
       (x) => x.parentHash == process.env.FRAME_CAST_HASH
     );
+    console.log("more filtered", moreFiltered);
     const evenMoreFiltered = moreFiltered.filter(
       (x) => Number(x.parentAuthor?.fid) === 210758
     );
+    console.log("even more filtered", evenMoreFiltered);
     // const evenMoreFiltered = moreFiltered.filter(
     //   (x) => Number(x.parentAuthor?.fid) === 16098
     // );
@@ -797,7 +801,7 @@ router.post("/mint-this-anky", async (req, res) => {
     });
 
     if (mint == 1) {
-      const addressFromFid = await getAddrByFid(fid);
+      const addressFromFid = await getAddrByFid(userFid);
       const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
       const mintTx = await syndicate.transact.sendTransaction({
         projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
