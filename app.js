@@ -63,8 +63,8 @@ app.use("/user", userRoutes);
 scheduleReminders();
 
 // schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
-// schedule.scheduleJob("*/5 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
-checkAndUpdateMidjourneyOnAFrameAnkys();
+schedule.scheduleJob("*/1 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
+// checkAndUpdateMidjourneyOnAFrameAnkys();
 // checkAndUpdateAnkys();
 
 app.get("/", (req, res) => {

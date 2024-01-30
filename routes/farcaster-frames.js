@@ -563,7 +563,6 @@ router.post("/mintable-ankys", async (req, res) => {
 });
 
 async function getAddrByFid(fid) {
-  console.log("Extracting address for FID: ", fid);
   const options = {
     method: "GET",
     url: `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
@@ -572,7 +571,6 @@ async function getAddrByFid(fid) {
       api_key: process.env.NEYNAR_API_KEY || "",
     },
   };
-  console.log("Fetching user address from Neynar API");
   const resp = await fetch(options.url, { headers: options.headers });
   const responseBody = await resp.json(); // Parse the response body as JSON
   if (responseBody.users) {
@@ -589,7 +587,6 @@ async function getAddrByFid(fid) {
 
 router.get("/midjourney-on-a-frame", async (req, res) => {
   try {
-    console.log("inside the midjourney get route");
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -619,27 +616,24 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     const userFid = req.body.untrustedData.fid;
 
     // what is it that i'm trying to do here? fetch midjourney. that's it.
-    console.log("inside the midjourney on a frame route");
 
     const frameCastHash = process.env.FRAME_CAST_HASH;
 
     const response = await getCastFromNeynar(frameCastHash);
     const casts = response.data.result.casts;
-    console.log("the user fid si:", userFid);
     casts.shift(); // eliminate the first cast, which is the original frame.
-    console.log("the casts are:", casts);
     const thisUserCast = casts.filter(
       (x) => Number(x.author.fid) === Number(userFid)
     );
-    console.log("the thisUserCast", thisUserCast);
     const moreFiltered = thisUserCast.filter(
       (x) => x.parentHash == process.env.FRAME_CAST_HASH
     );
-    console.log("the more filtered is: ", moreFiltered);
     const evenMoreFiltered = moreFiltered.filter(
-      (x) => Number(x.parentAuthor?.fid) === 16098
+      (x) => Number(x.parentAuthor?.fid) === 210758
     );
-    console.log("even more filtered is: ", evenMoreFiltered);
+    // const evenMoreFiltered = moreFiltered.filter(
+    //   (x) => Number(x.parentAuthor?.fid) === 16098
+    // );
     if (evenMoreFiltered.length > 1) {
       return res.status(200).send(`
       <!DOCTYPE html>
@@ -767,7 +761,6 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
 
 router.get("/mint-this-anky", async (req, res) => {
   try {
-    console.log("inside here, the req.query is: ", req.query.midjourneyId);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -798,17 +791,16 @@ router.post("/mint-this-anky", async (req, res) => {
     const mint = Number(req.query.mint);
     const userFid = req.body.untrustedData.fid;
     if (!userFid) return;
-    console.log("the user fid is:", userFid);
     const anky = await prisma.midjourneyOnAFrame.findUnique({
       where: { userFid: userFid },
     });
 
     if (mint == 1) {
-      console.log("now it should be minted");
-      return;
+      const addressFromFid = await getAddrByFid(fid);
+      const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
       const mintTx = await syndicate.transact.sendTransaction({
         projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
-        contractAddress: "0x5393A7d3494A1D9C8D96705966e2E35aC4FCE957",
+        contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
         chainId: 8453,
         functionSignature: "mint(address to, string ipfsRoute)",
         args: {
@@ -816,21 +808,19 @@ router.post("/mint-this-anky", async (req, res) => {
           ipfsRoute: ipfsRoute,
         },
       });
-      const thisAnkyImageUrl = `http://${process.env.MIDJOURNEY_SERVER_IP}:8055/items/images/${anky.imagineApiID}`;
       return res.status(200).send(`
           <!DOCTYPE html>
           <html>
           <head>
           <title>anky mint</title>
           <meta property="og:title" content="anky mint">
-          <meta property="og:image" content="${thisAnkyImageUrl}">
-          <meta name="fc:frame:image" content="${thisAnkyImageUrl}">
+          <meta property="og:image" content="https://jpfraneto.github.io/images/minted.png">
+          <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted.png">
     
           <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
           <meta name="fc:frame" content="vNext">     
         </head>
         </html>
-        <p>YOUR ANKY WAS MINTED!</p>
           </html>
           `);
       console.log("the users anky is: ", anky);
