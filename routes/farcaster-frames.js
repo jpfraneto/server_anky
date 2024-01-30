@@ -741,6 +741,27 @@ router.post("/mint-this-anky", async (req, res) => {
     });
 
     if (mint == 1) {
+      const wasMinted = await prisma.midjourneyOnAFrame.update({
+        where: { userFid: anky.userFid },
+        data: { alreadyMinted: true },
+      });
+      if (wasMinted) {
+        return res.status(200).send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <title>anky mint</title>
+          <meta property="og:title" content="anky mint">
+          <meta property="og:image" content="https://jpfraneto.github.io/images/one-per-person.png.png">
+          <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/one-per-person.png.png">
+    
+          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+          <meta name="fc:frame" content="vNext">     
+        </head>
+        </html>
+          </html>
+          `);
+      }
       const addressFromFid = await getAddrByFid(userFid);
       const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
       const mintTx = await syndicate.transact.sendTransaction({
@@ -752,6 +773,10 @@ router.post("/mint-this-anky", async (req, res) => {
           to: addressFromFid,
           ipfsRoute: ipfsRoute,
         },
+      });
+      await prisma.midjourneyOnAFrame.update({
+        where: { userFid: anky.userFid },
+        data: { alreadyMinted: true },
       });
       return res.status(200).send(`
           <!DOCTYPE html>
