@@ -770,15 +770,10 @@ router.post("/mint-this-anky", async (req, res) => {
         <meta name="fc:frame" content="vNext">
         <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/being-created.png">
         <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${req.query.midjourneyId}&revealed=1&mint=0">
-        <meta name="fc:frame:button:1" content="reveal 👽">
       </head>
       </html>
       `);
-      const wasMinted = await prisma.midjourneyOnAFrame.update({
-        where: { userFid: anky.userFid },
-        data: { alreadyMinted: true },
-      });
-      if (wasMinted) {
+      if (anky.alreadyMinted) {
         return res.status(200).send(`
           <!DOCTYPE html>
           <html>
