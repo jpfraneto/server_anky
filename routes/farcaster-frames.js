@@ -792,6 +792,22 @@ router.post("/mint-this-anky", async (req, res) => {
       }
       const addressFromFid = await getAddrByFid(userFid);
       const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
+      if (ipfsRoute.length < 15)
+        return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
+
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=false&mint=false">
+      <meta name="fc:frame" content="vNext">     
+    </head>
+    </html>
+      </html>
+      `);
       const mintTx = await syndicate.transact.sendTransaction({
         projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
         contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
