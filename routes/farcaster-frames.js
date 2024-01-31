@@ -175,7 +175,6 @@ router.post("/", async (req, res) => {
 
 router.get("/write", async (req, res) => {
   try {
-    console.log("inside the write get route", postRoute);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -306,7 +305,6 @@ router.post("/write-reminder", async (req, res) => {
 
 router.get("/degen", async (req, res) => {
   try {
-    console.log("inside the write get route", postRoute);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -356,7 +354,6 @@ router.post("/degen", async (req, res) => {
 
 router.get("/aua", async (req, res) => {
   try {
-    console.log("inside the write get route", postRoute);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -406,7 +403,6 @@ router.post("/aua", async (req, res) => {
 
 router.get("/anky2", async (req, res) => {
   try {
-    console.log("inside the write get route", postRoute);
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -613,26 +609,47 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     const fullUrl = req.protocol + "://" + req.get("host");
     const paso = req.query.paso;
     const userFid = req.body.untrustedData.fid;
+    const thisUserAnky = await prisma.midjourneyOnAFrame.findUnique({
+      where: { userFid: userFid },
+    });
+    console.log("this user anky", thisUserAnky);
+    if (thisUserAnky && thisUserAnky.alreadyMinted) {
+      return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="${thisUserAnky.imageAvailableUrl}">
+      <meta name="fc:frame:image" content="${thisUserAnky.imageAvailableUrl}">
 
-    // what is it that i'm trying to do here? fetch midjourney. that's it.
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2&one-per-person">
+      <meta name="fc:frame" content="vNext">    
+      <meta name="fc:frame:button:1" content="try again">
+    </head>
+    </html>
+    <p>you already minted, this is your anky.</p>
+      </html>
+      `);
+    }
 
     const frameCastHash = process.env.FRAME_CAST_HASH;
     const response = await getCastFromNeynar(frameCastHash, userFid);
     const casts = response.data.result.casts;
 
-    casts.shift(); // eliminate the first cast, which is the original frame.
+    casts.shift();
     const thisUserCast = casts.filter(
       (x) => Number(x.author.fid) === Number(userFid)
     );
+    console.log("this user cast", thisUserCast);
     const moreFiltered = thisUserCast.filter(
       (x) => x.parentHash == process.env.FRAME_CAST_HASH
     );
-    // const evenMoreFiltered = moreFiltered.filter(
-    //   (x) => Number(x.parentAuthor?.fid) === 210758
-    // );
+    console.log("the more filtered is: ", moreFiltered);
     const evenMoreFiltered = moreFiltered.filter(
       (x) => Number(x.parentAuthor?.fid) === 16098
     );
+    console.log("the even more filtered is:?, ev", evenMoreFiltered);
     if (evenMoreFiltered.length > 1) {
       return res.status(200).send(`
       <!DOCTYPE html>
@@ -640,8 +657,8 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
       <head>
       <title>anky mint</title>
       <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/one-per-person.png">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/one-per-person.png">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/commented-more-than-once.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/commented-more-than-once.png">
 
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2&one-per-person">
       <meta name="fc:frame" content="vNext">    
@@ -672,11 +689,12 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
       const thisUserAnkyCreation = await prisma.midjourneyOnAFrame.findUnique({
         where: { userFid: userFid },
       });
+      console.log("in here, the this user creation is: ", thisUserAnkyCreation);
       if (!thisUserAnkyCreation) {
         const responseFromMidjourney = await createAnkyFromPrompt(
           evenMoreFiltered[0].text,
           userFid,
-          frameCastHash
+          evenMoreFiltered[0].hash
         );
       }
 
@@ -741,7 +759,21 @@ router.post("/mint-this-anky", async (req, res) => {
     });
 
     if (mint == 1) {
-      if (!anky?.metadataIPFSHash) return;
+      if (anky?.metadataIPFSHash == null)
+        return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/being-created.png">
+        <meta name="fc:frame" content="vNext">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/being-created.png">
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${req.query.midjourneyId}&revealed=1&mint=0">
+        <meta name="fc:frame:button:1" content="reveal 👽">
+      </head>
+      </html>
+      `);
       const wasMinted = await prisma.midjourneyOnAFrame.update({
         where: { userFid: anky.userFid },
         data: { alreadyMinted: true },
@@ -813,7 +845,11 @@ router.post("/mint-this-anky", async (req, res) => {
       </html>
       `);
     } else {
-      if (anky && Number(userFid) === anky?.userFid) {
+      if (
+        anky?.imageAvailableUrl &&
+        anky &&
+        Number(userFid) === anky?.userFid
+      ) {
         return res.status(200).send(`
             <!DOCTYPE html>
             <html>
