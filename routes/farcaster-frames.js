@@ -576,24 +576,28 @@ router.post("/mintable-ankys", async (req, res) => {
 });
 
 async function getAddrByFid(fid) {
-  const options = {
-    method: "GET",
-    url: `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
-    headers: {
-      accept: "application/json",
-      api_key: process.env.NEYNAR_API_KEY || "",
-    },
-  };
-  const resp = await fetch(options.url, { headers: options.headers });
-  const responseBody = await resp.json(); // Parse the response body as JSON
-  if (responseBody.users) {
-    const userVerifications = responseBody.users[0];
-    if (userVerifications.verifications) {
-      return userVerifications.verifications[0].toString();
+  try {
+    const options = {
+      method: "GET",
+      url: `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
+      headers: {
+        accept: "application/json",
+        api_key: process.env.NEYNAR_API_KEY || "",
+      },
+    };
+    const resp = await fetch(options.url, { headers: options.headers });
+    const responseBody = await resp.json(); // Parse the response body as JSON
+    if (responseBody.users) {
+      const userVerifications = responseBody.users[0];
+      if (userVerifications.verifications) {
+        return userVerifications.verifications[0].toString();
+      }
     }
+    console.log("Could not fetch user address from Neynar API for FID: ", fid);
+    return "0x0000000000000000000000000000000000000000";
+  } catch (error) {
+    console.log("there was an error retrieving the wallet");
   }
-  console.log("Could not fetch user address from Neynar API for FID: ", fid);
-  return "0x0000000000000000000000000000000000000000";
 }
 
 ///////////// MIDJOURNEY ON A FRAME  ////////////////////////
@@ -857,25 +861,27 @@ router.post("/mint-this-anky", async (req, res) => {
               ipfsRoute: ipfsRoute,
             },
           });
-          await prisma.midjourneyOnAFrame.update({
-            where: { userFid: anky.userFid },
-            data: { alreadyMinted: true },
-          });
-          return res.status(200).send(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <title>anky mint</title>
-          <meta property="og:title" content="anky mint">
-          <meta property="og:image" content="https://jpfraneto.github.io/images/minted.png">
-          <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted.png">
-    
-          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
-          <meta name="fc:frame" content="vNext">     
-        </head>
-        </html>
+          if (mintTx) {
+            await prisma.midjourneyOnAFrame.update({
+              where: { userFid: anky.userFid },
+              data: { alreadyMinted: true },
+            });
+            return res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>anky mint</title>
+            <meta property="og:title" content="anky mint">
+            <meta property="og:image" content="https://jpfraneto.github.io/images/minted.png">
+            <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted.png">
+      
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+            <meta name="fc:frame" content="vNext">     
+          </head>
           </html>
-          `);
+            </html>
+            `);
+          }
         } else {
           return res.status(200).send(`
           <!DOCTYPE html>

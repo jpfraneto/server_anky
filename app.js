@@ -104,7 +104,7 @@ app.use("/user", userRoutes);
 
 // schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
 //schedule.scheduleJob("*/1 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
-// checkAndUpdateMidjourneyOnAFrameAnkys();
+checkAndUpdateMidjourneyOnAFrameAnkys();
 // checkAndUpdateAnkys();
 
 app.get("/", (req, res) => {
