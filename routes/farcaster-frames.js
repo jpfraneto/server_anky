@@ -8,6 +8,7 @@ const { mnemonicToAccount } = require("viem/accounts");
 const { getSSLHubRpcClient, Message } = require("@farcaster/hub-nodejs");
 const { SyndicateClient } = require("@syndicateio/syndicate-node");
 const { getCastFromNeynar } = require("../lib/neynar");
+const allImages = require("../lib/allImages.json");
 const { createAnkyFromPrompt } = require("../lib/midjourney");
 
 const network = "base";
@@ -933,6 +934,58 @@ router.post("/mint-this-anky", async (req, res) => {
         `);
       }
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+///////////// ANKYS ON A FRAME  ////////////////////////
+
+router.get("/anky-on-a-frame", async (req, res) => {
+  try {
+    let randomAnkyIndex = Math.floor(allImages.length * Math.random());
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>anky mint</title>
+    <meta property="og:title" content="anky mint">
+    <meta property="og:image" content="${allImages[randomAnkyIndex].imageAvailableUrl}">
+    <meta name="fc:frame:image" content="${allImages[randomAnkyIndex].imageAvailableUrl}">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/anky-on-a-frame">
+    <meta name="fc:frame" content="vNext">     
+    <meta name="fc:frame:button:1" content="👽">
+  </head>
+  </html>
+  `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+router.post("/anky-on-a-frame", async (req, res) => {
+  try {
+    let randomAnkyIndex = Math.floor(allImages.length * Math.random());
+    const fullUrl = req.protocol + "://" + req.get("host");
+    console.log("here", allImages[randomAnkyIndex].imageAvailableUrl);
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>anky on a frame</title>
+    <meta property="og:title" content="anky on a frame">
+    <meta property="og:image" content="${allImages[randomAnkyIndex].imageAvailableUrl}">
+    <meta name="fc:frame:image" content="${allImages[randomAnkyIndex].imageAvailableUrl}">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/anky-on-a-frame">
+    <meta name="fc:frame" content="vNext">     
+  </head>
+  </html>
+  `);
   } catch (error) {
     console.error(error);
     res.status(500).send("Error generating image");

@@ -6,6 +6,8 @@ const schedule = require("node-schedule");
 const express = require("express");
 const { ethers } = require("ethers");
 const cors = require("cors");
+const fs = require("fs").promises;
+const path = require("path");
 const bodyParser = require("body-parser");
 const prisma = require("./lib/prismaClient");
 const { scheduleReminders, sendCast } = require("./lib/writingReminder");
@@ -60,7 +62,45 @@ app.use("/midjourney", midjourneyRoutes);
 app.use("/mana", manaRoutes);
 app.use("/user", userRoutes);
 
-scheduleReminders();
+// scheduleReminders();
+
+// async function updateAllImages() {
+//   // Read the existing data from allImages.json
+//   const allImagesPath = path.join(__dirname, "./lib/allImages.json");
+//   let allImages = [];
+
+//   try {
+//     const data = await fs.readFile(allImagesPath, "utf8");
+//     console.log("the data is : ", data);
+//     allImages = JSON.parse(data);
+//   } catch (error) {
+//     console.error("Error reading the allImages.json file:", error);
+//   }
+
+//   const allTheAnkys = await prisma.midjourneyOnAFrame.findMany({});
+
+//   for (const anky of allTheAnkys) {
+//     const newObj = {
+//       prompt: anky.imagePrompt,
+//       imageAvailableUrl: anky.imageAvailableUrl,
+//     };
+//     // Add newObj to the array
+//     allImages.push(newObj);
+//   }
+
+//   // Write the updated array back to allImages.json
+//   try {
+//     await fs.writeFile(allImagesPath, JSON.stringify(allImages, null, 2));
+//     console.log("allImages.json updated successfully");
+//   } catch (error) {
+//     console.error("Error writing to the allImages.json file:", error);
+//   }
+
+//   console.log("ready");
+// }
+
+// // Call the function
+// updateAllImages();
 
 // schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
 //schedule.scheduleJob("*/1 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
