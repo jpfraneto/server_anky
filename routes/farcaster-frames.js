@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const { ethers } = require("ethers");
 const prisma = require("../lib/prismaClient");
 const { getCastsByFid } = require("../lib/blockchain/farcaster");
 const { mnemonicToAccount } = require("viem/accounts");
@@ -8,6 +9,22 @@ const { getSSLHubRpcClient, Message } = require("@farcaster/hub-nodejs");
 const { SyndicateClient } = require("@syndicateio/syndicate-node");
 const { getCastFromNeynar } = require("../lib/neynar");
 const { createAnkyFromPrompt } = require("../lib/midjourney");
+
+const network = "base";
+
+const privateKey = process.env.PRIVATE_KEY;
+
+// // Initialize provider and wallet
+const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const ANKY_ON_A_FRAME_ABI = require("../abis/AnkyOnAFrame.json");
+
+const ankyOnAFrameContract = new ethers.Contract(
+  "0x5fd77ab7fd080e3e6ccbc8fe7d33d8abd2fe65a5",
+  ANKY_ON_A_FRAME_ABI,
+  wallet
+);
 
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 const {
@@ -790,7 +807,30 @@ router.post("/mint-this-anky", async (req, res) => {
           </html>
           `);
       }
+
       const addressFromFid = await getAddrByFid(userFid);
+      const nonFormattedAnkyBalance = await ankyOnAFrameContract.balanceOf(
+        addressFromFid
+      );
+      const usersAnkyBalance = ethers.formatUnits(nonFormattedAnkyBalance, 0);
+      if (usersAnkyBalance > 0) {
+        return res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>anky mint</title>
+            <meta property="og:title" content="anky mint">
+            <meta property="og:image" content="https://jpfraneto.github.io/images/one-per-person.png.png">
+            <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/one-per-person.png.png">
+      
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+            <meta name="fc:frame" content="vNext">     
+          </head>
+          </html>
+            </html>
+            `);
+      }
+
       const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
       if (ipfsRoute.length < 15)
         return res.status(200).send(`
@@ -808,36 +848,41 @@ router.post("/mint-this-anky", async (req, res) => {
     </html>
       </html>
       `);
-      return;
-      const mintTx = await syndicate.transact.sendTransaction({
-        projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
-        contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
-        chainId: 8453,
-        functionSignature: "mint(address to, string ipfsRoute)",
-        args: {
-          to: addressFromFid,
-          ipfsRoute: ipfsRoute,
-        },
-      });
-      await prisma.midjourneyOnAFrame.update({
-        where: { userFid: anky.userFid },
-        data: { alreadyMinted: true },
-      });
-      return res.status(200).send(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <title>anky mint</title>
-          <meta property="og:title" content="anky mint">
-          <meta property="og:image" content="https://jpfraneto.github.io/images/minted.png">
-          <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted.png">
-    
-          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
-          <meta name="fc:frame" content="vNext">     
-        </head>
+      const userAnkyBalance = await ankyOnAFrameContract.balanceOf(
+        addressFromFid
+      );
+      if (userAnkyBalance == 0) {
+        const mintTx = await syndicate.transact.sendTransaction({
+          projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
+          contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
+          chainId: 8453,
+          functionSignature: "mint(address to, string ipfsRoute)",
+          args: {
+            to: addressFromFid,
+            ipfsRoute: ipfsRoute,
+          },
+        });
+        await prisma.midjourneyOnAFrame.update({
+          where: { userFid: anky.userFid },
+          data: { alreadyMinted: true },
+        });
+        return res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/minted.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted.png">
+  
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+        <meta name="fc:frame" content="vNext">     
+      </head>
+      </html>
         </html>
-          </html>
-          `);
+        `);
+      }
+
       console.log("the users anky is: ", anky);
 
       return res.status(200).send(`
