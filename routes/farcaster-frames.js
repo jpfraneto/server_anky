@@ -848,10 +848,8 @@ router.post("/mint-this-anky", async (req, res) => {
     </html>
       </html>
       `);
-      const userAnkyBalance = await ankyOnAFrameContract.balanceOf(
-        addressFromFid
-      );
-      if (userAnkyBalance == 0) {
+
+      if (usersAnkyBalance == 0) {
         const mintTx = await syndicate.transact.sendTransaction({
           projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
           contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
