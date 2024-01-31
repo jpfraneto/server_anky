@@ -883,8 +883,6 @@ router.post("/mint-this-anky", async (req, res) => {
         `);
       }
 
-      console.log("the users anky is: ", anky);
-
       return res.status(200).send(`
       <!DOCTYPE html>
       <html>
