@@ -629,7 +629,6 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     const thisUserAnky = await prisma.midjourneyOnAFrame.findUnique({
       where: { userFid: userFid },
     });
-    console.log("this user anky", thisUserAnky);
     if (thisUserAnky && thisUserAnky.alreadyMinted) {
       return res.status(200).send(`
       <!DOCTYPE html>
@@ -658,15 +657,12 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
     const thisUserCast = casts.filter(
       (x) => Number(x.author.fid) === Number(userFid)
     );
-    console.log("this user cast", thisUserCast);
     const moreFiltered = thisUserCast.filter(
       (x) => x.parentHash == process.env.FRAME_CAST_HASH
     );
-    console.log("the more filtered is: ", moreFiltered);
     const evenMoreFiltered = moreFiltered.filter(
       (x) => Number(x.parentAuthor?.fid) === 16098
     );
-    console.log("the even more filtered is:?, ev", evenMoreFiltered);
     if (evenMoreFiltered.length > 1) {
       return res.status(200).send(`
       <!DOCTYPE html>
@@ -706,7 +702,6 @@ router.post("/midjourney-on-a-frame", async (req, res) => {
       const thisUserAnkyCreation = await prisma.midjourneyOnAFrame.findUnique({
         where: { userFid: userFid },
       });
-      console.log("in here, the this user creation is: ", thisUserAnkyCreation);
       if (!thisUserAnkyCreation) {
         const responseFromMidjourney = await createAnkyFromPrompt(
           evenMoreFiltered[0].text,
