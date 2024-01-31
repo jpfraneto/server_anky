@@ -982,7 +982,8 @@ router.post("/anky-on-a-frame", async (req, res) => {
     <meta property="og:image" content="${allImages[randomAnkyIndex].imageAvailableUrl}">
     <meta name="fc:frame:image" content="${allImages[randomAnkyIndex].imageAvailableUrl}">
     <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/anky-on-a-frame">
-    <meta name="fc:frame" content="vNext">     
+    <meta name="fc:frame" content="vNext">   
+    <meta name="fc:frame:button:1" content="👽">  
   </head>
   </html>
   `);
