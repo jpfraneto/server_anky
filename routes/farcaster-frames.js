@@ -995,7 +995,6 @@ router.post("/anky-on-a-frame", async (req, res) => {
   try {
     let randomAnkyIndex = Math.floor(allImages.length * Math.random());
     const fullUrl = req.protocol + "://" + req.get("host");
-    console.log("here", allImages[randomAnkyIndex].imageAvailableUrl);
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
   <!DOCTYPE html>
