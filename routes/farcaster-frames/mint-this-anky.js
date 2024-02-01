@@ -4,6 +4,7 @@ const axios = require("axios");
 const { ethers } = require("ethers");
 const { getAddrByFid } = require("../../lib/neynar");
 const prisma = require("../../lib/prismaClient");
+const { SyndicateClient } = require("@syndicateio/syndicate-node");
 
 ///// MINT - THIS - ANKY //////////
 
@@ -22,6 +23,18 @@ const ankyOnAFrameContract = new ethers.Contract(
   ANKY_ON_A_FRAME_ABI,
   wallet
 );
+
+const syndicate = new SyndicateClient({
+  token: () => {
+    const apiKey = process.env.SYNDICATE_API_KEY;
+    if (typeof apiKey === "undefined") {
+      throw new Error(
+        "SYNDICATE_API_KEY is not defined in environment variables."
+      );
+    }
+    return apiKey;
+  },
+});
 
 router.get("/", async (req, res) => {
   try {
