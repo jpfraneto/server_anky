@@ -205,7 +205,10 @@ router.post("/", async (req, res) => {
 
       if (usersAnkyBalance == 0) {
         if (midjourneyId == anky.imagineApiID) {
-          console.log("right before the transaction");
+          console.log(
+            "right before the transaction, the ipfs route is :",
+            ipfsRoute
+          );
           const mintTx = await syndicate.transact.sendTransaction({
             projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
             contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
@@ -216,10 +219,14 @@ router.post("/", async (req, res) => {
               ipfsRoute: ipfsRoute,
             },
           });
+          function delay(duration) {
+            return new Promise((resolve) => setTimeout(resolve, duration));
+          }
           console.log(
             `the transaction for user ${anky.userFid} was ${mintTx.transactionId}`
           );
           if (mintTx) {
+            delay(500);
             const newBalance = await ankyOnAFrameContract.balanceOf(
               addressFromFid
             );
