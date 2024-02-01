@@ -13,7 +13,7 @@ const privateKey = process.env.PRIVATE_KEY;
 const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
 const wallet = new ethers.Wallet(privateKey, provider);
 
-const ANKY_ON_A_FRAME_ABI = require("../abis/AnkyOnAFrame.json");
+const ANKY_ON_A_FRAME_ABI = require("../../abis/AnkyOnAFrame.json");
 
 const ankyOnAFrameContract = new ethers.Contract(
   "0x5fd77ab7fd080e3e6ccbc8fe7d33d8abd2fe65a5",
