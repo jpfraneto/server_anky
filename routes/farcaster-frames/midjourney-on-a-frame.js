@@ -21,8 +21,8 @@ router.get("/", async (req, res) => {
       <meta property="og:image" content="https://jpfraneto.github.io/images/midjourney_on_a_frame.png">
       <meta name="fc:frame" content="vNext">
       <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/midjourney_on_a_frame.png">
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=1">
-      <meta name="fc:frame:button:1" content="comenzar">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame">
+      <meta name="fc:frame:button:1" content="start">
     </head>
     </html>
     `);
@@ -35,7 +35,6 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const fullUrl = req.protocol + "://" + req.get("host");
-    const paso = req.query.paso;
     const userFid = req.body.untrustedData.fid;
     const thisUserAnky = await prisma.midjourneyOnAFrame.findUnique({
       where: { userFid: userFid },
@@ -50,7 +49,7 @@ router.post("/", async (req, res) => {
         <meta property="og:image" content="${thisUserAnky.imageAvailableUrl}">
         <meta name="fc:frame:image" content="${thisUserAnky.imageAvailableUrl}">
   
-        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2&one-per-person">
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame">
         <meta name="fc:frame" content="vNext">    
         <meta name="fc:frame:button:1" content="try again">
       </head>
@@ -98,8 +97,8 @@ router.post("/", async (req, res) => {
         <head>
         <title>anky mint</title>
         <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="https://jpfraneto.github.io/images/welcome-message.png">
-        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/welcome-message.png">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/mint-an-anky.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/mint-an-anky.png">
   
         <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame?paso=2&comment=i-replied">
         <meta name="fc:frame" content="vNext">    
