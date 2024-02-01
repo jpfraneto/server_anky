@@ -67,28 +67,27 @@ router.post("/", async (req, res) => {
     const revealed = Number(req.query.revealed);
     const mint = Number(req.query.mint);
     const userFid = req.body.untrustedData.fid;
-    if (!userFid) return;
-    const anky = await prisma.midjourneyOnAFrame.findUnique({
-      where: { userFid: userFid },
-    });
+    return res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/minted-out.png">
+      <meta name="fc:frame" content="vNext">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted-out.png">
+      <meta name="fc:frame:post_url" content="https://www.anky.lat">
+      <meta name="fc:frame:button:1" content="write on anky">   
+      <meta name="fc:frame:button:1:action" content="post_redirect">   
+
+      </head>
+    </html>
+    `);
 
     if (mint == 1) {
       if (anky?.metadataIPFSHash == null)
-        return res.status(200).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>anky mint</title>
-          <meta property="og:title" content="anky mint">
-          <meta property="og:image" content="https://jpfraneto.github.io/images/being-created.png">
-          <meta name="fc:frame" content="vNext">
-          <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/being-created.png">
-          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${req.query.midjourneyId}&revealed=1&mint=0">
-        </head>
-        </html>
-        `);
-      if (anky.alreadyMinted) {
-        return res.status(200).send(`
+        if (anky.alreadyMinted) {
+          return res.status(200).send(`
             <!DOCTYPE html>
             <html>
             <head>
@@ -103,7 +102,7 @@ router.post("/", async (req, res) => {
           </html>
             </html>
             `);
-      }
+        }
 
       const addressFromFid = await getAddrByFid(userFid);
       const nonFormattedAnkyBalance = await ankyOnAFrameContract.balanceOf(

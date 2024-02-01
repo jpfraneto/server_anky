@@ -34,29 +34,28 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
+    return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/minted-out.png">
+        <meta name="fc:frame" content="vNext">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted-out.png">
+        <meta name="fc:frame:post_url" content="https://www.anky.lat">
+        <meta name="fc:frame:button:1" content="write on anky">   
+        <meta name="fc:frame:button:1:action" content="post_redirect">   
+  
+        </head>
+      </html>
+        `);
     const fullUrl = req.protocol + "://" + req.get("host");
     const userFid = req.body.untrustedData.fid;
     const thisUserAnky = await prisma.midjourneyOnAFrame.findUnique({
       where: { userFid: userFid },
     });
     if (thisUserAnky && thisUserAnky.alreadyMinted) {
-      return res.status(200).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-        <title>anky mint</title>
-        <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="${thisUserAnky.imageAvailableUrl}">
-        <meta name="fc:frame:image" content="${thisUserAnky.imageAvailableUrl}">
-  
-        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/midjourney-on-a-frame">
-        <meta name="fc:frame" content="vNext">    
-        <meta name="fc:frame:button:1" content="try again">
-      </head>
-      </html>
-      <p>you already minted, this is your anky.</p>
-        </html>
-        `);
     }
 
     const frameCastHash = process.env.FRAME_CAST_HASH;
