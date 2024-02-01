@@ -163,7 +163,7 @@ router.post("/", async (req, res) => {
       }
 
       const addressFromFid = await getAddrByFid(userFid);
-      const nonFormattedAnkyBalance = await ankyOnAFrameContract.balanceOf(
+      const nonFormattedAnkyBalance = await ankyOnAFrameContract(
         addressFromFid
       );
       const usersAnkyBalance = ethers.formatUnits(nonFormattedAnkyBalance, 0);
