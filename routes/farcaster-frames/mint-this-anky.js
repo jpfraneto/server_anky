@@ -204,8 +204,8 @@ router.post("/", async (req, res) => {
         <head>
         <title>anky mint</title>
         <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="${revealedAnkyImageUrl}">
-        <meta name="fc:frame:image" content="${revealedAnkyImageUrl}">
+        <meta property="og:image" content="${anky.imageAvailableUrl}">
+        <meta name="fc:frame:image" content="${anky.imageAvailableUrl}">
   
         <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=1&mint=0">
         <meta name="fc:frame" content="vNext">  
