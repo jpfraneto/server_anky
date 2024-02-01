@@ -117,4 +117,6 @@ model MidjourneyOnAFrame {
   castHash          String?
   wasCastedOnFrame  Boolean @default(false)
   imageAvailableUrl          String? 
+  ethereumAddress     String?
+  balanceOf           String?
 }

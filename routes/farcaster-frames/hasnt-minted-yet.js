@@ -1,0 +1,252 @@
+const express = require("express");
+const router = express.Router();
+const axios = require("axios");
+const { ethers } = require("ethers");
+const { getAddrByFid } = require("../../lib/neynar");
+const prisma = require("../../lib/prismaClient");
+
+///// hasnt-minted-yet //////////
+
+router.get("/", async (req, res) => {
+  console.log("inside this route");
+  try {
+    const fullUrl = req.protocol + "://" + req.get("host");
+    res.setHeader("Content-Type", "text/html");
+    res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/hasnt-minted-yett.png">
+      <meta name="fc:frame" content="vNext">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/hasnt-minted-yett.png">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${req.query.midjourneyId}&revealed=1&mint=0">
+      <meta name="fc:frame:button:1" content="reveal 👽">
+    </head>
+    </html>
+    `);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const fullUrl = req.protocol + "://" + req.get("host");
+    const midjourneyId = req.query.midjourneyId;
+    const revealed = Number(req.query.revealed);
+    const mint = Number(req.query.mint);
+    const userFid = req.body.untrustedData.fid;
+    if (!userFid) return;
+    const anky = await prisma.midjourneyOnAFrame.findUnique({
+      where: { userFid: userFid },
+    });
+    if (!anky) {
+      return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
+
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=false&mint=false">
+      <meta name="fc:frame" content="vNext">     
+    </head>
+    </html>
+      </html>
+      `);
+    }
+
+    if (anky.imagineApiID != midjourneyId) {
+      return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/isnt-yours.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/isnt-yours.png">
+
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed?=1&mint=0">
+      <meta name="fc:frame" content="vNext">     
+    </head>
+    </html>
+      </html>
+      `);
+    }
+
+    if (revealed == 1 && mint == 0) {
+      if (anky?.imageAvailableUrl && !anky.alreadyMinted) {
+        return res.status(200).send(`
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                  <title>anky mint</title>
+                  <meta property="og:title" content="anky mint">
+                  <meta property="og:image" content="${anky.imageAvailableUrl}">
+                  <meta name="fc:frame:image" content="${anky.imageAvailableUrl}">
+            
+                  <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+                  <meta name="fc:frame" content="vNext">     
+                  <meta name="fc:frame:button:1" content="mint 🐒">   
+                </head>
+                </html>
+              
+                  </html>
+                  `);
+      }
+    }
+    if (revealed == 1 && mint == 1) {
+      if (anky?.metadataIPFSHash == null)
+        return res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>anky mint</title>
+          <meta property="og:title" content="anky mint">
+          <meta property="og:image" content="https://jpfraneto.github.io/images/being-created.png">
+          <meta name="fc:frame" content="vNext">
+          <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/being-created.png">
+          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${req.query.midjourneyId}&revealed=1&mint=0">
+        </head>
+        </html>
+        `);
+      if (anky.alreadyMinted) {
+        return res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>anky mint</title>
+            <meta property="og:title" content="anky mint">
+            <meta property="og:image" content="https://jpfraneto.github.io/images/one-per-person.png">
+            <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/one-per-person.png">
+      
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+            <meta name="fc:frame" content="vNext">     
+          </head>
+          </html>
+            </html>
+            `);
+      }
+
+      const addressFromFid = await getAddrByFid(userFid);
+      const nonFormattedAnkyBalance = await ankyOnAFrameContract.balanceOf(
+        addressFromFid
+      );
+      const usersAnkyBalance = ethers.formatUnits(nonFormattedAnkyBalance, 0);
+      if (usersAnkyBalance > 0) {
+        return res.status(200).send(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+              <title>anky mint</title>
+              <meta property="og:title" content="anky mint">
+              <meta property="og:image" content="https://jpfraneto.github.io/images/one-per-person.png">
+              <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/one-per-person.png">
+        
+              <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+              <meta name="fc:frame" content="vNext">     
+            </head>
+            </html>
+              </html>
+              `);
+      }
+
+      const ipfsRoute = `ipfs://${anky.metadataIPFSHash}`;
+      if (ipfsRoute.length < 15)
+        return res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+        <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
+  
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=false&mint=false">
+        <meta name="fc:frame" content="vNext">     
+      </head>
+      </html>
+        </html>
+        `);
+
+      if (usersAnkyBalance == 0) {
+        if (midjourneyId == anky.imagineApiID) {
+          const mintTx = await syndicate.transact.sendTransaction({
+            projectId: "d0dd0664-198e-4615-8eb1-f0cf86dc3890",
+            contractAddress: "0x5Fd77ab7Fd080E3E6CcBC8fE7D33D8AbD2FE65a5",
+            chainId: 8453,
+            functionSignature: "mint(address to, string ipfsRoute)",
+            args: {
+              to: addressFromFid,
+              ipfsRoute: ipfsRoute,
+            },
+          });
+          if (mintTx) {
+            await prisma.midjourneyOnAFrame.update({
+              where: { userFid: anky.userFid },
+              data: { alreadyMinted: true },
+            });
+            return res.status(200).send(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+              <title>anky mint</title>
+              <meta property="og:title" content="anky mint">
+              <meta property="og:image" content="https://jpfraneto.github.io/images/minted.png">
+              <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/minted.png">
+        
+              <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+              <meta name="fc:frame" content="vNext">     
+            </head>
+            </html>
+              </html>
+              `);
+          }
+        } else {
+          return res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>anky mint</title>
+            <meta property="og:title" content="anky mint">
+            <meta property="og:image" content="https://jpfraneto.github.io/images/isnt-yours.png">
+            <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/isnt-yours.png">
+      
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=1&mint=1">
+            <meta name="fc:frame" content="vNext">     
+          </head>
+          </html>
+            </html>
+            `);
+        }
+      }
+
+      return res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="${revealedAnkyImageUrl}">
+        <meta name="fc:frame:image" content="${revealedAnkyImageUrl}">
+  
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/hasnt-minted-yet?midjourneyId=${midjourneyId}&revealed=1&mint=0">
+        <meta name="fc:frame" content="vNext">  
+      </head>
+      </html>
+   
+        </html>
+        `);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error generating image");
+  }
+});
+
+module.exports = router;
