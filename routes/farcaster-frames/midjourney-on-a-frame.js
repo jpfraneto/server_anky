@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const { ethers } = require("ethers");
 const prisma = require("../../lib/prismaClient");
+const { getCastFromNeynar } = require("../../lib/neynar");
 
 ///////////// MIDJOURNEY ON A FRAME  ////////////////////////
 

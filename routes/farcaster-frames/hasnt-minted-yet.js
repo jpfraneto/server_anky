@@ -2,8 +2,24 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const { ethers } = require("ethers");
-const { getAddrByFid } = require("../../lib/neynar");
+const { getAddrByFid, getCastFromNeynar } = require("../../lib/neynar");
 const prisma = require("../../lib/prismaClient");
+
+const network = "base";
+
+const privateKey = process.env.PRIVATE_KEY;
+
+// // Initialize provider and wallet
+const provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_RPC_URL);
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const ANKY_ON_A_FRAME_ABI = require("../abis/AnkyOnAFrame.json");
+
+const ankyOnAFrameContract = new ethers.Contract(
+  "0x5fd77ab7fd080e3e6ccbc8fe7d33d8abd2fe65a5",
+  ANKY_ON_A_FRAME_ABI,
+  wallet
+);
 
 ///// hasnt-minted-yet //////////
 
