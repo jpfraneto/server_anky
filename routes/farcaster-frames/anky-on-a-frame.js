@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const { ethers } = require("ethers");
+const allImages = require("../../lib/allImages.json");
 const prisma = require("../../lib/prismaClient");
 
 ///////////// ANKYS ON A FRAME  ////////////////////////

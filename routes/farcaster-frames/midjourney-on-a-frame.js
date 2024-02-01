@@ -4,6 +4,7 @@ const axios = require("axios");
 const { ethers } = require("ethers");
 const prisma = require("../../lib/prismaClient");
 const { getCastFromNeynar } = require("../../lib/neynar");
+const { createAnkyFromPrompt } = require("../../lib/midjourney");
 
 ///////////// MIDJOURNEY ON A FRAME  ////////////////////////
 
