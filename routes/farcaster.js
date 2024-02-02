@@ -358,7 +358,7 @@ router.post("/api/cast/anon", async (req, res) => {
   let castOptions = {
     text: text,
     embeds: embeds,
-    signer_uuid: process.env.MFGA_SIGNER_UUID,
+    signer_uuid: process.env.ANKY_SIGNER_UUID,
   };
 
   if (channelId) {
@@ -379,7 +379,7 @@ router.post("/api/cast/anon", async (req, res) => {
       castOptions,
       {
         headers: {
-          api_key: process.env.MFGA_API_KEY,
+          api_key: process.env.NEYNAR_API_KEY,
         },
       }
     );
@@ -408,12 +408,12 @@ router.post("/api/cast/anon-reply", async (req, res) => {
       {
         text: text,
         embeds: embeds,
-        signer_uuid: process.env.MFGA_SIGNER_UUID,
+        signer_uuid: process.env.ANKY_SIGNER_UUID,
         parent: parent,
       },
       {
         headers: {
-          api_key: process.env.MFGA_API_KEY,
+          api_key: process.env.NEYNAR_API_KEY,
         },
       }
     );
@@ -450,6 +450,7 @@ router.post("/api/cast/replies/:hash", async (req, res) => {
 router.post("/api/get-cast", async (req, res) => {
   try {
     const { url } = req.body;
+    console.log("the url here is: ", url);
     if (!url)
       return res
         .status(500)
@@ -553,10 +554,11 @@ router.get("/cast-by-cid/:cid", async (req, res) => {
     const prismaResponse = await prisma.castWrapper.findUnique({
       where: { cid: req.params.cid },
     });
-
     if (prismaResponse) {
       const fullCast = await getFullCastFromWarpcasterUrl(
-        `https://warpcast.com/${prismaResponse.castAuthor}/${prismaResponse.castHash}`
+        `https://warpcast.com/${
+          prismaResponse.castAuthor
+        }/${prismaResponse.castHash.slice(0, 10)}`
       );
       return res
         .status(200)
