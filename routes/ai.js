@@ -21,6 +21,7 @@ router.post("/process-writing", async (req, res) => {
     where: { userFid: req.body.userFid },
   });
   console.log("the writings by fid are: ", writingsByFid);
+  console.log("THE REQ BODY IS: ", req.body);
   // the writingsByFid will be used to limit the amount of ankys that the user can generate with her writing.
   if (!openai) {
     res.status(500).json({
@@ -66,7 +67,7 @@ router.post("/process-writing", async (req, res) => {
     ];
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5-turbo-0125",
       messages: messages,
     });
 
@@ -104,8 +105,9 @@ router.post("/process-writing", async (req, res) => {
         },
         config
       );
+      console.log("the response from imagine api is: ", responseFromImagineApi);
       imagineApiID = responseFromImagineApi.data.data.id;
-
+      console.log("12879as", cid);
       await prisma.generatedAnky.create({
         data: {
           ankyBio: story,
@@ -122,7 +124,7 @@ router.post("/process-writing", async (req, res) => {
       return res.status(200).json({
         success: true,
         imagineApiID: imagineApiID,
-        userBio: userBio,
+        userBio: story,
       });
     } else {
       return res.status(500).json({

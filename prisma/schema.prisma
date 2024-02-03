@@ -103,6 +103,10 @@ model GeneratedAnky {
   castHash          String?
   userFid           Int?
   alreadyMinted     Boolean @default(false)
+  imageOneUrl       String?
+  imageTwoUrl       String?
+  imageThreeUrl       String?
+  imageFourUrl       String?
 }
 
 model MidjourneyOnAFrame {
