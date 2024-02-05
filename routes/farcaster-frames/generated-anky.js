@@ -109,12 +109,10 @@ router.post("/", async (req, res) => {
     <head>
       <title>anky mint</title>
       <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/how-to.png">
       <meta name="fc:frame" content="vNext">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/how-to.png">
       <meta name="fc:frame:post_url" content="https://www.anky.lat">
-      <meta name="fc:frame:button:1" content="write on anky">   
-      <meta name="fc:frame:button:1:action" content="post_redirect">   
       </head>
     </html>
       `);
