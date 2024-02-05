@@ -38,13 +38,59 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
-
-  console.log("inside the post route here:", req.query.cid);
-  console.log("the req.body is :", req.body);
   const anky = await prisma.generatedAnky.findUnique({
     where: { cid: req.query.cid },
   });
+  if (anky.ipfsMetadataHash) {
+    switch (anky.chosenImageIndex) {
+      case 1:
+        imageUrl = anky.imageOneUrl;
+        break;
+      case 2:
+        imageUrl = anky.imageTwoUrl;
+        break;
+      case 3:
+        imageUrl = anky.imageThreeUrl;
+        break;
+      case 4:
+        imageUrl = anky.imageFourUrl;
+        break;
+    }
+    return res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>anky mint</title>
+      &chosenAnky=null
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="${imageUrl}">
+      <meta name="fc:frame:image" content="${imageUrl}">
+      <meta name="fc:frame" content="vNext">
+            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&chosenAnky=${buttonIndex}&mint=1">
+      <meta name="fc:frame:button:1" content="mint 👽">   
+      </head>
+    </html>
+      `);
+  }
+  if (anky.userFid !== req.body.untrustedData.fid) {
+    return res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content=" https://jpfraneto.github.io/images/isnt-yours.png">
+      <meta name="fc:frame" content="vNext">
+      <meta name="fc:frame:image" content=" https://jpfraneto.github.io/images/isnt-yours.png">
+      <meta name="fc:frame:post_url" content="https://www.anky.lat">
+      <meta name="fc:frame:button:1" content="get yours by writing on anky">   
+      <meta name="fc:frame:button:1:action" content="post_redirect">   
+      </head>
+    </html>
+      `);
+  }
   console.log("this anky is: ", anky);
   if (
     anky &&
@@ -54,6 +100,9 @@ router.post("/", async (req, res) => {
     req.query.mint == 1
   ) {
     console.log("it is time to mint!");
+
+    // here i have to mint the anky to the user. but i cant keep paying for all the mints. how can i do this? i also can't keep paying for the openai credits. i'm draining my $ everywhere. how can i keep up? where do i keep up? what is this about?
+
     return res.status(200).send(`
     <!DOCTYPE html>
     <html>
@@ -71,7 +120,6 @@ router.post("/", async (req, res) => {
       `);
   }
   if (!anky) {
-    console.log("there is no anky!");
     return res.status(200).send(`
     <!DOCTYPE html>
     <html>
@@ -90,8 +138,6 @@ router.post("/", async (req, res) => {
   }
   try {
     if (req.query.revealed == 1 && req.query.choosingAnky == 1) {
-      console.log("the revealed and chosing anky!");
-      let imageUrl;
       const buttonIndex = req.body.untrustedData.buttonIndex;
       switch (buttonIndex) {
         case 1:
@@ -129,20 +175,20 @@ router.post("/", async (req, res) => {
       });
 
       return res.status(200).send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>anky mint</title>
-        &chosenAnky=null
-        <meta property="og:title" content="anky mint">
-        <meta property="og:image" content="${imageUrl}">
-        <meta name="fc:frame:image" content="${imageUrl}">
-        <meta name="fc:frame" content="vNext">
-              <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&chosenAnky=${buttonIndex}&mint=1">
-        <meta name="fc:frame:button:1" content="mint 👽">   
-        </head>
-      </html>
-        `);
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>anky mint</title>
+          &chosenAnky=null
+          <meta property="og:title" content="anky mint">
+          <meta property="og:image" content="${imageUrl}">
+          <meta name="fc:frame:image" content="${imageUrl}">
+          <meta name="fc:frame" content="vNext">
+                <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&chosenAnky=${buttonIndex}&mint=1">
+          <meta name="fc:frame:button:1" content="mint 👽">   
+          </head>
+        </html>
+          `);
     }
     if (anky && req.query.revealed == 1) {
       console.log("right before the revealed route");
