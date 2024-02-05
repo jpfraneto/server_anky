@@ -16,12 +16,11 @@ const router = express.Router();
 
 const openai = new OpenAI();
 
-router.post("/process-writing", async (req, res) => {
+router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
   const writingsByFid = await prisma.generatedAnky.findMany({
     where: { userFid: req.body.userFid },
   });
-  console.log("the writings by fid are: ", writingsByFid);
-  console.log("THE REQ BODY IS: ", req.body);
+
   // the writingsByFid will be used to limit the amount of ankys that the user can generate with her writing.
   if (!openai) {
     res.status(500).json({
@@ -58,7 +57,7 @@ router.post("/process-writing", async (req, res) => {
 
         {
             "imagePrompt": "A one paragraph description of the image that reflects the situation of the users writing. less than 500 characters",
-            "story": "a short story that reflects what the user wrote. less than 500 characters",
+            "story": "A short story and metaphor that reflects what the user wrote. less than 320 characters",
         }
     
         The JSON object, correctly formatted is: `,
