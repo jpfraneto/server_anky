@@ -67,10 +67,10 @@ app.use("/user", userRoutes);
 // scheduleReminders();
 
 // schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
-// schedule.scheduleJob("*/1 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
+schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
 // checkAndUpdateMidjourneyOnAFrameAnkys();
 // checkAndUpdateAnkys();
-checkAndUpdateGeneratedAnkys();
+// ();
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");
