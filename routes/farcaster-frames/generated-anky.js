@@ -68,8 +68,9 @@ router.post("/", async (req, res) => {
       <meta property="og:image" content="${imageUrl}">
       <meta name="fc:frame:image" content="${imageUrl}">
       <meta name="fc:frame" content="vNext">
-            <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&chosenAnky=${buttonIndex}&mint=1">
       <meta name="fc:frame:button:1" content="mint 👽">   
+      <meta name="fc:frame:button:1:action" content="post_redirect">   
+      <meta name="fc:frame:post_url" content="https://www.anky.lat/mint-your-anky?cid=${req.query.cid}">
       </head>
     </html>
       `);
@@ -182,8 +183,9 @@ router.post("/", async (req, res) => {
           <meta property="og:image" content="${imageUrl}">
           <meta name="fc:frame:image" content="${imageUrl}">
           <meta name="fc:frame" content="vNext">
-                <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&chosenAnky=${buttonIndex}&mint=1">
-          <meta name="fc:frame:button:1" content="mint 👽">   
+          <meta name="fc:frame:button:1:action" content="post_redirect">   
+          <meta name="fc:frame:post_url" content="https://www.anky.lat/mint-your-anky?cid=${req.query.cid}">          
+          <meta name="fc:frame:button:1" content="mint 👽"> 
           </head>
         </html>
           `);
