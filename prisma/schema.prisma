@@ -103,10 +103,13 @@ model GeneratedAnky {
   castHash          String?
   userFid           Int?
   alreadyMinted     Boolean @default(false)
+  chosenImageIndex  Int?
+  frameImageUrl     String?
   imageOneUrl       String?
   imageTwoUrl       String?
   imageThreeUrl       String?
   imageFourUrl       String?
+  wasCastedOnFrame   Boolean?
 }
 
 model MidjourneyOnAFrame {

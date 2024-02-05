@@ -14,6 +14,7 @@ const { scheduleReminders, sendCast } = require("./lib/writingReminder");
 const {
   checkAndUpdateAnkys,
   checkAndUpdateMidjourneyOnAFrameAnkys,
+  checkAndUpdateGeneratedAnkys,
   checkAllAnkys,
 } = require("./lib/ankys");
 const { TypedEthereumSigner } = require("arbundles");
@@ -69,7 +70,7 @@ app.use("/user", userRoutes);
 // schedule.scheduleJob("*/1 * * * *", checkAndUpdateMidjourneyOnAFrameAnkys);
 // checkAndUpdateMidjourneyOnAFrameAnkys();
 // checkAndUpdateAnkys();
-checkAllAnkys();
+checkAndUpdateGeneratedAnkys();
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");
