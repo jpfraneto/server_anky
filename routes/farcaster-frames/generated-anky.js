@@ -16,6 +16,7 @@ router.get("/", async (req, res) => {
   try {
     console.log("in here");
     const fullUrl = req.protocol + "://" + req.get("host");
+    console.log("the full url is :", fullUrl);
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
     <!DOCTYPE html>
@@ -38,6 +39,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  console.log("inside the post route", req.query);
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
   const anky = await prisma.generatedAnky.findUnique({
@@ -63,14 +65,13 @@ router.post("/", async (req, res) => {
     <html>
     <head>
       <title>anky mint</title>
-      &chosenAnky=null
       <meta property="og:title" content="anky mint">
       <meta property="og:image" content="${imageUrl}">
       <meta name="fc:frame:image" content="${imageUrl}">
       <meta name="fc:frame" content="vNext">
       <meta name="fc:frame:button:1" content="mint 👽">   
       <meta name="fc:frame:button:1:action" content="post_redirect">   
-      <meta name="fc:frame:post_url" content="https://www.anky.lat/mint-your-anky?cid=${req.query.cid}">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/redirecter?cid=${req.query.cid}">
       </head>
     </html>
       `);
@@ -152,27 +153,28 @@ router.post("/", async (req, res) => {
           imageUrl = anky.imageFourUrl;
           break;
       }
+      if (!anky.metadataIPFSHash) {
+        const ipfsHash = await uploadToPinataFromUrl(imageUrl);
+        if (!ipfsHash || ipfsHash == null) return;
+        const nftMetadata = {
+          name: "you",
+          description: anky.ankyBio,
+          image: `ipfs://${ipfsHash}`,
+        };
+        const ipfsMetadataHash = await uploadMetadataToPinata(nftMetadata);
+        console.log("the metadata was uploaded to pinata", ipfsMetadataHash);
 
-      const ipfsHash = await uploadToPinataFromUrl(imageUrl);
-      if (!ipfsHash || ipfsHash == null) return;
-      const nftMetadata = {
-        name: "you",
-        description: anky.ankyBio,
-        image: `ipfs://${ipfsHash}`,
-      };
-      const ipfsMetadataHash = await uploadMetadataToPinata(nftMetadata);
-      console.log("the metadata was uploaded to pinata", ipfsMetadataHash);
+        if (!ipfsMetadataHash || ipfsMetadataHash == null) return;
 
-      if (!ipfsMetadataHash || ipfsMetadataHash == null) return;
-
-      await prisma.generatedAnky.update({
-        where: { cid: req.query.cid },
-        data: {
-          chosenImageIndex: buttonIndex,
-          imageIPFSHash: ipfsHash,
-          metadataIPFSHash: ipfsMetadataHash,
-        },
-      });
+        await prisma.generatedAnky.update({
+          where: { cid: req.query.cid },
+          data: {
+            chosenImageIndex: buttonIndex,
+            imageIPFSHash: ipfsHash,
+            metadataIPFSHash: ipfsMetadataHash,
+          },
+        });
+      }
 
       return res.status(200).send(`
         <!DOCTYPE html>
@@ -185,7 +187,7 @@ router.post("/", async (req, res) => {
           <meta name="fc:frame:image" content="${imageUrl}">
           <meta name="fc:frame" content="vNext">
           <meta name="fc:frame:button:1:action" content="post_redirect">   
-          <meta name="fc:frame:post_url" content="https://www.anky.lat/mint-your-anky?cid=${req.query.cid}">          
+          <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/redirecter?cid=${req.query.cid}">          
           <meta name="fc:frame:button:1" content="mint 👽"> 
           </head>
         </html>
@@ -203,7 +205,7 @@ router.post("/", async (req, res) => {
         <meta property="og:image" content="${anky.frameImageUrl}">
         <meta name="fc:frame:image" content="${anky.frameImageUrl}">
         <meta name="fc:frame" content="vNext">
-              <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&mint=0">
+        <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=1&mint=0">
         <meta name="fc:frame:button:1" content="1">   
         <meta name="fc:frame:button:2" content="2">   
         <meta name="fc:frame:button:3" content="3">   
