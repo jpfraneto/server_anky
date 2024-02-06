@@ -161,6 +161,7 @@ router.post("/", async (req, res) => {
         image: `ipfs://${ipfsHash}`,
       };
       const ipfsMetadataHash = await uploadMetadataToPinata(nftMetadata);
+      console.log("the metadata was uploaded to pinata", ipfsMetadataHash);
 
       if (!ipfsMetadataHash || ipfsMetadataHash == null) return;
 

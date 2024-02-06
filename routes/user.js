@@ -245,7 +245,7 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
         updatedUser = await prisma.user.update({
           where: { privyId },
           data: {
-            farcasterFID: fid,
+            farcasterFID: fid || 0,
           },
         });
       } else {
@@ -264,7 +264,7 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
               publicKey: public_key,
               signerUuid: signer_uuid,
               signerStatus: status,
-              fid: fid,
+              fid: fid || 0,
               bio,
               pfp,
               username,
@@ -273,7 +273,7 @@ router.post("/:privyId", checkIfLoggedInMiddleware, async (req, res) => {
           updatedUser = await prisma.user.update({
             where: { privyId },
             data: {
-              farcasterFID: fid,
+              farcasterFID: fid || 0,
             },
           });
         }

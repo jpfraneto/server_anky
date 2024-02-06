@@ -17,9 +17,9 @@ const router = express.Router();
 const openai = new OpenAI();
 
 router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
-  const writingsByFid = await prisma.generatedAnky.findMany({
-    where: { userFid: req.body.userFid },
-  });
+  // const writingsByFid = await prisma.generatedAnky.findMany({
+  //   where: { userFid: req.body.userFid },
+  // });
 
   // the writingsByFid will be used to limit the amount of ankys that the user can generate with her writing.
   if (!openai) {
@@ -34,6 +34,11 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
 
   const message = req.body.text || "";
   const userFid = req.body.userFid;
+  const parentCastHash = req.body.parentCastHash;
+  console.log(
+    "inside the process writing function, the parent cast hash is: ",
+    parentCastHash
+  );
   const cid = req.body.cid;
   if (message.trim().length === 0) {
     res.status(400).json({
@@ -104,9 +109,7 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
         },
         config
       );
-      console.log("the response from imagine api is: ", responseFromImagineApi);
       imagineApiID = responseFromImagineApi.data.data.id;
-      console.log("12879as", cid);
       await prisma.generatedAnky.create({
         data: {
           ankyBio: story,
@@ -117,8 +120,10 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
           imageIPFSHash: null,
           metadataIPFSHash: null,
           userFid: userFid,
+          parentCastHash: parentCastHash,
         },
       });
+      console.log("the anky was sent for geneartion");
 
       return res.status(200).json({
         success: true,

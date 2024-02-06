@@ -93,6 +93,8 @@ model CastWrapper {
 
 model GeneratedAnky {
   cid               String   @id @unique
+  parentCastHash    String?
+  frameCastHash     String?
   ankyBio           String?
   imagePrompt       String?
   imagineApiID      String?
