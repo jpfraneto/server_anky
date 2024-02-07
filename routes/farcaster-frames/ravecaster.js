@@ -25,9 +25,9 @@ router.get("/", async (req, res) => {
     <head>
       <title>electronic music</title>
       <meta property="og:title" content="electronic music">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/elektronic.png">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/ravecaster.png">
       <meta name="fc:frame" content="vNext">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/elektronic.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/ravecaster.png">
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/electronic-music">
       <meta name="fc:frame:button:2" content="random">
     </head>
