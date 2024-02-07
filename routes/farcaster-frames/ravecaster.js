@@ -16,13 +16,6 @@ const client = new NeynarAPIClient(process.env.NEYNAR_API_KEY);
 ///////////// GENERATED ANKY ////////////////////////
 
 router.get("/", async (req, res) => {
-  const electronicUrl = "https://warpcast.com/~/channel/electronic";
-
-  const feed = await client.fetchFeed(FeedType.Filter, {
-    filterType: FilterType.ParentUrl,
-    parentUrl: electronicUrl,
-  });
-
   try {
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
@@ -78,13 +71,6 @@ router.post("/", async (req, res) => {
     });
   let recommendation = randomRecommendation[0];
   const { ogImage, ogTitle } = await fetchOGData(recommendation.link);
-
-  //  castHash       String  @id
-  //   fid            String?
-  //   link           String?
-  //   likedBy        Raver[] @relation("UserLikes")
-  //   submittedBy    Raver   @relation("UserSubmissions", fields: [submittedByFid], references: [fid])
-  //   submittedByFid String
   buttonTwoText = "add to library";
   if (buttonIndex == "2") {
     if (req.query.castHash) {
