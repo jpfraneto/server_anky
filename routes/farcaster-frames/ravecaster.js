@@ -96,42 +96,37 @@ router.post("/", async (req, res) => {
         return res.status(400).send("The castHash provided does not exist.");
       }
 
-      if (castHash) {
-        try {
-          let raver = await prisma.raver.findUnique({
-            where: { fid: fid },
-          });
+      try {
+        let raver = await prisma.raver.findUnique({
+          where: { fid: fid },
+        });
 
-          // If the raver doesn't exist, create it
-          if (!raver) {
-            raver = await prisma.raver.create({
-              data: {
-                fid: fid,
-                likedRecommendations: {
-                  connect: { castHash: castHash },
-                },
+        // If the raver doesn't exist, create it
+        if (!raver) {
+          raver = await prisma.raver.create({
+            data: {
+              fid: fid,
+              likedRecommendations: {
+                connect: { castHash: castHash },
               },
-            });
-          } else {
-            // If the raver exists, update their liked recommendations
-            await prisma.raver.update({
-              where: { fid: fid },
-              data: {
-                likedRecommendations: {
-                  connect: { castHash: castHash },
-                },
+            },
+          });
+        } else {
+          // If the raver exists, update their liked recommendations
+          await prisma.raver.update({
+            where: { fid: fid },
+            data: {
+              likedRecommendations: {
+                connect: { castHash: castHash },
               },
-            });
-          }
-          buttonTwoText = "added to library";
-        } catch (error) {
-          // Log the error message
-          console.error("Error connecting liked recommendation:", error);
-          return res.status(500).send("Error processing request");
+            },
+          });
         }
-      } else {
-        // Handle the case where castHash is not provided or not valid
-        return res.status(400).send("Invalid castHash provided");
+        buttonTwoText = "added to library";
+      } catch (error) {
+        // Log the error message
+        console.error("Error connecting liked recommendation:", error);
+        return res.status(500).send("Error processing request");
       }
     }
 
