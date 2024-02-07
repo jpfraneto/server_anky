@@ -121,13 +121,13 @@ router.post("/", async (req, res) => {
     }">
     <meta name="fc:frame:button:1" content="my library"> 
     <meta name="fc:frame:button:1:action" content="link">   
-    <meta name="fc:frame:button:1:target" content="https://www.electronic.anky.lat/user/${fid}">     
+    <meta name="fc:frame:button:1:target" content="https://www.ravecaster.xyz/user/${fid}">     
     <meta name="fc:frame:button:2" content="${buttonTwoText}">   
     <meta name="fc:frame:button:3" content="new random">   
     <meta name="fc:frame:button:4" content="listen 👽">
     <meta name="fc:frame:button:4:action" content="link">   
     <meta name="fc:frame:button:4:target" content="${
-      recommendation?.link || "https://www.anky.lat"
+      recommendation?.link || "https://www.ravecaster.xyz"
     }">   
     </head>
   </html>

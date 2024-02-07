@@ -108,6 +108,26 @@ router.get("/feed", async (req, res) => {
   }
 });
 
+// /api/get-user-data/${params.fid}
+router.get("/get-user-data-em/:fid", async (req, res) => {
+  try {
+    const thisUser = await prisma.raver.findUnique({
+      where: { fid: req.params.fid },
+      include: {
+        submittedRecommendations: true, // Recommendations added by the user
+        likedRecommendations: true, // Recommendations liked by the user
+      },
+    });
+    console.log("this user is: ", thisUser);
+    res.status(200).json({ user: thisUser });
+  } catch (error) {
+    console.log("there was an error here");
+    res
+      .status(500)
+      .json({ message: "there was an error retrieving the user", user: null });
+  }
+});
+
 router.post("/api/signer", checkIfLoggedInMiddleware, async (req, res) => {
   try {
     const { privyId } = req.body;
