@@ -37,7 +37,6 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  console.log("inside the post route", req.query);
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
   const revealed = req.query.revealed;
@@ -46,10 +45,8 @@ router.post("/", async (req, res) => {
   const anky = await prisma.generatedAnky.findUnique({
     where: { cid: req.query.cid },
   });
-  console.log("in here, the anky is: ", anky);
-  console.log("m", mint, chosenAnky, revealed);
+
   if (mint == "0" && chosenAnky == "0" && revealed == "1") {
-    console.log("right before the revealed route");
     return res.status(200).send(`
     <!DOCTYPE html>
     <html>
@@ -68,7 +65,6 @@ router.post("/", async (req, res) => {
     </html>
       `);
   } else if (mint == "0" && chosenAnky == "1" && revealed == "1") {
-    console.log("after the choosing this anky route");
     const buttonIndex = req.body.untrustedData.buttonIndex;
     switch (buttonIndex) {
       case 1:
@@ -213,8 +209,6 @@ router.post("/", async (req, res) => {
     req.query.chosenAnky == 1 &&
     req.query.mint == 1
   ) {
-    console.log("it is time to mint!");
-
     // here i have to mint the anky to the user. but i cant keep paying for all the mints. how can i do this? i also can't keep paying for the openai credits. i'm draining my $ everywhere. how can i keep up? where do i keep up? what is this about?
 
     return res.status(200).send(`

@@ -28,8 +28,10 @@ router.get("/", async (req, res) => {
       <meta property="og:image" content="https://jpfraneto.github.io/images/ravecaster.png">
       <meta name="fc:frame" content="vNext">
       <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/ravecaster.png">
+
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/ravecaster">
-      <meta name="fc:frame:button:2" content="random">
+      <meta name="fc:frame:button:1" content="random">
+
     </head>
     </html>
     `);
@@ -64,12 +66,10 @@ router.post("/", async (req, res) => {
   const totalRecommendations =
     await prisma.electronicmusicrecommendation.count();
   const randomIndex = Math.floor(Math.random() * totalRecommendations);
-  const randomRecommendation =
-    await prisma.electronicmusicrecommendation.findMany({
-      take: 1,
-      skip: randomIndex,
-    });
-  let recommendation = randomRecommendation[0];
+  const recommendation = await prisma.electronicmusicrecommendation.findUnique({
+    take: 1,
+    skip: randomIndex,
+  });
   const { ogImage, ogTitle } = await fetchOGData(recommendation.link);
   buttonTwoText = "add to library";
   if (buttonIndex == "2") {
@@ -82,8 +82,6 @@ router.post("/", async (req, res) => {
           },
         },
       });
-    }
-    if (req.query.castHash) {
       buttonTwoText = "added to library";
     }
   }
