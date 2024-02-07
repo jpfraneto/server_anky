@@ -22,7 +22,6 @@ router.get("/", async (req, res) => {
     filterType: FilterType.ParentUrl,
     parentUrl: electronicUrl,
   });
-  console.log("the feed is: ", feed);
 
   try {
     const fullUrl = req.protocol + "://" + req.get("host");
@@ -65,7 +64,6 @@ async function fetchOGData(url) {
 }
 
 router.post("/", async (req, res) => {
-  console.log("inside the post route", req.query);
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
   const fid = req.body.untrustedData.fid.toString();
@@ -78,7 +76,6 @@ router.post("/", async (req, res) => {
       take: 1,
       skip: randomIndex,
     });
-  console.log("the random recommendation is: ", randomRecommendation);
   let recommendation = randomRecommendation[0];
   const { ogImage, ogTitle } = await fetchOGData(recommendation.link);
 
@@ -101,7 +98,6 @@ router.post("/", async (req, res) => {
       });
     }
     if (req.query.castHash) {
-      console.log("there is req.query.casthash", req.query.castHash);
       buttonTwoText = "added to library";
     }
   }

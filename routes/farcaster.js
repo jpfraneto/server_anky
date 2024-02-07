@@ -118,8 +118,17 @@ router.get("/get-user-data-em/:fid", async (req, res) => {
         likedRecommendations: true, // Recommendations liked by the user
       },
     });
-    console.log("this user is: ", thisUser);
-    res.status(200).json({ user: thisUser });
+    if (thisUser) {
+      res.status(200).json({ user: thisUser });
+    } else {
+      res.status(200).json({
+        user: {
+          fid: 88888888888,
+          submittedRecommendations: [],
+          likedRecommendations: [],
+        },
+      });
+    }
   } catch (error) {
     console.log("there was an error here");
     res
