@@ -65,27 +65,62 @@ router.post("/", async (req, res) => {
   const buttonIndex = req.body.untrustedData.buttonIndex.toString();
   const totalRecommendations =
     await prisma.electronicmusicrecommendation.count();
-  const randomIndex = Math.floor(Math.random() * totalRecommendations);
-  const recommendations = await prisma.electronicmusicrecommendation.findMany({
+  let randomIndex = Math.floor(Math.random() * totalRecommendations);
+  let recommendations = await prisma.electronicmusicrecommendation.findMany({
     take: 1,
     skip: randomIndex,
   });
-  const recommendation = recommendations[0];
-  const { ogImage, ogTitle } = await fetchOGData(recommendation.link);
+  let recommendation = recommendations[0];
+  let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
+  if (!ogImage || !ogTitle) {
+    recommendations = await prisma.electronicmusicrecommendation.findMany({
+      take: 1,
+      skip: randomIndex,
+    });
+    recommendation = recommendations[0];
+    let thisResponse = await fetchOGData(recommendation.link);
+    ogImage = response.ogImage;
+    ogTitle = response.ogTitle;
+  }
   buttonTwoText = "add to library";
   if (buttonIndex == "2") {
+    const recommendationExists =
+      await prisma.electronicmusicrecommendation.findUnique({
+        where: { castHash: castHash },
+      });
+
+    if (!recommendationExists) {
+      return res.status(400).send("The castHash provided does not exist.");
+    }
     const castHash = req.query.castHash;
 
     if (castHash) {
       try {
-        await prisma.raver.update({
+        let raver = await prisma.raver.findUnique({
           where: { fid: fid },
-          data: {
-            likedRecommendations: {
-              connect: { castHash: castHash },
-            },
-          },
         });
+
+        // If the raver doesn't exist, create it
+        if (!raver) {
+          raver = await prisma.raver.create({
+            data: {
+              fid: fid,
+              likedRecommendations: {
+                connect: { castHash: castHash },
+              },
+            },
+          });
+        } else {
+          // If the raver exists, update their liked recommendations
+          await prisma.raver.update({
+            where: { fid: fid },
+            data: {
+              likedRecommendations: {
+                connect: { castHash: castHash },
+              },
+            },
+          });
+        }
         buttonTwoText = "added to library";
       } catch (error) {
         // Log the error message
