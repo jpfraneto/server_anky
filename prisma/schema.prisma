@@ -109,9 +109,20 @@ model GeneratedAnky {
   frameImageUrl     String?
   imageOneUrl       String?
   imageTwoUrl       String?
-  imageThreeUrl       String?
-  imageFourUrl       String?
-  wasCastedOnFrame   Boolean?
+  imageThreeUrl     String?
+  imageFourUrl      String?
+  wasCastedOnFrame  Boolean?
+  votes             Vote[]
+}
+
+model Vote {
+  id        Int      @id @default(autoincrement())
+  ankyCid   String
+  userFid   Int
+  voteIndex Int
+  GeneratedAnky GeneratedAnky @relation(fields: [ankyCid], references: [cid])
+
+  @@unique([ankyCid, userFid])
 }
 
 model MidjourneyOnAFrame {
