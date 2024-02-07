@@ -14,7 +14,6 @@ const { createAnkyFromPrompt } = require("../../lib/midjourney");
 
 router.get("/", async (req, res) => {
   try {
-    console.log("inside the human music route");
     const fullUrl = req.protocol + "://" + req.get("host");
     res.setHeader("Content-Type", "text/html");
     res.status(200).send(`
@@ -41,23 +40,23 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const recommendation = req.body.untrustedData.inputText;
   const fid = req.body.untrustedData.fid;
-  console.log("the recommendation is: ", recommendation);
-  console.log("the fid is: ", fid);
-  const musics = await prisma.humanmusic.findMany({});
-  console.log("the musics are: ", musics);
 
-  const prismaResponse = await prisma.humanmusic.upsert({
-    where: {
-      fid: fid.toString(), // Condition to find the record to update
-    },
-    update: {
-      recommendation: recommendation, // Fields to update if the record is found
-    },
-    create: {
-      fid: fid.toString(), // Data to create if the record is not found
-      recommendation: recommendation,
-    },
-  });
+  try {
+    const prismaResponse = await prisma.humanmusic.upsert({
+      where: {
+        fid: fid.toString(), // Condition to find the record to update
+      },
+      update: {
+        recommendation: recommendation, // Fields to update if the record is found
+      },
+      create: {
+        fid: fid.toString(), // Data to create if the record is not found
+        recommendation: recommendation,
+      },
+    });
+  } catch (error) {
+    console.log("there was an error creating the prisma element", error);
+  }
 
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
