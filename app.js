@@ -16,6 +16,7 @@ const {
   checkAndUpdateMidjourneyOnAFrameAnkys,
   checkAndUpdateGeneratedAnkys,
   checkAllAnkys,
+  theElectronicMadness,
 } = require("./lib/ankys");
 const { TypedEthereumSigner } = require("arbundles");
 const rateLimit = require("express-rate-limit");

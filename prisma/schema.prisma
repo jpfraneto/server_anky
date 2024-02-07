@@ -8,37 +8,37 @@ datasource db {
 }
 
 model User {
-  privyId         String            @id
-  email           String?
-  createdAt       DateTime          @default(now())
-  wallets         Wallet[]
-  lastLogin       DateTime?
-  streak          Int               @default(0)
-  longestStreak   Int?        @default(0)
-  writingSessions WritingSession[]
-  manaBalance     Int               @default(0)
-  totalManaEarned Int               @default(0)
-  farcasterFID    Int?              @unique
-  ANKYBalance     Int               @default(0) // Assuming smallest unit, like wei for Ethereum
-  Mana            Mana[]
-  ManaTransaction ManaTransaction[]
-  farcasterAccount  FarcasterAccount?  // Relation to Farcaster account
-  farcasterNotificationsEnabled Boolean @default(false)
-  lastNotified         DateTime?
+  privyId                       String            @id
+  email                         String?
+  createdAt                     DateTime          @default(now())
+  wallets                       Wallet[]
+  lastLogin                     DateTime?
+  streak                        Int               @default(0)
+  longestStreak                 Int?              @default(0)
+  writingSessions               WritingSession[]
+  manaBalance                   Int               @default(0)
+  totalManaEarned               Int               @default(0)
+  farcasterFID                  Int?              @unique
+  ANKYBalance                   Int               @default(0) // Assuming smallest unit, like wei for Ethereum
+  Mana                          Mana[]
+  ManaTransaction               ManaTransaction[]
+  farcasterAccount              FarcasterAccount? // Relation to Farcaster account
+  farcasterNotificationsEnabled Boolean           @default(false)
+  lastNotified                  DateTime?
 }
 
 model FarcasterAccount {
-  id            String   @id @default(uuid())
-  user          User     @relation(fields: [userId], references: [privyId])
-  userId        String   @unique
-  signerUuid    String   // UUID of the signer
-  username      String? 
-  displayName   String?
-  bio           String?
-  pfp           String?
-  signerStatus  String   // Status of the signer
-  publicKey     String   // Farcaster public key
-  fid           Int?            // Farcaster fid
+  id           String  @id @default(uuid())
+  user         User    @relation(fields: [userId], references: [privyId])
+  userId       String  @unique
+  signerUuid   String // UUID of the signer
+  username     String?
+  displayName  String?
+  bio          String?
+  pfp          String?
+  signerStatus String // Status of the signer
+  publicKey    String // Farcaster public key
+  fid          Int? // Farcaster fid
 }
 
 model Mana {
@@ -82,71 +82,81 @@ model WritingSession {
 }
 
 model CastWrapper {
-  cid               String    @unique
-  castHash          String    @unique
-  createdAt         DateTime @default(now())
-  manaEarned        Int?
-  castAuthor        String
-  castType          String?
-  time              Int?
+  cid        String   @unique
+  castHash   String   @unique
+  createdAt  DateTime @default(now())
+  manaEarned Int?
+  castAuthor String
+  castType   String?
+  time       Int?
 }
 
 model GeneratedAnky {
-  cid               String   @id @unique
-  parentCastHash    String?
-  frameCastHash     String?
-  ankyBio           String?
-  imagePrompt       String?
-  imagineApiID      String?
-  imagineApiStatus  String?   @default("pending")
-  imageIPFSHash     String?  // Nullable fields for IPFS hashes
-  metadataIPFSHash  String?
-  createdAt         DateTime @default(now())
-  castHash          String?
-  userFid           Int?
-  alreadyMinted     Boolean @default(false)
-  chosenImageIndex  Int?
-  frameImageUrl     String?
-  imageOneUrl       String?
-  imageTwoUrl       String?
-  imageThreeUrl     String?
-  imageFourUrl      String? 
-  wasCastedOnFrame  Boolean? 
-  votes             Vote[]
+  cid              String   @id @unique
+  parentCastHash   String?
+  frameCastHash    String?
+  ankyBio          String?
+  imagePrompt      String?
+  imagineApiID     String?
+  imagineApiStatus String?  @default("pending")
+  imageIPFSHash    String? // Nullable fields for IPFS hashes
+  metadataIPFSHash String?
+  createdAt        DateTime @default(now())
+  castHash         String?
+  userFid          Int?
+  alreadyMinted    Boolean  @default(false)
+  chosenImageIndex Int?
+  frameImageUrl    String?
+  imageOneUrl      String?
+  imageTwoUrl      String?
+  imageThreeUrl    String?
+  imageFourUrl     String?
+  wasCastedOnFrame Boolean?
+  votes            Vote[]
 }
 
 model Vote {
-  id        Int      @id @default(autoincrement())
-  ankyCid   String
-  userFid   Int
-  voteIndex Int
+  id            Int           @id @default(autoincrement())
+  ankyCid       String
+  userFid       Int
+  voteIndex     Int
   GeneratedAnky GeneratedAnky @relation(fields: [ankyCid], references: [cid])
 
   @@unique([ankyCid, userFid])
 }
 
 model MidjourneyOnAFrame {
-  userFid           Int       @id @unique 
-  alreadyMinted     Boolean @default(false)
+  userFid           Int      @id @unique
+  alreadyMinted     Boolean  @default(false)
   imagePrompt       String?
   imagineApiID      String?
-  imagineApiStatus  String?   @default("pending")
-  imageIPFSHash     String?  // Nullable fields for IPFS hashes
+  imagineApiStatus  String?  @default("pending")
+  imageIPFSHash     String? // Nullable fields for IPFS hashes
   metadataIPFSHash  String?
   createdAt         DateTime @default(now())
   castHash          String?
-  wasCastedOnFrame  Boolean @default(false)
-  imageAvailableUrl          String? 
-  ethereumAddress     String?
-  balanceOf           String?
+  wasCastedOnFrame  Boolean  @default(false)
+  imageAvailableUrl String?
+  ethereumAddress   String?
+  balanceOf         String?
 }
 
 model Humanmusic {
-  fid              String       @unique
-  recommendation   String
+  fid            String @unique
+  recommendation String
 }
 
-model Electronicmusic {
-  fid              String        @unique
-  link             String?
+model Electronicmusicrecommendation {
+  castHash       String  @id
+  fid            String?
+  link           String?
+  likedBy        Raver[] @relation("UserLikes")
+  submittedBy    Raver   @relation("UserSubmissions", fields: [submittedByFid], references: [fid])
+  submittedByFid String
+}
+
+model Raver {
+  fid                      String                          @id
+  likedRecommendations     Electronicmusicrecommendation[] @relation("UserLikes")
+  submittedRecommendations Electronicmusicrecommendation[] @relation("UserSubmissions")
 }
