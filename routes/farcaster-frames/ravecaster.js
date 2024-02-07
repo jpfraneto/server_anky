@@ -74,6 +74,7 @@ router.post("/", async (req, res) => {
       skip: randomIndex,
     });
     let recommendation = recommendations[0];
+    console.log("the recommendationi s :", recommendation);
     let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
     if (!ogImage || !ogTitle) {
       recommendations = await prisma.electronicmusicrecommendation.findMany({
@@ -113,6 +114,7 @@ router.post("/", async (req, res) => {
           });
         } else {
           // If the raver exists, update their liked recommendations
+          console.log("inside here", castHash);
           await prisma.raver.update({
             where: { fid: fid },
             data: {
@@ -170,7 +172,7 @@ router.post("/", async (req, res) => {
     <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
     <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
 
-    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=false&mint=false">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/ravecaster">
     <meta name="fc:frame" content="vNext">     
   </head>
   </html>
