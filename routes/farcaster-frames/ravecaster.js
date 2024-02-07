@@ -75,14 +75,19 @@ router.post("/", async (req, res) => {
   buttonTwoText = "add to library";
   if (buttonIndex == "2") {
     if (req.query.castHash) {
-      await prisma.raver.update({
-        where: { fid: fid },
-        data: {
-          likedRecommendations: {
-            connect: { castHash: req.query.castHash },
+      try {
+        await prisma.raver.update({
+          where: { fid: fid },
+          data: {
+            likedRecommendations: {
+              connect: { castHash: req.query.castHash },
+            },
           },
-        },
-      });
+        });
+      } catch (error) {
+        console.log("it was not added");
+      }
+
       buttonTwoText = "added to library";
     }
   }
