@@ -129,3 +129,8 @@ model MidjourneyOnAFrame {
   ethereumAddress     String?
   balanceOf           String?
 }
+
+model Humanmusic {
+  fid              String       @unique
+  recommendation   String
+}
