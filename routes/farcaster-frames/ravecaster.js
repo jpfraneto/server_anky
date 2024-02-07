@@ -74,21 +74,27 @@ router.post("/", async (req, res) => {
   const { ogImage, ogTitle } = await fetchOGData(recommendation.link);
   buttonTwoText = "add to library";
   if (buttonIndex == "2") {
-    if (req.query.castHash) {
+    const castHash = req.query.castHash;
+
+    if (castHash) {
       try {
         await prisma.raver.update({
           where: { fid: fid },
           data: {
             likedRecommendations: {
-              connect: { castHash: req.query.castHash },
+              connect: { castHash: castHash },
             },
           },
         });
+        buttonTwoText = "added to library";
       } catch (error) {
-        console.log("it was not added");
+        // Log the error message
+        console.error("Error connecting liked recommendation:", error);
+        return res.status(500).send("Error processing request");
       }
-
-      buttonTwoText = "added to library";
+    } else {
+      // Handle the case where castHash is not provided or not valid
+      return res.status(400).send("Invalid castHash provided");
     }
   }
 
