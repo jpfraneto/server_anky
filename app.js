@@ -68,7 +68,7 @@ app.use("/user", userRoutes);
 // scheduleReminders();
 
 // schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
-// schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
+schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
 // checkAndUpdateMidjourneyOnAFrameAnkys();
 // checkAndUpdateGeneratedAnkys();
 
