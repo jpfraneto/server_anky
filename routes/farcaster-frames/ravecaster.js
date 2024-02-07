@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
       <meta property="og:image" content="https://jpfraneto.github.io/images/ravecaster.png">
       <meta name="fc:frame" content="vNext">
       <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/ravecaster.png">
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/electronic-music">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/ravecaster">
       <meta name="fc:frame:button:2" content="random">
     </head>
     </html>
@@ -98,7 +98,7 @@ router.post("/", async (req, res) => {
     <meta property="og:image" content="${ogImage}">
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="${ogImage}">
-    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/electronic-music?castHash=${
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/ravecaster?castHash=${
       recommendation?.castHash || ""
     }">
     <meta name="fc:frame:button:1" content="my library"> 
