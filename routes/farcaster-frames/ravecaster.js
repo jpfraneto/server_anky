@@ -66,10 +66,11 @@ router.post("/", async (req, res) => {
   const totalRecommendations =
     await prisma.electronicmusicrecommendation.count();
   const randomIndex = Math.floor(Math.random() * totalRecommendations);
-  const recommendation = await prisma.electronicmusicrecommendation.findUnique({
+  const recommendations = await prisma.electronicmusicrecommendation.findMany({
     take: 1,
     skip: randomIndex,
   });
+  const recommendation = recommendations[0];
   const { ogImage, ogTitle } = await fetchOGData(recommendation.link);
   buttonTwoText = "add to library";
   if (buttonIndex == "2") {
