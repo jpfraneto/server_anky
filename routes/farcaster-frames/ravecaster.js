@@ -59,82 +59,84 @@ async function fetchOGData(url) {
 }
 
 router.post("/", async (req, res) => {
+  console.log("inside the post route");
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
   const fid = req.body.untrustedData.fid.toString();
   const buttonIndex = req.body.untrustedData.buttonIndex.toString();
-  const totalRecommendations =
-    await prisma.electronicmusicrecommendation.count();
-  let randomIndex = Math.floor(Math.random() * totalRecommendations);
-  let recommendations = await prisma.electronicmusicrecommendation.findMany({
-    take: 1,
-    skip: randomIndex,
-  });
-  let recommendation = recommendations[0];
-  let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
-  if (!ogImage || !ogTitle) {
-    recommendations = await prisma.electronicmusicrecommendation.findMany({
+  try {
+    const castHash = req.query.castHash || "";
+    const totalRecommendations =
+      await prisma.electronicmusicrecommendation.count();
+    let randomIndex = Math.floor(Math.random() * totalRecommendations);
+    let recommendations = await prisma.electronicmusicrecommendation.findMany({
       take: 1,
       skip: randomIndex,
     });
-    recommendation = recommendations[0];
-    let thisResponse = await fetchOGData(recommendation.link);
-    ogImage = response.ogImage;
-    ogTitle = response.ogTitle;
-  }
-  buttonTwoText = "add to library";
-  if (buttonIndex == "2") {
-    const recommendationExists =
-      await prisma.electronicmusicrecommendation.findUnique({
-        where: { castHash: castHash },
+    let recommendation = recommendations[0];
+    let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
+    if (!ogImage || !ogTitle) {
+      recommendations = await prisma.electronicmusicrecommendation.findMany({
+        take: 1,
+        skip: randomIndex,
       });
-
-    if (!recommendationExists) {
-      return res.status(400).send("The castHash provided does not exist.");
+      recommendation = recommendations[0];
+      let thisResponse = await fetchOGData(recommendation.link);
+      ogImage = response.ogImage;
+      ogTitle = response.ogTitle;
     }
-    const castHash = req.query.castHash;
-
-    if (castHash) {
-      try {
-        let raver = await prisma.raver.findUnique({
-          where: { fid: fid },
+    buttonTwoText = "add to library";
+    if (buttonIndex == "2") {
+      const recommendationExists =
+        await prisma.electronicmusicrecommendation.findUnique({
+          where: { castHash: castHash },
         });
 
-        // If the raver doesn't exist, create it
-        if (!raver) {
-          raver = await prisma.raver.create({
-            data: {
-              fid: fid,
-              likedRecommendations: {
-                connect: { castHash: castHash },
-              },
-            },
-          });
-        } else {
-          // If the raver exists, update their liked recommendations
-          await prisma.raver.update({
-            where: { fid: fid },
-            data: {
-              likedRecommendations: {
-                connect: { castHash: castHash },
-              },
-            },
-          });
-        }
-        buttonTwoText = "added to library";
-      } catch (error) {
-        // Log the error message
-        console.error("Error connecting liked recommendation:", error);
-        return res.status(500).send("Error processing request");
+      if (!recommendationExists) {
+        return res.status(400).send("The castHash provided does not exist.");
       }
-    } else {
-      // Handle the case where castHash is not provided or not valid
-      return res.status(400).send("Invalid castHash provided");
-    }
-  }
 
-  try {
-    return res.status(200).send(`
+      if (castHash) {
+        try {
+          let raver = await prisma.raver.findUnique({
+            where: { fid: fid },
+          });
+
+          // If the raver doesn't exist, create it
+          if (!raver) {
+            raver = await prisma.raver.create({
+              data: {
+                fid: fid,
+                likedRecommendations: {
+                  connect: { castHash: castHash },
+                },
+              },
+            });
+          } else {
+            // If the raver exists, update their liked recommendations
+            await prisma.raver.update({
+              where: { fid: fid },
+              data: {
+                likedRecommendations: {
+                  connect: { castHash: castHash },
+                },
+              },
+            });
+          }
+          buttonTwoText = "added to library";
+        } catch (error) {
+          // Log the error message
+          console.error("Error connecting liked recommendation:", error);
+          return res.status(500).send("Error processing request");
+        }
+      } else {
+        // Handle the case where castHash is not provided or not valid
+        return res.status(400).send("Invalid castHash provided");
+      }
+    }
+
+    try {
+      return res.status(200).send(`
   <!DOCTYPE html>
   <html>
   <head>
@@ -144,8 +146,8 @@ router.post("/", async (req, res) => {
     <meta name="fc:frame" content="vNext">
     <meta name="fc:frame:image" content="${ogImage}">
     <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/ravecaster?castHash=${
-      recommendation?.castHash || ""
-    }">
+        recommendation?.castHash || ""
+      }">
     <meta name="fc:frame:button:1" content="my library"> 
     <meta name="fc:frame:button:1:action" content="link">   
     <meta name="fc:frame:button:1:target" content="https://www.ravecaster.xyz/user/${fid}">     
@@ -159,9 +161,26 @@ router.post("/", async (req, res) => {
     </head>
   </html>
     `);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Error generating image");
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error generating image");
+    return res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>anky mint</title>
+    <meta property="og:title" content="anky mint">
+    <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+    <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
+
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/mint-this-anky?midjourneyId=${midjourneyId}&revealed=false&mint=false">
+    <meta name="fc:frame" content="vNext">     
+  </head>
+  </html>
+    </html>
+    `);
   }
 });
 
