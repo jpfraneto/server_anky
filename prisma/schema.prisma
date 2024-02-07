@@ -110,8 +110,8 @@ model GeneratedAnky {
   imageOneUrl       String?
   imageTwoUrl       String?
   imageThreeUrl     String?
-  imageFourUrl      String?
-  wasCastedOnFrame  Boolean?
+  imageFourUrl      String? 
+  wasCastedOnFrame  Boolean? 
   votes             Vote[]
 }
 

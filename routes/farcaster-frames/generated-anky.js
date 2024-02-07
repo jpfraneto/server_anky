@@ -87,8 +87,7 @@ router.post("/", async (req, res) => {
     const existingVote = await prisma.vote.findUnique({
       where: {
         ankyCid_userFid: {
-          // This assumes you have a composite key or unique constraint set up in your Vote model
-          ankyCid: cid,
+          ankyCid: req.query.cid,
           userFid: req.body.untrustedData.fid,
         },
       },
@@ -107,15 +106,15 @@ router.post("/", async (req, res) => {
       // Create a new vote record
       await prisma.vote.create({
         data: {
-          ankyCid: cid,
-          userFid: userFid,
+          ankyCid: req.query.cid,
+          userFid: req.body.untrustedData.fid,
           voteIndex: buttonIndex - 1,
         },
       });
     }
     const votes = await prisma.vote.findMany({
       where: {
-        ankyCid: cid,
+        ankyCid: req.query.cid,
       },
     });
     let voteCounts = [0, 0, 0, 0];
@@ -145,12 +144,13 @@ router.post("/", async (req, res) => {
     <head>
       <title>anky mint</title>
       <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/error.png">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/percentages.png">
       <meta name="fc:frame" content="vNext">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/error.png">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/percentages.png">
       <meta name="fc:frame:post_url" content="https://www.anky.lat">
-      <meta name="fc:frame:button:1" content="write on anky">   
-      <meta name="fc:frame:button:1:action" content="post_redirect">   
+      <meta name="fc:frame:button:1" content="mint 👽">
+      <meta name="fc:frame:button:1:action" content="link">   
+      <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-your-anky/${anky.cid}">   
       </head>
     </html>
       `);
