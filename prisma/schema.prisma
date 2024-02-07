@@ -145,3 +145,8 @@ model Humanmusic {
   fid              String       @unique
   recommendation   String
 }
+
+model Electronicmusic {
+  fid              String        @unique
+  link             String?
+}

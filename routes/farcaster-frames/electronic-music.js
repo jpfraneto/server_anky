@@ -22,11 +22,11 @@ router.get("/", async (req, res) => {
     <head>
       <title>anky mint</title>
       <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
+      <meta property="og:image" content="https://jpfraneto.github.io/images/elektronic.png">
       <meta name="fc:frame" content="vNext">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/farcaster-future.png">
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&choosingAnky=0&chosenAnky=0&mint=0">
-      <meta name="fc:frame:button:1" content="reveal 🐒">
+      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/elektronic.png">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/electronic-music">
+      <meta name="fc:frame:button:1" content="random">
     </head>
     </html>
     `);
@@ -40,12 +40,34 @@ router.post("/", async (req, res) => {
   console.log("inside the post route", req.query);
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
+
   const revealed = req.query.revealed;
   const chosenAnky = req.query.chosenAnky;
   const mint = req.query.mint;
   const anky = await prisma.generatedAnky.findUnique({
     where: { cid: req.query.cid },
   });
+
+  const randomRecommendation = "";
+  return res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>anky mint</title>
+    <meta property="og:title" content="anky mint">
+    <meta property="og:image" content="${anky.frameImageUrl}">
+    <meta name="fc:frame:image" content="${anky.frameImageUrl}">
+    <meta name="fc:frame" content="vNext">
+    <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/electronic-music">
+    <meta name="fc:frame:button:1" content="menu">   
+    <meta name="fc:frame:button:2" content="mint 👽">
+    <meta name="fc:frame:button:2:action" content="link">   
+    <meta name="fc:frame:button:2:target" content="https://soundcloud.com/solee-music/sets/live-sets">   
+    <meta name="fc:frame:button:3" content="3">   
+    <meta name="fc:frame:button:4" content="4">   
+    </head>
+  </html>
+    `);
   console.log("in here, the anky is: ", anky);
   console.log("m", mint, chosenAnky, revealed);
   if (mint == "0" && chosenAnky == "0" && revealed == "1") {
