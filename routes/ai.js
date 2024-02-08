@@ -17,11 +17,6 @@ const router = express.Router();
 const openai = new OpenAI();
 
 router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
-  // const writingsByFid = await prisma.generatedAnky.findMany({
-  //   where: { userFid: req.body.userFid },
-  // });
-
-  // the writingsByFid will be used to limit the amount of ankys that the user can generate with her writing.
   if (!openai) {
     res.status(500).json({
       error: {
@@ -56,13 +51,13 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
         
         On the image prompt, please avoid direct references to the writer, or the technologies that take place. The goal of the prompt is just to reflect the subconscious of the writer.
 
-        On the story, make it fun and appealing. Make the user smile, but don't over act it.
+        On the story, make it fun and appealing. Make the user smile, but don't over act it. Remember to make the story less than 300 characters.
 
         Practically speaking, create a valid JSON object following this exact format:
 
         {
             "imagePrompt": "A one paragraph description of the image that reflects the situation of the users writing. less than 500 characters",
-            "story": "A short story and metaphor that reflects what the user wrote. less than 320 characters",
+            "story": "A short story and metaphor that reflects what the user wrote. less than 300 chars.",
         }
     
         The JSON object, correctly formatted is: `,
@@ -156,10 +151,6 @@ router.post(
           .status(400)
           .json({ error: "The 'text' parameter is missing." });
       }
-
-      // return res
-      //   .status(200)
-      //   .json({ firstPageCid: '_2niarNbm4IcJ8S4BYVfShALzAUUhNwxoOrhSwq50wM' });
 
       const firstPageCid = await getInitialAnkyDementorNotebook(
         req.body.finishText

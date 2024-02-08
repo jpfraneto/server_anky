@@ -10,7 +10,6 @@ const redirecter = require("./redirecter");
 const generatedAnky = require("./generated-anky");
 const humanMusic = require("./human-music");
 const ravecaster = require("./ravecaster");
-const jukebox = require("./jukebox");
 
 router.use("/midjourney-on-a-frame", midjourneyOnAFrame);
 router.use("/anky-on-a-frame", ankyOnAFrame);
@@ -21,6 +20,5 @@ router.use("/hasnt-minted-yet", hasntMintedYet);
 router.use("/crypto-the-game", cryptoTheGame);
 router.use("/human-music", humanMusic);
 router.use("/ravecaster", ravecaster);
-router.use("/jukebox", jukebox);
 
 module.exports = router;

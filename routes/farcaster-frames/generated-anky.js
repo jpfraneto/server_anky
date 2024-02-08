@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const { ethers } = require("ethers");
+const satori = require("satori");
+const sharp = require("sharp");
 const prisma = require("../../lib/prismaClient");
 const {
   uploadToPinataFromUrl,
@@ -36,6 +38,94 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/image/:cid", async (req, res) => {
+  try {
+    console.log("inside this route");
+    const ankyId = req.params.cid;
+    const anky = await prisma.generatedAnky.findUnique({
+      where: { cid: ankyId },
+    });
+    if (!anky || !anky.frameImageUrl) {
+      return res.status(400).send("Missing anky frame image URL");
+    }
+
+    const votes = await prisma.vote.findMany({
+      where: {
+        ankyCid: req.query.cid,
+      },
+    });
+    let voteCounts = [0, 0, 0, 0];
+    votes.forEach((vote) => {
+      if (vote.voteIndex >= 0 && vote.voteIndex < 4) {
+        voteCounts[vote.voteIndex]++;
+      }
+    });
+    // Calculate total votes for normalization
+    const totalVotes = votes.length;
+
+    // Calculate percentages for each option
+    let votePercentages = voteCounts.map((count) => {
+      return totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(2) : 0;
+    });
+
+    const response = await axios({
+      url: anky.frameImageUrl,
+      responseType: "arraybuffer",
+    });
+    const imageBuffer = Buffer.from(response.data, "utf-8");
+    const metadata = await sharp(imageBuffer).metadata();
+    const imageWidth = metadata.width;
+    const imageHeight = metadata.height;
+    const offsetX = imageWidth / 4; // Adjust if necessary
+    const offsetY = imageHeight / 4; // Adjust if necessary
+    // Create an overlay SVG
+    const svgOverlay = `
+    <svg width="${imageWidth}" height="${imageHeight}" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .percentage { font: bold 120px sans-serif; fill: white; }
+      </style>
+      <text x="${offsetX}" y="${offsetY}" class="percentage" dominant-baseline="middle" text-anchor="middle">${
+      votePercentages[0]
+    }%</text>
+      <text x="${
+        3 * offsetX
+      }" y="${offsetY}" class="percentage" dominant-baseline="middle" text-anchor="middle">${
+      votePercentages[1]
+    }%</text>
+      <text x="${offsetX}" y="${
+      3 * offsetY
+    }" class="percentage" dominant-baseline="middle" text-anchor="middle">${
+      votePercentages[2]
+    }%</text>
+      <text x="${3 * offsetX}" y="${
+      3 * offsetY
+    }" class="percentage" dominant-baseline="middle" text-anchor="middle">${
+      votePercentages[3]
+    }%</text>
+    <text x="50%" y="${
+      imageHeight - 10
+    }" class="percentage" dominant-baseline="middle" text-anchor="middle">${totalVotes} votes</text>
+    </svg>`;
+
+    sharp(imageBuffer)
+      .composite([{ input: Buffer.from(svgOverlay), gravity: "northwest" }])
+      .toFormat("png")
+      .toBuffer()
+      .then((outputBuffer) => {
+        // Set the content type to PNG and send the response
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader("Cache-Control", "max-age=10");
+        res.send(outputBuffer);
+      })
+      .catch((error) => {
+        console.error("Error processing image", error);
+        res.status(500).send("Error processing image");
+      });
+  } catch (error) {
+    console.log("there was an error creating the image", error);
+  }
+});
+
 router.post("/", async (req, res) => {
   let imageUrl;
   const fullUrl = req.protocol + "://" + req.get("host");
@@ -56,7 +146,7 @@ router.post("/", async (req, res) => {
       <meta property="og:image" content="${anky.frameImageUrl}">
       <meta name="fc:frame:image" content="${anky.frameImageUrl}">
       <meta name="fc:frame" content="vNext">
-      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&&chosenAnky=1&mint=0">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&chosenAnky=1&mint=0">
       <meta name="fc:frame:button:1" content="1">   
       <meta name="fc:frame:button:2" content="2">   
       <meta name="fc:frame:button:3" content="3">   
@@ -133,8 +223,9 @@ router.post("/", async (req, res) => {
     console.log(`Option 2: ${votePercentages[1]}%`);
     console.log(`Option 3: ${votePercentages[2]}%`);
     console.log(`Option 4: ${votePercentages[3]}%`);
-
-    // ON THIS RETURN I NEED TO ADD THE BLACK OVERLAY AND THE NUMBERS ON THE IMAGE DYNAMICALLY
+    console.log("the image url is: ", anky.frameImageUrl);
+    imageUrl = `${fullUrl}/farcaster-frames/generated-anky/image/${anky.cid}`;
+    console.log("the image url is: ", imageUrl);
 
     return res.status(200).send(`
     <!DOCTYPE html>
@@ -142,9 +233,9 @@ router.post("/", async (req, res) => {
     <head>
       <title>anky mint</title>
       <meta property="og:title" content="anky mint">
-      <meta property="og:image" content="https://jpfraneto.github.io/images/percentages.png">
+      <meta property="og:image" content="${imageUrl}">
       <meta name="fc:frame" content="vNext">
-      <meta name="fc:frame:image" content="https://jpfraneto.github.io/images/percentages.png">
+      <meta name="fc:frame:image" content="${imageUrl}">
       <meta name="fc:frame:post_url" content="https://www.anky.lat">
       <meta name="fc:frame:button:1" content="mint 👽">
       <meta name="fc:frame:button:1:action" content="link">   
