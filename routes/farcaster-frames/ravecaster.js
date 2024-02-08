@@ -59,8 +59,7 @@ async function fetchOGData(url) {
 }
 
 router.post("/", async (req, res) => {
-  console.log("inside the post route");
-  let imageUrl;
+  let imageUrl, ogTitle, ogImage;
   const fullUrl = req.protocol + "://" + req.get("host");
   const fid = req.body.untrustedData.fid.toString();
   const buttonIndex = req.body.untrustedData.buttonIndex.toString();
@@ -74,8 +73,6 @@ router.post("/", async (req, res) => {
       skip: randomIndex,
     });
     let recommendation = recommendations[0];
-    console.log("the recommendationi s :", recommendation);
-    let ogTitle, ogImage;
     try {
       let thisresponse = await fetchOGData(recommendation.link);
       ogImage = thisresponse.ogImage;
@@ -122,7 +119,6 @@ router.post("/", async (req, res) => {
           });
         } else {
           // If the raver exists, update their liked recommendations
-          console.log("inside here", castHash);
           await prisma.raver.update({
             where: { fid: fid },
             data: {
