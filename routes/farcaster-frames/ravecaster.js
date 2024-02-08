@@ -75,11 +75,14 @@ router.post("/", async (req, res) => {
     });
     let recommendation = recommendations[0];
     console.log("the recommendationi s :", recommendation);
+    let ogTitle, ogImage;
     try {
-      let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
+      let thisresponse = await fetchOGData(recommendation.link);
+      ogImage = thisresponse.ogImage;
+      ogTitle = thisresponse.ogTitle;
     } catch (error) {
-      let ogImage = null;
-      let ogTitle = null;
+      ogImage = null;
+      ogTitle = null;
     }
     // if (!ogImage || !ogTitle) {
     //   recommendations = await prisma.electronicmusicrecommendation.findMany({
@@ -142,7 +145,7 @@ router.post("/", async (req, res) => {
   <!DOCTYPE html>
   <html>
   <head>
-    <title>${ogTitle}</title>
+    <title>ravecaster</title>
     <meta property="og:title" content="ravecaster">
     <meta property="og:image" content="${
       ogImage || "https://jpfraneto.github.io/images/ravecaster.png"
