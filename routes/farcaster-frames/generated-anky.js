@@ -40,7 +40,6 @@ router.get("/", async (req, res) => {
 
 router.get("/image/:cid", async (req, res) => {
   try {
-    console.log("inside this route");
     const ankyId = req.params.cid;
     const anky = await prisma.generatedAnky.findUnique({
       where: { cid: ankyId },
@@ -218,14 +217,8 @@ router.post("/", async (req, res) => {
     });
 
     // Log the summary of votes
-    console.log(`Vote summary in percentages for each option:`);
-    console.log(`Option 1: ${votePercentages[0]}%`);
-    console.log(`Option 2: ${votePercentages[1]}%`);
-    console.log(`Option 3: ${votePercentages[2]}%`);
-    console.log(`Option 4: ${votePercentages[3]}%`);
-    console.log("the image url is: ", anky.frameImageUrl);
+
     imageUrl = `${fullUrl}/farcaster-frames/generated-anky/image/${anky.cid}`;
-    console.log("the image url is: ", imageUrl);
 
     return res.status(200).send(`
     <!DOCTYPE html>
@@ -344,7 +337,6 @@ router.post("/", async (req, res) => {
           image: `ipfs://${ipfsHash}`,
         };
         const ipfsMetadataHash = await uploadMetadataToPinata(nftMetadata);
-        console.log("the metadata was uploaded to pinata", ipfsMetadataHash);
 
         if (!ipfsMetadataHash || ipfsMetadataHash == null) return;
 

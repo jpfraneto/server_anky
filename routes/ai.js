@@ -194,7 +194,6 @@ router.post(
   "/get-feedback-from-writing",
   checkIfLoggedInMiddleware,
   async (req, res) => {
-    console.log("Inside the get feedback from writing route", req.body);
     const response = await reflectUserWriting(
       req.body.text,
       req.body.user,
@@ -209,7 +208,6 @@ router.post(
   "/create-anky-from-writing",
   checkIfLoggedInMiddleware,
   async (req, res) => {
-    console.log("Inside the create anky from writing function");
     const response = await generateAnkyFromUserWriting(req.body.text);
     console.log("The response is: ", response);
     res.json({ anky: response });
@@ -217,7 +215,6 @@ router.post(
 );
 
 router.get("/check-image/:imageId", async (req, res) => {
-  console.log("checking the image with the following id: ", req.params.imageId);
   const imageId = req.params.imageId;
   const imageProgress = await fetchImageProgress(imageId);
   if (imageProgress) {
@@ -229,12 +226,15 @@ router.get("/check-image/:imageId", async (req, res) => {
 
 router.get(`/mint-your-anky/:cid`, async (req, res) => {
   try {
-    console.log("in here");
     const thisAnky = await prisma.generatedAnky.findUnique({
       where: { cid: req.params.cid },
     });
-    console.log("this anky is: ", thisAnky);
-    res.status(200).json({ anky: thisAnky });
+    const votes = await prisma.vote.findMany({
+      where: {
+        ankyCid: req.query.cid,
+      },
+    });
+    res.status(200).json({ anky: thisAnky, votes: votes });
   } catch (error) {
     console.log("the werror is: ", error);
     res.status(500).json({ message: "there was an error getting your anky" });
