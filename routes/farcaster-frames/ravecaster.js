@@ -75,17 +75,22 @@ router.post("/", async (req, res) => {
     });
     let recommendation = recommendations[0];
     console.log("the recommendationi s :", recommendation);
-    let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
-    if (!ogImage || !ogTitle) {
-      recommendations = await prisma.electronicmusicrecommendation.findMany({
-        take: 1,
-        skip: randomIndex,
-      });
-      recommendation = recommendations[0];
-      let thisResponse = await fetchOGData(recommendation.link);
-      ogImage = response.ogImage;
-      ogTitle = response.ogTitle;
+    try {
+      let { ogImage, ogTitle } = await fetchOGData(recommendation.link);
+    } catch (error) {
+      let ogImage = null;
+      let ogTitle = null;
     }
+    // if (!ogImage || !ogTitle) {
+    //   recommendations = await prisma.electronicmusicrecommendation.findMany({
+    //     take: 1,
+    //     skip: randomIndex,
+    //   });
+    //   recommendation = recommendations[0];
+    //   // let thisResponse = await fetchOGData(recommendation.link);
+    //   // ogImage = response.ogImage;
+    //   // ogTitle = response.ogTitle;
+    // }
     buttonTwoText = "add to library";
     if (buttonIndex == "2") {
       const recommendationExists =
@@ -138,10 +143,14 @@ router.post("/", async (req, res) => {
   <html>
   <head>
     <title>${ogTitle}</title>
-    <meta property="og:title" content="${ogTitle}">
-    <meta property="og:image" content="${ogImage}">
+    <meta property="og:title" content="ravecaster">
+    <meta property="og:image" content="${
+      ogImage || "https://jpfraneto.github.io/images/ravecaster.png"
+    }">
     <meta name="fc:frame" content="vNext">
-    <meta name="fc:frame:image" content="${ogImage}">
+    <meta name="fc:frame:image" content="${
+      ogImage || "https://jpfraneto.github.io/images/ravecaster.png"
+    }">
     <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/ravecaster?castHash=${
         recommendation?.castHash || ""
       }">
