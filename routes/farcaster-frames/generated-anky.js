@@ -47,13 +47,27 @@ router.get("/image/:cid", async (req, res) => {
     if (!anky || !anky.frameImageUrl) {
       return res.status(400).send("Missing anky frame image URL");
     }
+    const now = new Date();
+    const votingEnds = new Date(anky.createdAt).getTime() + 8 * 60 * 60 * 1000; // 8 hours from createdAt
+    const mintingEnds = votingEnds + 24 * 60 * 60 * 1000; // Additional 24 hours for minting window
+    let minutesRemaining;
 
     const votes = await prisma.vote.findMany({
       where: {
         ankyCid: req.query.cid,
       },
     });
-    console.log("in here, the votes are: ", votes);
+    let returnString = "";
+
+    if (now < votingEnds) {
+      minutesRemaining = Math.floor((votingEnds - now) / (60 * 1000));
+      returnString = `${votes.length} votes so far · ${minutesRemaining} minutes remaining to vote`;
+    } else if (now >= votingEnds && now < mintingEnds) {
+      minutesRemaining = Math.floor((mintingEnds - now) / (60 * 1000));
+      returnString = `mint open for ${minutesRemaining} more minutes`;
+    } else {
+      returnString = "Mint closed";
+    }
     let voteCounts = [0, 0, 0, 0];
     votes.forEach((vote) => {
       if (vote.voteIndex >= 0 && vote.voteIndex < 4) {
@@ -82,7 +96,8 @@ router.get("/image/:cid", async (req, res) => {
     const svgOverlay = `
     <svg width="${imageWidth}" height="${imageHeight}" xmlns="http://www.w3.org/2000/svg">
       <style>
-        .percentage { font: bold 120px sans-serif; fill: white; }
+        .percentage { font: bold 120px sans-serif; fill: white; transform: translateY(-120px) }
+        .bottomText { font: bold 60px sans-serif; fill: white; }
       </style>
       <text x="${offsetX}" y="${offsetY}" class="percentage" dominant-baseline="middle" text-anchor="middle">${
       votePercentages[0]
@@ -104,7 +119,7 @@ router.get("/image/:cid", async (req, res) => {
     }%</text>
     <text x="50%" y="${
       imageHeight - 10
-    }" class="percentage" dominant-baseline="middle" text-anchor="middle">${totalVotes} votes</text>
+    }" class="bottomText" dominant-baseline="middle" text-anchor="middle">${returnString}</text>
     </svg>`;
 
     sharp(imageBuffer)
