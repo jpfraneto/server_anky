@@ -53,6 +53,7 @@ router.get("/image/:cid", async (req, res) => {
         ankyCid: req.query.cid,
       },
     });
+    console.log("in here, the votes are: ", votes);
     let voteCounts = [0, 0, 0, 0];
     votes.forEach((vote) => {
       if (vote.voteIndex >= 0 && vote.voteIndex < 4) {
@@ -197,26 +198,6 @@ router.post("/", async (req, res) => {
         },
       });
     }
-    const votes = await prisma.vote.findMany({
-      where: {
-        ankyCid: req.query.cid,
-      },
-    });
-    let voteCounts = [0, 0, 0, 0];
-    votes.forEach((vote) => {
-      if (vote.voteIndex >= 0 && vote.voteIndex < 4) {
-        voteCounts[vote.voteIndex]++;
-      }
-    });
-    // Calculate total votes for normalization
-    const totalVotes = votes.length;
-
-    // Calculate percentages for each option
-    let votePercentages = voteCounts.map((count) => {
-      return totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(2) : 0;
-    });
-
-    // Log the summary of votes
 
     imageUrl = `${fullUrl}/farcaster-frames/generated-anky/image/${anky.cid}`;
 

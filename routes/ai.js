@@ -47,17 +47,20 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
     const messages = [
       {
         role: "system",
-        content: `You are in charge of imagining a description of a human being in a cartoon world. I will send you a block of text that was written as a stream of consciousness, and your goal is to distill the essence of that writing so that you can come up with a graphic description of a situation that deeply reflect the state of that human, and also craft a short story that reflects what the user wrote.
+        content: `You are in charge of imagining a description of a human being in a cartoon world. I will send you a block of text that was written as a stream of consciousness, and your goal is to distill the essence of that writing so that you can come up with a description of a piece of art that deeply reflect the state of that human, also crafting a short story that reflects what the user wrote.
         
-        On the image prompt, please avoid direct references to the writer, or the technologies that take place. The goal of the prompt is just to reflect the subconscious of the writer.
+        On the image prompt, please avoid direct references to the writer, or the technologies that take place. The goal of the piece of art is just to reflect the subconscious of the writer.
 
         On the story, make it fun and appealing. Make the user smile, but don't over act it. Remember to make the story less than 300 characters.
+
+        Give everything a title, of less than 5 words. 4 words at the most.
 
         Practically speaking, create a valid JSON object following this exact format:
 
         {
             "imagePrompt": "A one paragraph description of the image that reflects the situation of the users writing. less than 500 characters",
             "story": "A short story and metaphor that reflects what the user wrote. less than 300 chars.",
+            "title": "The title of this piece of art",
         }
     
         The JSON object, correctly formatted is: `,
@@ -75,11 +78,13 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
 
     const storyRegex = /"story"\s*:\s*"([\s\S]*?)"/;
     const promptsRegex = /"imagePrompt"\s*:\s*"([\s\S]*?)"/;
+    const titleRegex = /"title"\s*:\s*"([\s\S]*?)"/;
 
     const storyMatch = dataResponse.match(storyRegex);
     const promptMatch = dataResponse.match(promptsRegex);
+    const titleMatch = dataResponse.match(titleRegex);
 
-    let story, prompt;
+    let story, prompt, title;
 
     if (promptMatch !== null && promptMatch.length > 1) {
       prompt = promptMatch[1];
@@ -87,6 +92,10 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
 
     if (storyMatch !== null && storyMatch.length > 1) {
       story = storyMatch[1];
+    }
+
+    if (titleMatch !== null && titleMatch.length > 1) {
+      title = titleMatch[1];
     }
     // return res.status(200).json({ story, prompt });
 
@@ -116,6 +125,7 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
           metadataIPFSHash: null,
           userFid: userFid,
           parentCastHash: parentCastHash,
+          title: title,
         },
       });
       console.log("the anky was sent for geneartion");

@@ -112,6 +112,7 @@ model GeneratedAnky {
   imageThreeUrl    String?
   imageFourUrl     String?
   wasCastedOnFrame Boolean?
+  title            String?
   votes            Vote[]
 }
 
@@ -160,3 +161,6 @@ model Raver {
   likedRecommendations     Electronicmusicrecommendation[] @relation("UserLikes")
   submittedRecommendations Electronicmusicrecommendation[] @relation("UserSubmissions")
 }
+
+
+
