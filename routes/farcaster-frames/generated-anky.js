@@ -234,37 +234,6 @@ router.post("/", async (req, res) => {
       `);
   }
 
-  // if (anky.ipfsMetadataHash) {
-  //   switch (anky.chosenImageIndex) {
-  //     case 1:
-  //       imageUrl = anky.imageOneUrl;
-  //       break;
-  //     case 2:
-  //       imageUrl = anky.imageTwoUrl;
-  //       break;
-  //     case 3:
-  //       imageUrl = anky.imageThreeUrl;
-  //       break;
-  //     case 4:
-  //       imageUrl = anky.imageFourUrl;
-  //       break;
-  //   }
-  //   return res.status(200).send(`
-  //   <!DOCTYPE html>
-  //   <html>
-  //   <head>
-  //     <title>anky mint</title>
-  //     <meta property="og:title" content="anky mint">
-  //     <meta property="og:image" content="${imageUrl}">
-  //     <meta name="fc:frame:image" content="${imageUrl}">
-  //     <meta name="fc:frame" content="vNext">
-  //     <meta name="fc:frame:button:1" content="mint 👽">
-  //     <meta name="fc:frame:button:1:action" content="post_redirect">
-  //     <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/redirecter?cid=${req.query.cid}">
-  //     </head>
-  //   </html>
-  //     `);
-  // }
   if (anky.userFid !== req.body.untrustedData.fid) {
     return res.status(200).send(`
     <!DOCTYPE html>
@@ -276,8 +245,9 @@ router.post("/", async (req, res) => {
       <meta name="fc:frame" content="vNext">
       <meta name="fc:frame:image" content=" https://jpfraneto.github.io/images/isnt-yours.png">
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky">
-      <meta name="fc:frame:button:1" content="get yours by writing on anky">   
-      <meta name="fc:frame:button:1:action" content="post_redirect">   
+      <meta name="fc:frame:button:1" content="get yours">
+      <meta name="fc:frame:button:1:action" content="link">   
+      <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-your-anky/${anky.cid}">   
       </head>
     </html>
       `);
