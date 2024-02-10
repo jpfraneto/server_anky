@@ -47,14 +47,16 @@ router.get("/image/:cid", async (req, res) => {
     if (!anky || !anky.frameImageUrl) {
       return res.status(400).send("Missing anky frame image URL");
     }
+
+    // http://api.anky.lat/farcaster-frames/generated-anky/image/V7jjfGa_US1Bs5Z8CMFPQ0ObUuM9VzF7MEogilzE1Hs
+
     const now = new Date();
     const votingEnds = new Date(anky.createdAt).getTime() + 8 * 60 * 60 * 1000; // 8 hours from createdAt
     const mintingEnds = votingEnds + 24 * 60 * 60 * 1000; // Additional 24 hours for minting window
     let minutesRemaining;
-
     const votes = await prisma.vote.findMany({
       where: {
-        ankyCid: req.query.cid,
+        ankyCid: req.params.cid,
       },
     });
     let returnString = "";
