@@ -40,9 +40,9 @@ router.get("/", async (req, res) => {
 
 router.get("/image/:cid", async (req, res) => {
   try {
-    const ankyId = req.params.cid;
+    const ankyCid = req.params.cid;
     const anky = await prisma.generatedAnky.findUnique({
-      where: { cid: ankyId },
+      where: { cid: ankyCid },
     });
     if (!anky || !anky.frameImageUrl) {
       return res.status(400).send("Missing anky frame image URL");
@@ -56,7 +56,7 @@ router.get("/image/:cid", async (req, res) => {
     let minutesRemaining;
     const votes = await prisma.vote.findMany({
       where: {
-        ankyCid: req.params.cid,
+        ankyCid: ankyCid,
       },
     });
     let returnString = "";
