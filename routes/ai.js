@@ -126,6 +126,8 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
           userFid: userFid,
           parentCastHash: parentCastHash,
           title: title,
+          votingOpen: true,
+          mintOpen: false,
         },
       });
       console.log("the anky was sent for geneartion");

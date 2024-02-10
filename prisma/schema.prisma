@@ -106,6 +106,8 @@ model GeneratedAnky {
   userFid          Int?
   alreadyMinted    Boolean  @default(false)
   chosenImageIndex Int?
+  votingOpen       Boolean   @default(true)
+  mintOpen         Boolean   @default(false)
   frameImageUrl    String?
   imageOneUrl      String?
   imageTwoUrl      String?
