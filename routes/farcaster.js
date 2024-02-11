@@ -81,11 +81,6 @@ router.get("/feed-by-fid/:fid", async (req, res) => {
 
 router.get("/feed", async (req, res) => {
   try {
-    const memesChannelUrl = "https://warpcast.com/~/channel/anky";
-    const feed = await client.fetchFeed(FeedType.Filter, {
-      filterType: FilterType.ParentUrl,
-      parentUrl: memesChannelUrl,
-    });
     const fid = "18350";
     const fids = "18350";
     const feed_type = "filter";
