@@ -143,6 +143,7 @@ router.get("/image/:cid", async (req, res) => {
 
 router.post("/", async (req, res) => {
   let imageUrl;
+  let returnString = "";
   const fullUrl = req.protocol + "://" + req.get("host");
   const revealed = req.query.revealed;
   const chosenAnky = req.query.chosenAnky;
@@ -150,6 +151,83 @@ router.post("/", async (req, res) => {
   const anky = await prisma.generatedAnky.findUnique({
     where: { cid: req.query.cid },
   });
+
+  const now = new Date();
+  const votingEnds = new Date(anky.createdAt).getTime() + 8 * 60 * 60 * 1000;
+  const mintingEnds = votingEnds + 24 * 60 * 60 * 1000;
+  let minutesRemaining;
+  if (now < votingEnds) {
+    // VOTING OPEN
+    minutesRemaining = Math.floor((votingEnds - now) / (60 * 1000));
+    returnString = `${votes.length} votes so far · ${minutesRemaining} minutes remaining to vote`;
+    return res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>anky mint</title>
+      <meta property="og:title" content="anky mint">
+      <meta property="og:image" content="${anky.frameImageUrl}">
+      <meta name="fc:frame:image" content="${anky.frameImageUrl}">
+      <meta name="fc:frame" content="vNext">
+      <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky?cid=${req.query.cid}&revealed=1&chosenAnky=1&mint=0">
+      <meta name="fc:frame:button:1" content="1">   
+      <meta name="fc:frame:button:2" content="2">   
+      <meta name="fc:frame:button:3" content="3">   
+      <meta name="fc:frame:button:4" content="4">   
+      </head>
+    </html>
+      `);
+  } else if (now >= votingEnds && now < mintingEnds) {
+    // MINT OPEN
+    minutesRemaining = Math.floor((mintingEnds - now) / (60 * 1000));
+    returnString = `mint open for ${minutesRemaining} more minutes`;
+    const votes = await prisma.vote.findMany({
+      where: {
+        ankyCid: req.query.cid,
+      },
+    });
+
+    if (true || mintOpen) {
+      let voteCounts = [0, 0, 0, 0];
+      votes.forEach((vote) => {
+        if (vote.voteIndex >= 0 && vote.voteIndex < 4) {
+          voteCounts[vote.voteIndex]++;
+        }
+      });
+
+      const highestVoteIndex = voteCounts.findIndex((max) => {
+        return max == Math.max(...voteCounts);
+      });
+
+      const newImageUrls = [
+        anky.imageOneUrl,
+        anky.imageTwoUrl,
+        anky.imageThreeUrl,
+        anky.imageFourUrl,
+      ];
+
+      const highestVoteImageUrl = newImageUrls[highestVoteIndex];
+
+      return res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>anky mint</title>
+        <meta property="og:title" content="anky mint">
+        <meta property="og:image" content="${highestVoteImageUrl}">
+        <meta name="fc:frame:image" content="${highestVoteImageUrl}">
+        <meta name="fc:frame" content="vNext">
+        <meta name="fc:frame:button:1" content="mint this one">
+        <meta name="fc:frame:button:1:action" content="link">   
+        <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-an-anky/${anky.cid}">   
+        </head>
+      </html>
+        `);
+    }
+  } else {
+    // MINT CLOSED
+    returnString = "Mint closed";
+  }
 
   if (mint == "0" && chosenAnky == "0" && revealed == "1") {
     return res.status(200).send(`
@@ -228,7 +306,7 @@ router.post("/", async (req, res) => {
       <meta name="fc:frame:post_url" content="https://www.anky.lat">
       <meta name="fc:frame:button:1" content="mint 👽">
       <meta name="fc:frame:button:1:action" content="link">   
-      <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-your-anky/${anky.cid}">   
+      <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-an-anky/${anky.cid}">   
       </head>
     </html>
       `);
@@ -247,7 +325,7 @@ router.post("/", async (req, res) => {
       <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/generated-anky">
       <meta name="fc:frame:button:1" content="get yours">
       <meta name="fc:frame:button:1:action" content="link">   
-      <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-your-anky/${anky.cid}">   
+      <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-an-anky/${anky.cid}">   
       </head>
     </html>
       `);

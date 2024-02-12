@@ -236,16 +236,18 @@ router.get("/check-image/:imageId", async (req, res) => {
   }
 });
 
-router.get(`/mint-your-anky/:cid`, async (req, res) => {
+router.get(`/mint-an-anky/:cid`, async (req, res) => {
   try {
     const thisAnky = await prisma.generatedAnky.findUnique({
       where: { cid: req.params.cid },
     });
     const votes = await prisma.vote.findMany({
       where: {
-        ankyCid: req.query.cid,
+        ankyCid: req.params.cid,
       },
     });
+    console.log("the votes are: ", votes);
+    console.log("there are votes for this anky", votes.length);
     res.status(200).json({ anky: thisAnky, votes: votes });
   } catch (error) {
     console.log("the werror is: ", error);
