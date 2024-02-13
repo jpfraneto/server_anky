@@ -12,6 +12,10 @@ const {
   getThisPageStory,
 } = require("../lib/ai/anky-dementor");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
+const {
+  uploadMetadataToPinata,
+  uploadImageToPinata,
+} = require("../lib/pinataSetup");
 const router = express.Router();
 
 const openai = new OpenAI();
@@ -246,9 +250,21 @@ router.get(`/mint-an-anky/:cid`, async (req, res) => {
         ankyCid: req.params.cid,
       },
     });
-    console.log("the votes are: ", votes);
-    console.log("there are votes for this anky", votes.length);
     res.status(200).json({ anky: thisAnky, votes: votes });
+  } catch (error) {
+    console.log("the werror is: ", error);
+    res.status(500).json({ message: "there was an error getting your anky" });
+  }
+});
+
+router.get(`/get-anky-information-for-minting/:cid`, async (req, res) => {
+  try {
+    const thisAnky = await prisma.generatedAnky.findUnique({
+      where: { cid: req.params.cid },
+    });
+    res
+      .status(200)
+      .json({ priceInDegen: 222, metadataHash: thisAnky.metadataIPFSHash });
   } catch (error) {
     console.log("the werror is: ", error);
     res.status(500).json({ message: "there was an error getting your anky" });

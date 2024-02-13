@@ -16,6 +16,7 @@ const {
   checkAndUpdateMidjourneyOnAFrameAnkys,
   checkAndUpdateGeneratedAnkys,
   checkAllAnkys,
+  updateWinningImageForAnkys,
   theElectronicMadness,
 } = require("./lib/ankys");
 const { TypedEthereumSigner } = require("arbundles");
@@ -67,10 +68,9 @@ app.use("/user", userRoutes);
 
 // scheduleReminders();
 
-// schedule.scheduleJob("*/5 * * * *", checkAndUpdateAnkys);
-schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
-// checkAndUpdateMidjourneyOnAFrameAnkys();
-// checkAndUpdateGeneratedAnkys();
+// schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
+// schedule.scheduleJob("*/5 * * * *", updateWinningImageForAnkys);
+updateWinningImageForAnkys();
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");

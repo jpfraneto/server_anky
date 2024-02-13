@@ -99,6 +99,7 @@ model GeneratedAnky {
   imagePrompt      String?
   imagineApiID     String?
   imagineApiStatus String?  @default("pending")
+  winningImageUrl  String?
   imageIPFSHash    String? // Nullable fields for IPFS hashes
   metadataIPFSHash String?
   createdAt        DateTime @default(now())
