@@ -158,6 +158,11 @@ router.post("/", async (req, res) => {
   let minutesRemaining;
   if (now < votingEnds) {
     // VOTING OPEN
+    const votes = await prisma.vote.findMany({
+      where: {
+        ankyCid: req.query.cid,
+      },
+    });
     minutesRemaining = Math.floor((votingEnds - now) / (60 * 1000));
     returnString = `${votes.length} votes so far · ${minutesRemaining} minutes remaining to vote`;
     return res.status(200).send(`
