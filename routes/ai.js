@@ -11,6 +11,7 @@ const {
   getSubsequentAnkyDementorNotebookPage,
   getThisPageStory,
 } = require("../lib/ai/anky-dementor");
+const { updateWinningImageForThisAnky } = require("../lib/ankys");
 const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 const {
   uploadMetadataToPinata,
@@ -262,9 +263,19 @@ router.get(`/get-anky-information-for-minting/:cid`, async (req, res) => {
     const thisAnky = await prisma.generatedAnky.findUnique({
       where: { cid: req.params.cid },
     });
-    res
-      .status(200)
-      .json({ priceInDegen: 222, metadataHash: thisAnky.metadataIPFSHash });
+    let metadataHash = thisAnky.metadataIPFSHash || "";
+    if (!metadataHash) {
+      metadataHash = await updateWinningImageForThisAnky(req.params.cid);
+    }
+    const isAnkyMintable = await ankyOne.checkIfAnkyIsMintable(req.params.cid);
+    console.log("is anky mintable response", isAnkyMintable);
+    if (isAnkyMintable) {
+      res.status(200).json({ priceInDegen: 222, metadataHash: metadataHash });
+    } else {
+      res
+        .status(500)
+        .json({ message: "This anky is not ready to be minted yet." });
+    }
   } catch (error) {
     console.log("the werror is: ", error);
     res.status(500).json({ message: "there was an error getting your anky" });
