@@ -68,8 +68,8 @@ app.use("/user", userRoutes);
 
 // scheduleReminders();
 
-// schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
-// schedule.scheduleJob("*/5 * * * *", updateWinningImageForAnkys);
+schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
+schedule.scheduleJob("*/5 * * * *", updateWinningImageForAnkys);
 // updateWinningImageForAnkys();
 
 app.get("/", (req, res) => {
