@@ -104,7 +104,6 @@ model GeneratedAnky {
   metadataIPFSHash String?
   createdAt        DateTime @default(now())
   castHash         String?
-  userFid          Int?
   alreadyMinted    Boolean  @default(false)
   chosenImageIndex Int?
   votingOpen       Boolean   @default(true)
@@ -125,7 +124,6 @@ model Vote {
   userFid       Int
   voteIndex     Int
   GeneratedAnky GeneratedAnky @relation(fields: [ankyCid], references: [cid])
-
   @@unique([ankyCid, userFid])
 }
 

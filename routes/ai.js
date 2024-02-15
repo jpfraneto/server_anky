@@ -33,7 +33,6 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
   }
 
   const message = req.body.text || "";
-  const userFid = req.body.userFid;
   const parentCastHash = req.body.parentCastHash;
   console.log(
     "inside the process writing function, the parent cast hash is: ",
@@ -128,7 +127,6 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
           cid: cid,
           imageIPFSHash: null,
           metadataIPFSHash: null,
-          userFid: userFid,
           parentCastHash: parentCastHash,
           title: title,
           votingOpen: true,
@@ -264,17 +262,40 @@ router.get(`/get-anky-information-for-minting/:cid`, async (req, res) => {
       where: { cid: req.params.cid },
     });
     let metadataHash = thisAnky.metadataIPFSHash || "";
-    if (!metadataHash) {
-      metadataHash = await updateWinningImageForThisAnky(req.params.cid);
-    }
-    const isAnkyMintable = await ankyOne.checkIfAnkyIsMintable(req.params.cid);
-    console.log("is anky mintable response", isAnkyMintable);
-    if (isAnkyMintable) {
-      res.status(200).json({ priceInDegen: 222, metadataHash: metadataHash });
+    const createdAt = new Date(thisAnky.createdAt);
+    const now = new Date();
+    const differenceInHours = (now - createdAt) / (1000 * 60 * 60);
+    if (
+      thisAnky.votingOpen &&
+      differenceInHours > 8 &&
+      differenceInHours < 24
+    ) {
+      if (!metadataHash) {
+        metadataHash = await updateWinningImageForThisAnky(req.params.cid);
+      }
+      const isAnkyMintable = await ankyOne.checkIfAnkyIsMintable(
+        req.params.cid
+      );
+
+      const ankyPriceInDegen = await ankyOne.getAnkyPriceInDegen(
+        req.params.cid
+      );
+
+      if (isAnkyMintable) {
+        res.status(200).json({
+          thisAnkyPriceInDegen: ankyPriceInDegen || 222,
+          metadataHash: metadataHash,
+        });
+      } else {
+        res
+          .status(500)
+          .json({ message: "This anky is not ready to be minted yet." });
+      }
+    } else if (differenceInHours > 24) {
+      res.status(500).json({ message: "mint for this anky is closed" });
     } else {
-      res
-        .status(500)
-        .json({ message: "This anky is not ready to be minted yet." });
+      console.log("the voting window is still active");
+      res.status(500).json({ message: "the voting window is still active" });
     }
   } catch (error) {
     console.log("the werror is: ", error);

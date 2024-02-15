@@ -16,8 +16,8 @@ const {
   checkAndUpdateMidjourneyOnAFrameAnkys,
   checkAndUpdateGeneratedAnkys,
   checkAllAnkys,
-  updateWinningImageForAnkys,
   theElectronicMadness,
+  closeVotingWindowAndOpenMint,
 } = require("./lib/ankys");
 const { TypedEthereumSigner } = require("arbundles");
 const rateLimit = require("express-rate-limit");
@@ -69,8 +69,9 @@ app.use("/user", userRoutes);
 // scheduleReminders();
 
 schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
-schedule.scheduleJob("*/5 * * * *", updateWinningImageForAnkys);
+schedule.scheduleJob("*/5 * * * *", closeVotingWindowAndOpenMint);
 // updateWinningImageForAnkys();
+// checkAndUpdateGeneratedAnkys();
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");

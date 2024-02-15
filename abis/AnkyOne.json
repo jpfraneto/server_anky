@@ -221,6 +221,24 @@
     "type": "function"
   },
   {
+    "inputs": [{ "internalType": "string", "name": "_cid", "type": "string" }],
+    "name": "checkIfAnkyIsMintable",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_cid", "type": "string" },
+      { "internalType": "string", "name": "_metadataHash", "type": "string" },
+      { "internalType": "uint256", "name": "_priceInDegen", "type": "uint256" }
+    ],
+    "name": "createThisAnkyBeforeOpeningMint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "currentTokenId",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
@@ -324,17 +342,6 @@
       { "internalType": "bytes", "name": "data", "type": "bytes" }
     ],
     "name": "safeTransferFrom",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "string", "name": "_cid", "type": "string" },
-      { "internalType": "string", "name": "_metadataHash", "type": "string" },
-      { "internalType": "uint256", "name": "_priceInDegen", "type": "uint256" }
-    ],
-    "name": "setAnkyInfo",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
