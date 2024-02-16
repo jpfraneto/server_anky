@@ -69,10 +69,11 @@ app.use("/user", userRoutes);
 
 // scheduleReminders();
 
-// schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
-// schedule.scheduleJob("*/5 * * * *", closeVotingWindowAndOpenMint);
-closeVotingWindowAndOpenMint();
-closeMintingWindowForAnkys();
+schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
+schedule.scheduleJob("*/5 * * * *", closeVotingWindowAndOpenMint);
+schedule.scheduleJob("*/5 * * * *", closeMintingWindowForAnkys);
+// closeVotingWindowAndOpenMint();
+// closeMintingWindowForAnkys();
 // checkAndUpdateGeneratedAnkys();
 
 app.get("/", (req, res) => {
