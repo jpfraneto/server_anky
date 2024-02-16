@@ -121,7 +121,7 @@ model GeneratedAnky {
 model Vote {
   id            Int           @id @default(autoincrement())
   ankyCid       String
-  userFid       Int
+  userFid       Int   
   voteIndex     Int
   GeneratedAnky GeneratedAnky @relation(fields: [ankyCid], references: [cid])
   @@unique([ankyCid, userFid])

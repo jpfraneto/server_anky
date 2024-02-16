@@ -15,6 +15,7 @@ const {
   checkAndUpdateAnkys,
   checkAndUpdateMidjourneyOnAFrameAnkys,
   checkAndUpdateGeneratedAnkys,
+  closeMintingWindowForAnkys,
   checkAllAnkys,
   theElectronicMadness,
   closeVotingWindowAndOpenMint,
@@ -68,9 +69,10 @@ app.use("/user", userRoutes);
 
 // scheduleReminders();
 
-schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
-schedule.scheduleJob("*/5 * * * *", closeVotingWindowAndOpenMint);
-// updateWinningImageForAnkys();
+// schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
+// schedule.scheduleJob("*/5 * * * *", closeVotingWindowAndOpenMint);
+closeVotingWindowAndOpenMint();
+closeMintingWindowForAnkys();
 // checkAndUpdateGeneratedAnkys();
 
 app.get("/", (req, res) => {

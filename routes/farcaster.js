@@ -81,6 +81,16 @@ router.get("/feed-by-fid/:fid", async (req, res) => {
 
 router.get("/feed", async (req, res) => {
   try {
+    const currentDate = new Date();
+    const oneDayAgo = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000);
+    const ankys = await prisma.generatedAnky.findMany({
+      where: {
+        createdAt: {
+          gte: oneDayAgo, // greater than or equal to one day ago
+        },
+      },
+    });
+    console.log("the ankys are: ", ankys);
     const fid = "18350";
     const fids = "18350";
     const feed_type = "filter";
