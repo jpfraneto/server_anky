@@ -90,24 +90,10 @@ router.get("/feed", async (req, res) => {
         },
       },
     });
-    console.log("the ankys are: ", ankys);
-    const fid = "18350";
-    const fids = "18350";
-    const feed_type = "filter";
-    const filter_type = "fids";
-    const limit = 100;
-    const queryUrl = `https://api.neynar.com/v2/farcaster/feed?feed_type=${feed_type}&filter_type=${filter_type}&fid=${fid}&fids=${fids}&with_recasts=true&with_replies=true&limit=${limit}`;
-    const response = await axios.get(queryUrl, {
-      headers: {
-        api_key: process.env.NEYNAR_API_KEY,
-      },
-    });
-    const theFeed = response.data.casts;
-    // for (let i = 0; i<theFeed.length; i++) {
+    const votableAnkys = ankys.filter((x) => x.votingOpen);
+    const mintableAnkys = ankys.filter((x) => x.mintOpen);
 
-    // }
-
-    res.status(200).json({ feed: theFeed });
+    res.status(200).json({ votableAnkys, mintableAnkys });
   } catch (error) {
     console.log("there was an error on the feed here");
   }
