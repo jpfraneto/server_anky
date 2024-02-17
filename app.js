@@ -72,10 +72,12 @@ app.use("/user", userRoutes);
 schedule.scheduleJob("*/5 * * * *", checkAndUpdateGeneratedAnkys);
 schedule.scheduleJob("*/5 * * * *", closeVotingWindowAndOpenMint);
 schedule.scheduleJob("*/5 * * * *", closeMintingWindowForAnkys);
+
 // closeVotingWindowAndOpenMint();
 // closeMintingWindowForAnkys();
 // checkAndUpdateGeneratedAnkys();
 // closeVotingWindowAndOpenMint();
+
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");
 });
