@@ -88,9 +88,22 @@ router.get("/feed", async (req, res) => {
         createdAt: {
           gte: oneDayAgo, // greater than or equal to one day ago
         },
+        AND: [
+          {
+            frameCastHash: {
+              not: "", // Not an empty string
+            },
+          },
+          {
+            frameCastHash: {
+              not: null, // Not null
+            },
+          },
+        ],
       },
     });
     const votableAnkys = ankys.filter((x) => x.votingOpen);
+    console.log("the votable ankys are: ", votableAnkys);
     const mintableAnkys = ankys.filter((x) => x.mintOpen);
 
     res.status(200).json({ votableAnkys, mintableAnkys });
