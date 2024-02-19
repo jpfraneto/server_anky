@@ -103,7 +103,6 @@ router.get("/feed", async (req, res) => {
       },
     });
     const votableAnkys = ankys.filter((x) => x.votingOpen);
-    console.log("the votable ankys are: ", votableAnkys);
     const mintableAnkys = ankys.filter((x) => x.mintOpen);
 
     res.status(200).json({ votableAnkys, mintableAnkys });
