@@ -227,7 +227,7 @@ router.post("/", async (req, res) => {
           <meta property="og:image" content="${highestVoteImageUrl}">
           <meta name="fc:frame:image" content="${highestVoteImageUrl}">
           <meta name="fc:frame" content="vNext">
-          <meta name="fc:frame:button:1" content="mint this one">
+          <meta name="fc:frame:button:1" content="mint this anky 👽">
           <meta name="fc:frame:button:1:action" content="link">   
           <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-an-anky/${anky.cid}">   
           </head>
@@ -314,7 +314,7 @@ router.post("/", async (req, res) => {
       <meta name="fc:frame" content="vNext">
       <meta name="fc:frame:image" content="${imageUrl}">
       <meta name="fc:frame:post_url" content="https://www.anky.lat">
-      <meta name="fc:frame:button:1" content="mint 👽">
+      <meta name="fc:frame:button:1" content="see upscaled images">
       <meta name="fc:frame:button:1:action" content="link">   
       <meta name="fc:frame:button:1:target" content="https://www.anky.lat/mint-an-anky/${anky.cid}">   
       </head>
