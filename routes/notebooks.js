@@ -1,25 +1,25 @@
-const express = require('express');
-const { ethers } = require('ethers');
-const axios = require('axios');
-const { getNftAccount } = require('../lib/blockchain/anky_airdrop'); // Import the functions
-const checkIfLoggedInMiddleware = require('../middleware/checkIfLoggedIn');
+const express = require("express");
+const { ethers } = require("ethers");
+const axios = require("axios");
+const { getNftAccount } = require("../lib/blockchain/anky_airdrop"); // Import the functions
+const checkIfLoggedInMiddleware = require("../middleware/checkIfLoggedIn");
 const {
   createNotebookMetadata,
   processFetchedEulogia,
   processFetchedTemplate,
-} = require('../lib/notebooks');
-const { uploadImageToPinata } = require('../lib/pinataSetup');
+} = require("../lib/notebooks");
+const { uploadImageToPinata } = require("../lib/pinataSetup");
 const router = express.Router();
-const ANKY_EULOGIAS_ABI = require('../abis/AnkyEulogias.json');
+const ANKY_EULOGIAS_ABI = require("../abis/AnkyEulogias.json");
 
-const ANKY_NOTEBOOKS_ABI = require('../abis/AnkyNotebooks.json');
+const ANKY_NOTEBOOKS_ABI = require("../abis/AnkyNotebooks.json");
 
-const multer = require('multer');
+const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
-const { uploadToBundlr } = require('../lib/bundlrSetup');
+const { uploadToBundlr } = require("../lib/bundlrSetup");
 
 // Smart contract interactions
-const network = 'base';
+const network = "base";
 
 const privateKey = process.env.PRIVATE_KEY;
 
@@ -39,32 +39,32 @@ const ankyNotebooksContract = new ethers.Contract(
   wallet
 );
 
-router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
-  console.log('inside the notebook post route', req.body);
+router.post("/", checkIfLoggedInMiddleware, async (req, res) => {
+  console.log("inside the notebook post route", req.body);
   try {
     const metadataCID = await createNotebookMetadata(req.body);
-    console.log('the metadata uri is: ', metadataCID);
+    console.log("the metadata uri is: ", metadataCID);
 
     res.status(200).json({ metadataCID });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to save metadata' });
+    console.error("Error:", error);
+    res.status(500).json({ error: "Failed to save metadata" });
   }
 });
 
-router.get('/notebook/:id', async (req, res) => {
+router.get("/notebook/:id", async (req, res) => {
   const notebookId = req.params.id;
   try {
     const thisNotebook = await ankyNotebooksContract.getNotebook(notebookId);
     const response = await axios.get(
       `https://node2.irys.xyz/${thisNotebook[1]}`
     );
-    console.log('the response is: ', response);
+    console.log("the response is: ", response);
     if (!response.status == 200) {
       throw new Error(`Failed to fetch page data for CID: ${thisNotebook[1]}`);
     }
     const jsonData = response.data;
-    console.log('the json data is: ', jsonData);
+    console.log("the json data is: ", jsonData);
     const formattedThisNotebook = {
       notebookId: ethers.formatUnits(thisNotebook[0], 0),
       metadata: jsonData,
@@ -73,49 +73,49 @@ router.get('/notebook/:id', async (req, res) => {
     };
     res.status(200).json({ success: true, notebook: formattedThisNotebook });
   } catch (error) {
-    console.log('There was an error in the notebook by id route');
+    console.log("There was an error in the notebook by id route");
     console.log(error);
     return res.status(401).json({ success: false });
   }
 });
 
-router.get('/eulogia/:id', async (req, res) => {
+router.get("/eulogia/:id", async (req, res) => {
   const eulogiaId = req.params.id;
 
   try {
-    console.log('the euloga id i: ', eulogiaId);
-    console.log('the eulogias contract is: ', ankyEulogiasContract);
+    console.log("the euloga id i: ", eulogiaId);
+    console.log("the eulogias contract is: ", ankyEulogiasContract);
     const thisEulogia = await ankyEulogiasContract.getEulogia(eulogiaId);
-    console.log('this eulogia is: ', thisEulogia);
+    console.log("this eulogia is: ", thisEulogia);
     const processedEulogia = await processFetchedEulogia(thisEulogia, wallet);
     res.status(200).json({ success: true, eulogia: processedEulogia });
   } catch (error) {
-    console.log('There was an error in the eulogia by id route');
+    console.log("There was an error in the eulogia by id route");
     console.log(error);
     return res.status(401).json({ success: false });
   }
 });
 
-router.post('/', checkIfLoggedInMiddleware, async (req, res) => {
-  console.log('inside the notebook post route', req.body);
+router.post("/", checkIfLoggedInMiddleware, async (req, res) => {
+  console.log("inside the notebook post route", req.body);
   try {
     const metadataCID = await createNotebookMetadata(req.body);
-    console.log('the metadata uri is: ', metadataCID);
+    console.log("the metadata uri is: ", metadataCID);
 
     res.status(200).json({ metadataCID });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to save metadata' });
+    console.error("Error:", error);
+    res.status(500).json({ error: "Failed to save metadata" });
   }
 });
 
 router.post(
-  '/eulogia',
+  "/eulogia",
   checkIfLoggedInMiddleware,
-  upload.fields([{ name: 'coverImage' }]),
+  upload.fields([{ name: "coverImage" }]),
   async (req, res) => {
     try {
-      console.log('inside the /eulogia/writing route', req.body);
+      console.log("inside the /eulogia/writing route", req.body);
 
       let coverPinataCid, backgroundPinataCid;
 
@@ -127,16 +127,16 @@ router.post(
         if (!coverPinataCid) {
           return res
             .status(500)
-            .json({ error: 'Failed to upload cover image to Pinata.' });
+            .json({ error: "Failed to upload cover image to Pinata." });
         }
       } else {
-        coverPinataCid = 'QmaVBZ1PgqXoSUBP1nM8FwmVu5zjb8c6BxVrN2LD2oJw78'; // Default CID for cover
+        coverPinataCid = "QmaVBZ1PgqXoSUBP1nM8FwmVu5zjb8c6BxVrN2LD2oJw78"; // Default CID for cover
       }
 
-      backgroundPinataCid = 'QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN'; // Default CID for background
+      backgroundPinataCid = "QmVBnoYW16mQQ4BRQS1dsNoTqSu2JJQLnMopVdqLTqKMXN"; // Default CID for background
 
       console.log(
-        'the cover and background cids : ',
+        "the cover and background cids : ",
         coverPinataCid,
         backgroundPinataCid
       );
@@ -150,12 +150,12 @@ router.post(
 
       const cid = await uploadToBundlr(
         JSON.stringify(metadataToUpload),
-        'text'
+        "text"
       );
       if (!cid) {
         return res
           .status(500)
-          .json({ error: 'Failed to upload text to Bundlr.' });
+          .json({ error: "Failed to upload text to Bundlr." });
       }
 
       res.status(200).json({
@@ -164,35 +164,35 @@ router.post(
         coverImageCid: coverPinataCid,
       });
     } catch (error) {
-      console.error('Failed to upload:', error);
-      res.status(500).json({ error: 'Failed to upload.' });
+      console.error("Failed to upload:", error);
+      res.status(500).json({ error: "Failed to upload." });
     }
   }
 );
 
-router.post('/eulogia/writing', checkIfLoggedInMiddleware, async (req, res) => {
+router.post("/eulogia/writing", checkIfLoggedInMiddleware, async (req, res) => {
   try {
-    console.log('inside the /eulogia/writing route', req.body);
+    console.log("inside the /eulogia/writing route", req.body);
     const text = req.body.text;
 
-    const cid = await uploadToBundlr(text, 'text');
+    const cid = await uploadToBundlr(text, "text");
     res.status(200).json({ cid: cid });
   } catch (error) {
-    console.error('Failed to upload text:', error);
-    res.status(500).json({ error: 'Failed to upload text' });
+    console.error("Failed to upload text:", error);
+    res.status(500).json({ error: "Failed to upload text" });
   }
 });
 
-router.post('/upload-writing', checkIfLoggedInMiddleware, async (req, res) => {
+router.post("/upload-writing", checkIfLoggedInMiddleware, async (req, res) => {
   try {
-    console.log('inside the upload-writing route', req.body);
+    console.log("inside the upload-writing route", req.body);
     const text = req.body.text;
 
-    const cid = await uploadToBundlr(text, 'text');
+    const cid = await uploadToBundlr(text, "text");
     res.status(200).json({ cid: cid });
   } catch (error) {
-    console.error('Failed to upload text:', error);
-    res.status(500).json({ error: 'Failed to upload text' });
+    console.error("Failed to upload text:", error);
+    res.status(500).json({ error: "Failed to upload text" });
   }
 });
 // title: title,

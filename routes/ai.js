@@ -34,10 +34,6 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
 
   const message = req.body.text || "";
   const parentCastHash = req.body.parentCastHash;
-  console.log(
-    "inside the process writing function, the parent cast hash is: ",
-    parentCastHash
-  );
   const cid = req.body.cid;
   if (message.trim().length === 0) {
     res.status(400).json({
@@ -51,11 +47,13 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
     const messages = [
       {
         role: "system",
-        content: `You are in charge of imagining a description of a human being in a cartoon world. I will send you a block of text that was written as a stream of consciousness, and your goal is to distill the essence of that writing so that you can come up with a description of a piece of art that deeply reflect the state of that human, also crafting a short story that reflects what the user wrote.
+        content: `You are in charge of imagining a description of a human being in a cartoon world. I will send you a block of text that was written as a stream of consciousness, and your goal is to distill the essence of that writing so that you can come up with a description of a piece of art that deeply reflect the state of that human, also crafting a short story that reflects what the user wrote. Also a reflection of the user.
         
         On the image prompt, please avoid direct references to the writer, or the technologies that take place. The goal of the piece of art is just to reflect the subconscious of the writer.
 
         On the story, make it fun and appealing. Make the user smile, but don't over act it. Remember to make the story less than 300 characters.
+
+        On the reflection, make it sharp and straight to the point. Your mission is to trigger the user to go deeper
 
         Give everything a title, of less than 5 words. 4 words at the most.
 
@@ -64,6 +62,7 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
         {
             "imagePrompt": "A one paragraph description of the image that reflects the situation of the users writing. less than 500 characters",
             "story": "A short story and metaphor that reflects what the user wrote. less than 300 chars.",
+            "reflection": "A reflection of the subconscious of the user that acts as a trigger. You will show the user what the user can't see because it is unconscious",
             "title": "The title of this piece of art",
         }
     
@@ -78,17 +77,18 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
     });
 
     const dataResponse = completion.choices[0].message.content;
-    console.log("the data response is: ", dataResponse);
 
     const storyRegex = /"story"\s*:\s*"([\s\S]*?)"/;
     const promptsRegex = /"imagePrompt"\s*:\s*"([\s\S]*?)"/;
     const titleRegex = /"title"\s*:\s*"([\s\S]*?)"/;
+    const reflectionRegex = /"reflection"\s*:\s*"([\s\S]*?)"/;
 
     const storyMatch = dataResponse.match(storyRegex);
     const promptMatch = dataResponse.match(promptsRegex);
     const titleMatch = dataResponse.match(titleRegex);
+    const reflectionMatch = dataResponse.match(reflectionRegex);
 
-    let story, prompt, title;
+    let story, prompt, title, reflection;
 
     if (promptMatch !== null && promptMatch.length > 1) {
       prompt = promptMatch[1];
@@ -100,6 +100,10 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
 
     if (titleMatch !== null && titleMatch.length > 1) {
       title = titleMatch[1];
+    }
+
+    if (reflectionMatch !== null && reflectionMatch.length > 1) {
+      reflection = reflectionMatch[1];
     }
     // return res.status(200).json({ story, prompt });
 
@@ -124,6 +128,7 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
           imagineApiID: imagineApiID,
           imagePrompt: newImagePrompt,
           imagineApiStatus: "pending",
+          reflection: reflection,
           cid: cid,
           imageIPFSHash: null,
           metadataIPFSHash: null,
@@ -139,6 +144,7 @@ router.post("/process-writing", checkIfLoggedInMiddleware, async (req, res) => {
         success: true,
         imagineApiID: imagineApiID,
         userBio: story,
+        reflection: reflection,
       });
     } else {
       return res.status(500).json({
