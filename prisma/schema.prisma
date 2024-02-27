@@ -91,6 +91,11 @@ model CastWrapper {
   time       Int?
 }
 
+model Email {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+}
+
 model GeneratedAnky {
   cid              String   @id @unique
   parentCastHash   String?

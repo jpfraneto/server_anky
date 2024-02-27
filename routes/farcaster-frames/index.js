@@ -11,6 +11,7 @@ const generatedAnky = require("./generated-anky");
 const humanMusic = require("./human-music");
 const ravecaster = require("./ravecaster");
 const theMonumentGame = require("./the-monument-game");
+const newenTldr = require("./newen-tldr");
 
 router.use("/midjourney-on-a-frame", midjourneyOnAFrame);
 router.use("/anky-on-a-frame", ankyOnAFrame);
@@ -22,5 +23,6 @@ router.use("/crypto-the-game", cryptoTheGame);
 router.use("/human-music", humanMusic);
 router.use("/ravecaster", ravecaster);
 router.use("/the-monument-game", theMonumentGame);
+router.use("/newen-tldr", newenTldr);
 
 module.exports = router;

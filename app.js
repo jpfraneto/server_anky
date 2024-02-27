@@ -40,6 +40,7 @@ const farcasterFramesRoutes = require("./routes/farcaster-frames");
 const manaRoutes = require("./routes/mana");
 const userRoutes = require("./routes/user");
 const midjourneyRoutes = require("./routes/midjourney");
+const writersRoutes = require("./routes/writers");
 
 const app = express();
 app.use(
@@ -66,6 +67,7 @@ app.use("/farcaster-frames", farcasterFramesRoutes);
 app.use("/midjourney", midjourneyRoutes);
 app.use("/mana", manaRoutes);
 app.use("/user", userRoutes);
+app.use("/writers", writersRoutes);
 
 // scheduleReminders();
 
