@@ -43,6 +43,8 @@ const midjourneyRoutes = require("./routes/midjourney");
 const writersRoutes = require("./routes/writers");
 
 const app = express();
+app.set("view engine", "ejs");
+app.use(express.static("public"));
 app.use(
   cors({
     origin: "*",
@@ -79,6 +81,65 @@ schedule.scheduleJob("*/5 * * * *", closeMintingWindowForAnkys);
 // closeMintingWindowForAnkys();
 // checkAndUpdateGeneratedAnkys();
 // closeVotingWindowAndOpenMint();
+
+app.get("/ankywriters", async (req, res) => {
+  try {
+    const ankyWriters = await prisma.ankyWriter.findMany({
+      where: {},
+    }); // Fetch all AnkyWriter entries
+    console.log(ankyWriters);
+    res.render("ankywriters", { ankyWriters }); // Pass the entries to your EJS template
+  } catch (error) {
+    console.error("Error fetching AnkyWriters:", error);
+    res.status(500).send("Server error");
+  }
+});
+
+app.post("/vote-for-anky", async (req, res) => {
+  const { ankyWriterId, imageKey } = req.body; // Destructure the ankyWriterId and imageKey from the request body
+
+  try {
+    console.log("voting for this anky", ankyWriterId, imageKey);
+
+    // Use Prisma to update the AnkyWriter entry with the votedImage
+    const updatedAnkyWriter = await prisma.ankyWriter.update({
+      where: { id: parseInt(ankyWriterId) },
+      data: {
+        votedImage: imageKey, // Update the votedImage field with the imageKey
+      },
+    });
+    console.log("vote recorded");
+    // Respond with success message
+    res.json({ success: true, message: "Vote recorded!", updatedAnkyWriter });
+  } catch (error) {
+    console.error("Error recording vote:", error);
+    res.status(500).json({ success: false, message: "Error recording vote" });
+  }
+});
+
+app.post("/flag-anky", async (req, res) => {
+  const { ankyWriterId } = req.body;
+
+  try {
+    const updatedAnkyWriter = await prisma.ankyWriter.update({
+      where: { id: parseInt(ankyWriterId) },
+      data: {
+        flagged: true, // Set the flagged attribute to true
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "AnkyWriter flagged successfully",
+      updatedAnkyWriter,
+    });
+  } catch (error) {
+    console.error("Error flagging AnkyWriter:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error flagging AnkyWriter" });
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("Welcome to Anky Backend!");

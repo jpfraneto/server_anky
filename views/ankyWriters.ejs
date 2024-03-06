@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AnkyWriters</title>
+  </head>
+  <body>
+    <h1>
+      welcome to anky writers. this is the website where you will be able to see
+      the stories of the 192 anky writers that will be available for free
+      minting on the 10th of march at 5 am eastern time. you can add your email
+      on <a href="" target="_blank">this farcaster frame</a> to participate. it
+      will be absolutely random. i don't even know if i will get one. and that
+      is the fun part of it.
+    </h1>
+    <% ankyWriters.forEach(ankyWriter => { %>
+    <div>
+      <h2>
+        inspired by the work of <%= ankyWriter.writer %> on the book "<%=
+        ankyWriter.book %>"
+      </h2>
+      <p><%= ankyWriter.story %></p>
+      <div>
+        <img
+          src="<%= ankyWriter[ankyWriter.votedImage] %>"
+          alt="Image"
+          style="width: 300px; height: 480px"
+        />
+      </div>
+    </div>
+    <% }); %>
+
+    <script>
+      function voteForImage(ankyWriterId, imageKey) {
+        fetch("/vote-for-anky", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ankyWriterId, imageKey }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert(data.message); // Provide feedback to the user
+              // Optionally, refresh the page or update the UI to reflect the vote
+            } else {
+              console.error("Error voting:", data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -49,9 +49,9 @@ router.post("/", async (req, res) => {
             <meta name="fc:frame" content="vNext">
             <meta name="fc:frame:post_url" content="${fullUrl}/farcaster-frames/newen-tldr?page=2">
             <meta name="fc:frame:button:1" content="keep me posted">
-            <meta name="fc:frame:button:2" content="blog post">
+            <meta name="fc:frame:button:2" content="know the anky writers">
             <meta name="fc:frame:button:2:action" content="link">   
-            <meta name="fc:frame:button:2:target" content="https://paragraph.xyz/@kithkui.eth/how-it-will-work">   
+            <meta name="fc:frame:button:2:target" content="https://api.anky.lat/ankywriters">   
             </head>
           </html>
             `);

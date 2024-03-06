@@ -169,5 +169,27 @@ model Raver {
   submittedRecommendations Electronicmusicrecommendation[] @relation("UserSubmissions")
 }
 
-
-
+model AnkyWriter {
+    id        Int      @id @default(autoincrement())
+    writer String
+    book   String
+    deity   String
+    painter   String
+    name      String?
+    imagePrompt   String?
+    index       Int
+    story String?
+    kingdom   String
+    city      String
+    chakra    Int
+    imagineApiStatus  String?
+    imagineApiID   String?
+    frameImageUrl    String?
+    imageOneUrl      String?
+    imageTwoUrl      String?
+    imageThreeUrl    String?
+    imageFourUrl     String?
+    votedImage       String?
+    flagged          Boolean?
+    createdAt         DateTime @default(now())
+}
